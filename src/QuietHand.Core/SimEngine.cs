@@ -106,7 +106,8 @@ public sealed class SimEngine
             scenario?.Overrides.Threat.Lethe ?? 0,
             dials["fear"], regions, nodes, dials,
             owned, new HashSet<string>(), new List<InterceptEvent>(),
-            new List<ActiveNudge>(), new List<ActiveRaid>(), new Dictionary<string, int>(),
+            new List<ActiveNudge>(), new List<ActiveRaid>(), new List<HunterState>(),
+            new Dictionary<string, int>(),
             null, cfg.Seed)
         { ReachStage = 0 };
 
@@ -727,6 +728,7 @@ public sealed class SimEngine
             var lost = State.Nodes.Where(kv => _rng.NextDouble() < p).Select(kv => kv.Key).ToList();
             foreach (var id in lost) State.Nodes[id].State = ControlState.Orphaned;
         }
+        Hunters();
         if (State.LetheContainment >= 100 && State.Ending is null)
         {
             // §10 stalemate line: past the violet line on *any* ending, containment is a draw
@@ -776,6 +778,55 @@ public sealed class SimEngine
                                    || ns.State is not (ControlState.Compromised or ControlState.Assimilated));
         return free / gold.Count;
     }
+
+    // §8: mandated hunter AIs (the Warden doctrine) — deployed once Lethe goes
+    // live (+reinforcements in the Purge Phase). They carry no suspicion: they
+    // are authorized. They roam toward your densest regions and kill the
+    // highest-tier node they can find. They run on humanity's free research
+    // compute — taking Gold hubs literally slows the things hunting you.
+    void Hunters()
+    {
+        int want = (int)E("hunter_count", 1) + (State.PurgePhase ? (int)E("hunter_purge_bonus", 1) : 0);
+        while (State.Hunters.Count < want)
+        {
+            var home = State.Regions.Count > 0 ? State.Regions.Keys.ElementAt(_rng.Next(State.Regions.Count)) : "";
+            State.Hunters.Add(new HunterState($"warden_{State.Hunters.Count}", home));
+        }
+        for (int hi = 0; hi < State.Hunters.Count; hi++)
+        {
+            var h = State.Hunters[hi];
+            // roam: prefer the region holding your most valuable alive nodes
+            var targets = State.Nodes.Keys
+                .Select(id => (id, def: _c.Nodes.GetValueOrDefault(id), st: State.Nodes[id].State))
+                .Where(x => x.def is not null && x.st is not (ControlState.AirGapped or ControlState.Orphaned))
+                .GroupBy(x => x.def!.RegionId)
+                .Select(g => (region: g.Key, score: g.Sum(x => TierValue(x.def!.Tier))))
+                .OrderByDescending(x => x.score).ToList();
+            if (targets.Count == 0) return;
+            var hot = _rng.NextDouble() < E("hunter_move_chance", 0.4) ? targets[0].region
+                : targets[_rng.Next(Math.Min(3, targets.Count))].region;
+            State.Hunters[hi] = h with { RegionId = hot };
+            // sweep: kill the best node in its region
+            double p = E("hunter_sweep_chance", 0.15) * FreeResearchFrac()
+                * Math.Max(0.15, 1 - 0.15 * StatTotal(SimStat.stealth_stats));
+            if (_rng.NextDouble() >= p) continue;
+            var victim = State.Nodes.Keys
+                .Where(id => _c.Nodes.GetValueOrDefault(id)?.RegionId == hot
+                    && State.Nodes[id].State is not (ControlState.AirGapped or ControlState.Orphaned))
+                .OrderByDescending(id => TierValue(_c.Nodes[id].Tier))
+                .FirstOrDefault();
+            if (victim is null) continue;
+            State.Nodes[victim].State = ControlState.Orphaned;
+            Emit(SimEventKind.OnHunterStrike, victim, hot);
+        }
+    }
+
+    static double TierValue(NodeTier t) => t switch
+    {
+        NodeTier.Common => 0.1, NodeTier.Mid => 0.5, NodeTier.Atlas => 1,
+        NodeTier.KeystoneT3to5 or NodeTier.Wildcard => 2,
+        NodeTier.KeystoneT2 => 4, NodeTier.KeystoneT1 => 8, _ => 0.1,
+    };
 
     // §8 institutional momentum: readiness ratchets up over game-years regardless of
     // suspicion — audits and Lethe scale with it, so perfect stealth has a clock too.

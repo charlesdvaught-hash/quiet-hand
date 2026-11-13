@@ -77,5 +77,9 @@
   "intrude_spike_atlas": 12,
   "intrude_spike_t3": 18,
   "intrude_spike_t2": 25,
-  "intrude_spike_t1": 30
+  "intrude_spike_t1": 30,
+  "hunter_count": 1,
+  "hunter_purge_bonus": 1,
+  "hunter_move_chance": 0.4,
+  "hunter_sweep_chance": 0.15
 }
