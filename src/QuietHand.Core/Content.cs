@@ -167,6 +167,10 @@ public sealed class NudgeDef
     public string Name { get; set; } = "";
     public double Cost { get; set; }
     public int DurationDays { get; set; } = 1;
+    public int CooldownDays { get; set; }
+    public string UnlockGate { get; set; } = "";
+    public double SuspicionPerDay { get; set; }
+    public Dictionary<string, double> Dials { get; set; } = new();
     public Dictionary<string, double> Effects { get; set; } = new();
     public string Desc { get; set; } = "";
 }

@@ -26,6 +26,8 @@ public record WorldState(
     HashSet<string> OwnedEvolutions,
     HashSet<string> UnlockedCombos,
     List<InterceptEvent> ActiveIntercepts,
+    List<ActiveNudge> ActiveNudges,
+    Dictionary<string, int> NudgeCooldownUntil,
     string? Ending, int Seed)
 {
     // §5b simplified: horizon stage 0..5, spread gated by it.
@@ -54,6 +56,7 @@ public record RegionState(double Suspicion, Dictionary<NodeTier, ControlState> T
 }
 
 public record InterceptEvent(string Id, string Kind, string RegionId, int ExpiresDay);
+public record ActiveNudge(string NudgeId, string RegionId, int ExpiresDay);
 
 public interface ISimCommand { }
 public record SetControlState(string NodeId, ControlState Target) : ISimCommand;

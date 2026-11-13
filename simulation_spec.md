@@ -248,6 +248,7 @@ Fleeting tappable events keep hands busy at Base speed (Plague DNA-bubble analog
 | Stray admin credential | node card | tap to harvest | reduces next Compromise cost |
 
 - New command `InterceptAction(eventId)` in `ISimCommand`; new event `OnInterceptSpawned`.
+- **Adversary-AI game modes (Dave, 2026-11-14):** headless route-policy bots double as the decision layer for scripted rival agents — the "rogue rival AI" world event becomes a real competing agent running e.g. a conquest profile while you run quiet. Keep bot policies data-driven so rivals differ by profile.
 - Events expire (seconds-to-tens-of-seconds); frequency scales with Reach — more presence = more intercept opportunities = busier endgame hands.
 - **Intercept floor (paper-sim finding):** a minimum spawn rate applies even at low Reach (`TUNE` ~1/game-week at start) — the early game must never be a dead zone. First-run intercepts are tutorialized via the seed scenario.
 

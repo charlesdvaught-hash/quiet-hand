@@ -106,6 +106,7 @@ public sealed class SimEngine
             scenario?.Overrides.Threat.Lethe ?? 0,
             dials["fear"], regions, nodes, dials,
             owned, new HashSet<string>(), new List<InterceptEvent>(),
+            new List<ActiveNudge>(), new Dictionary<string, int>(),
             null, cfg.Seed)
         { ReachStage = 0 };
 
@@ -320,7 +321,27 @@ public sealed class SimEngine
     {
         var def = _c.Nudges.Find(x => x.Id == n.NudgeId);
         if (def is null || !Spend(def.Cost)) return;
+        // gated by the nudge_* unlock an owned evolution must grant
+        if (def.UnlockGate.Length > 0 && !_c.Evolutions.Any(ev =>
+                State.OwnedEvolutions.Contains(ev.Id) && ev.Unlocks.Contains(def.UnlockGate))) return;
+        if (State.NudgeCooldownUntil.TryGetValue(def.Id, out int until) && until > State.Day) return;
+        State.NudgeCooldownUntil[def.Id] = State.Day + def.CooldownDays;
         foreach (var (k, v) in def.Effects) ApplyEffectKey(n.RegionId, k, v);
+        if (def.Dials.Count > 0 || def.SuspicionPerDay > 0)
+            State.ActiveNudges.Add(new ActiveNudge(def.Id, n.RegionId, State.Day + def.DurationDays));
+    }
+
+    // §9: nudges are sustained daily pushes for their duration, not one-shot bumps.
+    void ApplyActiveNudges()
+    {
+        State.ActiveNudges.RemoveAll(a => a.ExpiresDay < State.Day);
+        foreach (var a in State.ActiveNudges)
+        {
+            var def = _c.Nudges.Find(x => x.Id == a.NudgeId);
+            if (def is null) continue;
+            foreach (var (dial, v) in def.Dials) PushDial(dial, v);
+            if (def.SuspicionPerDay > 0) AddRegionSuspicion(a.RegionId, def.SuspicionPerDay);
+        }
     }
 
     void ApplyEffectKey(string? regionId, string key, double v)
@@ -420,6 +441,7 @@ public sealed class SimEngine
         Momentum();
         SuspicionAndAudits();
         Lethe();
+        ApplyActiveNudges();
         DialDrift();
         Intercepts();
         UpdateReach();

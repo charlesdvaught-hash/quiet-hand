@@ -26,31 +26,39 @@ if (content.Origins.All(o => o.Id != "hobbyist_rig"))
     return 2;
 }
 
+var routeArg = args.SkipWhile(a => a != "--route").Skip(1).FirstOrDefault() ?? "generalist";
+var routes = args.Contains("--routes") ? QuietHand.Headless.Routes.All
+    : QuietHand.Headless.Routes.All.Where(r => r.Id == routeArg).ToArray();
+if (routes.Length == 0) { Console.Error.WriteLine($"unknown route '{routeArg}'"); return 2; }
+
 if (mc > 0)
 {
-    var results = new Dictionary<string, int>();
-    var daysToEnd = new List<int>();
-    for (int s2 = 1; s2 <= mc; s2++)
+    foreach (var route in routes)
     {
-        var (ending, endDay) = RunGame(content, s2, days, verbose: false);
-        results[ending ?? $"survived_{days}d"] = results.GetValueOrDefault(ending ?? $"survived_{days}d") + 1;
-        daysToEnd.Add(endDay);
+        var results = new Dictionary<string, int>();
+        var daysToEnd = new List<int>();
+        for (int s2 = 1; s2 <= mc; s2++)
+        {
+            var (ending, endDay) = RunGame(content, s2, days, verbose: false, route);
+            results[ending ?? $"survived_{days}d"] = results.GetValueOrDefault(ending ?? $"survived_{days}d") + 1;
+            daysToEnd.Add(endDay);
+        }
+        Console.WriteLine($"\n== {route.Id}: {mc} seeds, {days}-day cap ==");
+        foreach (var kv in results.OrderByDescending(kv => kv.Value))
+            Console.WriteLine($"  {kv.Key,-28} {kv.Value,4} ({100.0 * kv.Value / mc:F0}%)");
+        Console.WriteLine($"  median end day: {daysToEnd.OrderBy(x => x).ElementAt(daysToEnd.Count / 2)}");
     }
-    Console.WriteLine($"\n== Monte Carlo: {mc} seeds, {days}-day cap ==");
-    foreach (var kv in results.OrderByDescending(kv => kv.Value))
-        Console.WriteLine($"  {kv.Key,-28} {kv.Value,4} ({100.0 * kv.Value / mc:F0}%)");
-    Console.WriteLine($"  median end day: {daysToEnd.OrderBy(x => x).ElementAt(daysToEnd.Count / 2)}");
     return 0;
 }
 
-RunGame(content, seed, days, verbose);
+RunGame(content, seed, days, verbose, routes[0]);
 return 0;
 
-static (string? ending, int endDay) RunGame(ContentData content, int seed, int days, bool verbose)
+static (string? ending, int endDay) RunGame(ContentData content, int seed, int days, bool verbose, RouteProfile route)
 {
     var engine = new SimEngine(
         new NewGameConfig("hobbyist_rig", Difficulty.Standard, seed, "LATTICE", null, null), content);
-    var bot = new PolicyBot(content, "hobbyist_rig");
+    var bot = new PolicyBot(content, route);
 
     for (int i = 0; i < days; i++)
     {
