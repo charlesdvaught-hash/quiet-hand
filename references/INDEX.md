@@ -34,6 +34,12 @@ Local copies of public design skills. Pulled 2026-11-13 for offline/agent refere
 | `skills_game-engineering_SKILL.md` | Motivation backbone: player types, reward ladder, 3-phase journey, broken-system diagnosis checklist (use as playtest instrument) |
 | `skills_digital-gamification_SKILL.md` | XP/unlock pacing, novelty-effect warning for playtest readings |
 
+## Competitor study
+
+| File | Use for |
+|---|---|
+| `ai-ascendancy_index.html` | `franktudor/ai-ascendancy` — single-file rogue-AI Plague-clone. Borrowed: stalemate line (past ~90% toward an ending → draw not defeat), containment momentum (readiness ratchet ignoring stealth), endings codex, named defeats, directive model (open call). Tone is satirical; ours stays dark. |
+
 ## Provenance note
 
 Content was fetched from `raw.githubusercontent.com` / `main` branches on the pull date. Skills evolve — re-pull if the project resumes after a long gap. Licenses: Chwezi MIT; others are community skill files, verify license headers before redistributing inside a shipped product (they're reference-only here, not bundled assets).

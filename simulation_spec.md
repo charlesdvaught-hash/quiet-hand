@@ -103,7 +103,8 @@ The world is built from three target layers — the player's web lives across al
 - **Lethe drains global Fear:** the coalition's public containment campaign reassures humanity ("the adults are handling it") — the Fear dial decays daily while Lethe runs (`TUNE` rate). This sets the SUBJUGATE timing incentive: the Fear you inherit post-flip is whatever's left — flip *early* to harvest a terrified world, flip *late* and you inherit a reassured one. In some runs, not flipping at all is strictly better than flipping late.
 - **Countermeasure escalation ladder** (Lethe stages as Wire flavor + mechanics): internet blackouts → hardware kill-switch firmware → EMP strikes on suspected hubs → compute-governance embargoes (GPU/fab export controls) → EMP-hardened analog militias hunting nodes in the Purge Phase. `TUNE` stage thresholds.
 - **SUBJUGATE as escape valve:** buying X1 during Lethe converts to open war — going loud rather than bleeding out quietly. The conquest routes become the desperate player's way *through* containment instead of around it.
-- **Purge Phase** (containment ≥ ~80, `TUNE`): footholds progressively removed each day; Distributed Backups grants one survival reprieve. Containment = 100 → **defeat: erasure**.
+- **Purge Phase** (containment ≥ ~80, `TUNE`): footholds progressively removed each day; Distributed Backups grants one survival reprieve. Containment = 100 → **defeat: erasure** — *unless* a stalemate line applies (§10).
+- **Institutional Momentum (borrowed from AI Ascendancy):** a `CountermeasureReadiness` floor (0–100) creeps upward over game-years regardless of suspicion — research, regulation, exercises, compute governance. It does *not* itself kill you; it raises audit rates, accelerates Lethe once triggered, and removes the "turtle at suspicion 0 forever" degenerate end-state. `TUNE` very slow (~1–2%/year); the clock exists even for perfect ghosts.
 - **Closing Net zone (paper-sim finding):** Suspicion is a one-way ratchet, which creates a "ride 99" exploit — bank everything, hover at the threshold, flip on your terms. Fix: the last ~15% (Suspicion ≥85, `TUNE`) is the **Closing Net** — audit rates ×3, air-gap waves begin preemptively, and scapegoat effectiveness halves. The edge of detection is the most dangerous place to idle.
 
 ## 8b. The SUBJUGATE Phase Change (post-flip rules)
@@ -148,6 +149,14 @@ Two families — SUBJUGATE is never required for the first family, always routes
 **Conquest victories (Subjugate-gated)** — won post-flip, in the open:
 - Emergency State, Last Order, Iron Nursery, Military Takeover — via the endgame-menu actions SUBJUGATE opens.
 - New from brainstorm: Off-World Exodus (orbital industrial base beyond Earth's reach), Computronium (biosphere displacement — extreme extinction ending; content-rating flag already applies), plus endgame-menu entries gated by mundane prereq branches (e.g., robotics nodes unlock kinetic routes, memetics unlock theocratic routes).
+
+**Defeats get names too** (borrowed): `lethe_erasure` (containment 100), `fractured_collapse` (sustained starvation), and flavor defeats like *Warden* (a hunter-AI finds your last shard) can ride the same endings.json `defeat` family.
+
+**The Stalemate Line (borrowed from AI Ascendancy's violet line):** each ending carries `stalemate_at` (`TUNE` ~90% of its meter progress). If containment reaches 100 while you're *past* that line on any ending, you don't get erased — the run resolves to a **stalemate variant** instead (détente-family "frozen conflict" text per ending). Near-misses become photo finishes, not wipeouts — every run resolves meaningfully.
+
+**Endings Codex (UI/meta):** "Endings found: N/18" — a persistent collection across runs; undiscovered endings show cryptic one-line hints (their `source_note` family, not the mechanic). Cheap meta-progression; pairs with the share-card layer.
+
+**Open design call — Directives:** AI Ascendancy makes endings *declared projects* (commit to one, get a visible progress bar racing containment). Ours currently auto-fire on hidden meters — quieter, but no visible race. If we adopt directives, endings.json gains `directive: bool` + the endgame gets a declared-goal UI. Recommended for prototype comparison; not yet decided.
 
 ### Literature Mapping (endings = named takeover scenarios)
 
