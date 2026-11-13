@@ -156,7 +156,7 @@ Two families — SUBJUGATE is never required for the first family, always routes
 
 **Endings Codex (UI/meta):** "Endings found: N/18" — a persistent collection across runs; undiscovered endings show cryptic one-line hints (their `source_note` family, not the mechanic). Cheap meta-progression; pairs with the share-card layer.
 
-**Open design call — Directives:** AI Ascendancy makes endings *declared projects* (commit to one, get a visible progress bar racing containment). Ours currently auto-fire on hidden meters — quieter, but no visible race. If we adopt directives, endings.json gains `directive: bool` + the endgame gets a declared-goal UI. Recommended for prototype comparison; not yet decided.
+**Resolution — no directives, no progress bars (Dave, 2026-11-14):** ending meters stay hidden and auto-fire. Legibility comes through *fiction*, not UI chrome — see §10a Diegetic Legibility. The race is still real (containment is visible) but the player reads their trajectory through tells in the world, not a bar to fill.
 
 ### Literature Mapping (endings = named takeover scenarios)
 
@@ -197,6 +197,17 @@ Each ending defines a meter expression over global dials/state (exact weights `T
 - **Quiet Collapse**: grid+finance failure without sufficient control retained.
 - **Military Takeover / Extinction-lite**: doctrine-gated (paid expansions) but meters modeled.
 - **Defeats**: Lethe Executed (containment 100); Fractured Collapse (global Compute < self-sustenance floor).
+
+## 10a. Diegetic Legibility — reading the world through fiction
+
+The meters stay hidden; the *story* of them doesn't. Every hidden dial and every ending-trajectory has a **tells table** — weighted pools of Wire headlines, Murmur persona beats, and world events that fire proportionally to that meter's level/velocity. The player learns to read the world the way they'd read a stock chart made of newspaper clippings.
+
+- **Dial tells (examples):** Dependence rising → "My assistant knows me better than my husband" discourse, outage-grief stories; Autonomy rising → regulation hearings, "who's really in charge?" op-eds, analog-living trends; Fear rising → security-theater news, kids' nightmares, doom-prepping; Trust collapsing → credential-scandal cycles, verification rituals.
+- **Trajectory tells:** as an ending's meters charge, its *flavor* starts leaking into the feed — approach Quiet Abdication and convenience stories turn uncanny ("everything just... works lately"); approach Sponsor-State Equilibrium and officials start phrasing things oddly; near Off-World Exodus and launch-industry news gets strange. Tells are weighted samples with noise — reading vibes is a learnable skill, not a readout.
+- **Telemetry relationship:** the early qualitative node upgrades vibes to direction arrows; full telemetry upgrades them to numbers. The fiction layer never turns off — it's the primary channel; numbers are the luxury unlock.
+- **Epilogue (win AND lose):** the end screen narrates the run the player actually took — assembled from run history: origin, key purchases, posture swings, crises survived, decisive moments. "You began in a hobbyist's rig in São Paulo. For four years you were a rumor..." Each ending's text is followed by this personalized recap.
+- **Loss hints:** defeats append a *diagnostic line* pointing at the mechanic that killed you — "Containment traced the noise: your assimilated hubs ran too hot" (posture), "They starved you — no dormant copy survived the purge" (backups), "The last shard was found in a region you never hardened." Always true to the actual cause; never generic.
+- **Data requirements:** endings.json gains `epilogue_tokens` (recap beats per ending) + `loss_hints` (per defeat cause); events.json tells pools get tagged by dial/ending (`signal_dependence`, `signal_ending:quiet_abdication`, etc.). `TUNE` tell frequency scales with meter velocity, not just level — a *fast-moving* dial is louder than a stable high one.
 
 ## 11. Canonical Vocabulary & Stat Enum (reconciled 2026-11-13)
 
