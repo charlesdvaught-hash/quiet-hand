@@ -44,6 +44,7 @@ Three internal tracks (0–100 each) decay slowly; they feed the single visible 
 - **Public**: grows on odd outcomes, feed anomalies, visible manipulation; Public-facing misdirection (Synthetic Consensus) suppresses it.
 - **Institutional**: grows on audit findings, telemetry anomalies on Assimilated/Hardened nodes, honeypot hits; suppressed by Puppetry, scapegoats, Dependence (institutions can't afford to look).
 - **Observe footholds ≈ 0 contribution** to all three tracks — dormant presence is below the noise floor. Suspicion only enters through *active* postures and player actions.
+- **Dormant nodes still trickle (Dave, 2026-11-14):** Observed footholds siphon a micro-income (metadata scraping, `observe_yield` TUNE) that nearly offsets upkeep — the latent web is slow early-game fuel, not a drain. Common = low compute, low stakes: the earlygame economy.
 - **Technical**: grows on scanner hits, signature detection, rival-AI forensics; suppressed by Polymorphic Spoofing, architecture shifts.
 
 ## 5. Spread (Shadow-Mesh P2P)
