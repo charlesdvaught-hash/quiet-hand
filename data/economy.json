@@ -69,5 +69,13 @@
   "observe_yield": 0.04,
   "spread_manual_cost": 3,
   "burn_mesh_mult": 20,
-  "burn_mesh_suspicion": 8
+  "burn_mesh_suspicion": 8,
+  "intrude_base_cost": 40,
+  "intrude_base_days": 14,
+  "intrude_detect_base": 0.04,
+  "intrude_spike_mid": 6,
+  "intrude_spike_atlas": 12,
+  "intrude_spike_t3": 18,
+  "intrude_spike_t2": 25,
+  "intrude_spike_t1": 30
 }

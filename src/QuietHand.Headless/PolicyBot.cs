@@ -74,6 +74,22 @@ sealed class PolicyBot
             reserve += 4;
         }
 
+        // Breach: intrude the weakest unowned Atlas/Mid in regions we hold —
+        // AtlasFocus routes push harder (2/day), others opportunistically (1/day).
+        int intrusions = _route.AtlasFocus ? 2 : 1;
+        foreach (var d in _c.Nodes.Values
+            .Where(d => d.Tier is NodeTier.Mid or NodeTier.Atlas
+                && !s.Nodes.ContainsKey(d.Id) && !s.ActiveRaids.Any(r => r.NodeId == d.Id))
+            .Where(d => s.Nodes.Keys.Any(id =>
+                _c.Nodes.GetValueOrDefault(id)?.RegionId == d.RegionId
+                && s.Nodes[id].State is not (ControlState.AirGapped or ControlState.Orphaned)))
+            .OrderBy(d => d.Defense))
+        {
+            if (intrusions-- <= 0 || s.Compute < reserve + 60) break;
+            cmds.Add(new StealthAction("intrude", d.Id));
+            reserve += 60;
+        }
+
         // Atlas focus: compromise Atlas-tier footholds to spread puppet coverage.
         if (_route.AtlasFocus)
         {

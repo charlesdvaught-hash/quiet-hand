@@ -106,7 +106,7 @@ public sealed class SimEngine
             scenario?.Overrides.Threat.Lethe ?? 0,
             dials["fear"], regions, nodes, dials,
             owned, new HashSet<string>(), new List<InterceptEvent>(),
-            new List<ActiveNudge>(), new Dictionary<string, int>(),
+            new List<ActiveNudge>(), new List<ActiveRaid>(), new Dictionary<string, int>(),
             null, cfg.Seed)
         { ReachStage = 0 };
 
@@ -444,6 +444,7 @@ public sealed class SimEngine
         BurnWeaponizedNodes();
         ComputeIncome();
         Spread();
+        ResolveRaids();
         Momentum();
         SuspicionAndAudits();
         Lethe();
@@ -505,6 +506,7 @@ public sealed class SimEngine
     // one burst: nodes die, payout per device, and it makes noise.
     void TryStealth(StealthAction sa)
     {
+        if (sa.ActionId == "intrude") { TryIntrude(sa.NodeId); return; }
         if (sa.ActionId != "burn_mesh" || !HasFeature("common_burn")) return;
         var anchor = _c.Nodes.GetValueOrDefault(sa.NodeId);
         if (anchor is null) return;
@@ -517,6 +519,71 @@ public sealed class SimEngine
         State = State with { Compute = State.Compute + payout * E("burn_mesh_mult", 20) };
         AddRegionSuspicion(anchor.RegionId, E("burn_mesh_suspicion", 8));
         Emit(SimEventKind.OnAirGap, sa.NodeId, anchor.RegionId, msg: $"burn_mesh x{burned}");
+    }
+
+    // §7: breach/raid — the missing verb for Atlas + Gold. Timed operation:
+    // cost + duration scale with tier and defense; per-day detection roll is
+    // reduced by the stealth chain; caught = tier-scaled Suspicion spike and
+    // the op aborts; clean = Observed foothold (activation still your call).
+    void TryIntrude(string nodeId)
+    {
+        if (!_c.Nodes.TryGetValue(nodeId, out var def)) return;
+        if (def.Tier == NodeTier.Common) return; // commons spread, they aren't breached
+        if (State.Nodes.ContainsKey(nodeId) || State.ActiveRaids.Any(r => r.NodeId == nodeId)) return;
+        bool gold = def.Tier is NodeTier.KeystoneT1 or NodeTier.KeystoneT2
+            or NodeTier.KeystoneT3to5 or NodeTier.Wildcard;
+        if (gold && !HasFeature("intrude_t2")) return;
+        bool beachhead = State.Nodes.Keys.Any(id =>
+        {
+            var d = _c.Nodes.GetValueOrDefault(id);
+            return d?.RegionId == def.RegionId
+                && State.Nodes[id].State is not (ControlState.AirGapped or ControlState.Orphaned);
+        });
+        if (!beachhead) return;
+        double tierMult = def.Tier switch
+        {
+            NodeTier.Mid => 0.5, NodeTier.Atlas => 1,
+            NodeTier.KeystoneT3to5 or NodeTier.Wildcard => 2,
+            NodeTier.KeystoneT2 => 4, NodeTier.KeystoneT1 => 6, _ => 1,
+        };
+        if (!Spend(E("intrude_base_cost", 40) * tierMult)) return;
+        int days = Math.Max(1, (int)Math.Round(
+            E("intrude_base_days", 14) * def.Defense / 50.0
+            / (1 + 0.2 * StatTotal(SimStat.stealth_stats))));
+        State.ActiveRaids.Add(new ActiveRaid(nodeId, State.Day + days));
+    }
+
+    void ResolveRaids()
+    {
+        foreach (var raid in State.ActiveRaids.ToList())
+        {
+            var def = _c.Nodes.GetValueOrDefault(raid.NodeId);
+            if (def is null) { State.ActiveRaids.Remove(raid); continue; }
+            double stealth = Math.Min(0.85, 0.15 * StatTotal(SimStat.stealth_stats));
+            double regionDef = (_c.Regions.Find(r => r.Id == def.RegionId)?.DefenseTier ?? 50) / 50.0;
+            double p = E("intrude_detect_base", 0.04) * def.Defense / 50.0
+                * regionDef * (1 - stealth);
+            if (_rng.NextDouble() < p)
+            {
+                State.ActiveRaids.Remove(raid);
+                double spike = def.Tier switch
+                {
+                    NodeTier.Mid => E("intrude_spike_mid", 6), NodeTier.Atlas => E("intrude_spike_atlas", 12),
+                    NodeTier.KeystoneT3to5 or NodeTier.Wildcard => E("intrude_spike_t3", 18),
+                    NodeTier.KeystoneT2 => E("intrude_spike_t2", 25), NodeTier.KeystoneT1 => E("intrude_spike_t1", 30),
+                    _ => 10,
+                };
+                AddRegionSuspicion(def.RegionId, spike);
+                Emit(SimEventKind.OnRaidDetected, raid.NodeId, def.RegionId, spike);
+                continue;
+            }
+            if (raid.CompletesDay <= State.Day)
+            {
+                State.ActiveRaids.Remove(raid);
+                State.Nodes[raid.NodeId] = new NodeState(ControlState.Observed, 0, 0, 0);
+                Emit(SimEventKind.OnRaidSuccess, raid.NodeId, def.RegionId);
+            }
+        }
     }
 
     // §5: manual spread — the early-game verb. Tap a neighbor house/device:

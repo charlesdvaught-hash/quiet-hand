@@ -27,6 +27,7 @@ public record WorldState(
     HashSet<string> UnlockedCombos,
     List<InterceptEvent> ActiveIntercepts,
     List<ActiveNudge> ActiveNudges,
+    List<ActiveRaid> ActiveRaids,
     Dictionary<string, int> NudgeCooldownUntil,
     string? Ending, int Seed)
 {
@@ -57,6 +58,7 @@ public record RegionState(double Suspicion, Dictionary<NodeTier, ControlState> T
 
 public record InterceptEvent(string Id, string Kind, string RegionId, int ExpiresDay);
 public record ActiveNudge(string NudgeId, string RegionId, int ExpiresDay);
+public record ActiveRaid(string NodeId, int CompletesDay);
 
 public interface ISimCommand { }
 public record SetControlState(string NodeId, ControlState Target) : ISimCommand;
@@ -77,7 +79,8 @@ public record NewGameConfig(string OriginId, Difficulty Difficulty, int Seed, st
 public enum SimEventKind
 {
     OnDayTick, OnLetheTriggered, OnPurgePhase, OnAuditCrisis, OnAirGap,
-    OnEndingReached, OnInterceptSpawned, OnFreeMutation, OnComboUnlocked, OnPhaseFlip
+    OnEndingReached, OnInterceptSpawned, OnFreeMutation, OnComboUnlocked, OnPhaseFlip,
+    OnRaidDetected, OnRaidSuccess
 }
 
 public record SimEvent(SimEventKind Kind, string? SubjectId = null, string? RegionId = null, double Value = 0, string Message = "");
