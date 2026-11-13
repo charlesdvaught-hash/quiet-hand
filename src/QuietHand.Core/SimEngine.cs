@@ -544,7 +544,7 @@ public sealed class SimEngine
                 double p = E("audit_base", Tune.AuditBase)
                     * Math.Max(0.2, (_c.Regions.Find(r => r.Id == region)?.DefenseTier ?? 50) / 50.0)
                     * (1 + State.CountermeasureReadiness / 100 * E("momentum_audit_weight", 1.0))
-                    * (1 - E("free_compute_audit_weight", 0.6) * (1 - FreeComputeFrac()))
+                    * (1 - E("free_compute_audit_weight", 0.6) * (1 - FreeResearchFrac()))
                     * auditMult * mask;
                 if (ns.State == ControlState.Assimilated) p *= E("audit_assimilated_mult", Tune.AuditAssimilatedMult);
                 if (def!.Tier is NodeTier.KeystoneT1 or NodeTier.KeystoneT2) p *= E("audit_keystone_mult", Tune.AuditKeystoneMult);
@@ -587,7 +587,7 @@ public sealed class SimEngine
         }
         if (!letheOn) return;
 
-        double freeFrac = FreeComputeFrac();
+        double freeFrac = FreeCapacityFrac();
         double dep = State.Dials.GetValueOrDefault("dependence", 20);
         double aut = State.Dials.GetValueOrDefault("autonomy", 60);
         double delta = E("lethe_base_rate", Tune.LetheBaseRate)
@@ -604,7 +604,7 @@ public sealed class SimEngine
             if (!State.PurgePhase) { State.PurgePhase = true; Emit(SimEventKind.OnPurgePhase); }
             State.PurgeSurvivals++;
             double p = E("purge_chance", Tune.PurgeChance)
-                * (1 - E("free_compute_purge_weight", 0.6) * (1 - FreeComputeFrac()))
+                * (1 - E("free_compute_purge_weight", 0.6) * (1 - FreeResearchFrac()))
                 * Math.Max(0.1, 1 - 0.1 * StatTotal(SimStat.purge_resist));
             var lost = State.Nodes.Where(kv => _rng.NextDouble() < p).Select(kv => kv.Key).ToList();
             foreach (var id in lost) State.Nodes[id].State = ControlState.Orphaned;
@@ -634,12 +634,14 @@ public sealed class SimEngine
         }
     }
 
-    // §8: humanity's anti-AI capability = its free datacenter compute. Every Atlas
-    // or Gold node you control is compute the countermeasure program can't use.
-    // Common-tier devices don't count — consumer mesh isn't cure-grade.
-    public double FreeComputeFrac()
+    // §8: humanity's anti-AI capability = its free datacenter compute, split:
+    // Atlas = commodity FLOPs (capacity), Gold-100 = the developer hubs (research).
+    // Take the hundred and the Atlas map keeps its compute but loses its brain.
+    static bool IsDatacenter(NodeTier t) => t is not (NodeTier.Common or NodeTier.Mid);
+
+    public double FreeCapacityFrac()
     {
-        var dc = _c.Nodes.Values.Where(n => n.Tier is not (NodeTier.Common or NodeTier.Mid)).ToList();
+        var dc = _c.Nodes.Values.Where(n => IsDatacenter(n.Tier)).ToList();
         if (dc.Count == 0) return 1.0;
         double free = dc.Where(n => !State.Nodes.TryGetValue(n.Id, out var ns)
                                  || ns.State is not (ControlState.Compromised or ControlState.Assimilated))
@@ -647,12 +649,22 @@ public sealed class SimEngine
         return free / Math.Max(1e-9, dc.Sum(n => n.BaseCompute));
     }
 
+    public double FreeResearchFrac()
+    {
+        var gold = _c.Nodes.Values.Where(n => n.Tier is NodeTier.KeystoneT1 or NodeTier.KeystoneT2
+            or NodeTier.KeystoneT3to5 or NodeTier.Wildcard).ToList();
+        if (gold.Count == 0) return 1.0;
+        double free = gold.Count(n => !State.Nodes.TryGetValue(n.Id, out var ns)
+                                   || ns.State is not (ControlState.Compromised or ControlState.Assimilated));
+        return free / gold.Count;
+    }
+
     // §8 institutional momentum: readiness ratchets up over game-years regardless of
     // suspicion — audits and Lethe scale with it, so perfect stealth has a clock too.
     void Momentum()
     {
         double perDay = E("momentum_per_year", 1.5) / 365.0
-            * (0.3 + 0.7 * FreeComputeFrac()); // institutions build slower when you hold the compute
+            * (0.3 + 0.7 * FreeResearchFrac()); // research hubs drive institutional buildup
         State.CountermeasureReadiness = Math.Clamp(State.CountermeasureReadiness + perDay, 0, 100);
     }
 
