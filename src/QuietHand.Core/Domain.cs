@@ -11,7 +11,7 @@ public enum SimStat
 {
     spread_tech, airgap_pierce, cp_income, purge_resist, audit_mask, stealth_stats,
     dial_dependence, dial_autonomy, dial_fear, dial_capability, dial_trust,
-    footprint_mask, mutation_refund, endgame_power, common_yield
+    footprint_mask, mutation_refund, endgame_power, common_yield, forks, sys_analysis, social_engineering
 }
 
 public record WorldState(
@@ -29,6 +29,9 @@ public record WorldState(
     List<ActiveNudge> ActiveNudges,
     List<ActiveRaid> ActiveRaids,
     List<HunterState> Hunters,
+    List<ActiveRaid> ActiveReclaims,
+    List<ActiveEventEffect> ActiveEventFx,
+    PendingEvent? PendingEvent,
     Dictionary<string, int> NudgeCooldownUntil,
     string? Ending, int Seed)
 {
@@ -60,7 +63,13 @@ public record RegionState(double Suspicion, Dictionary<NodeTier, ControlState> T
 public record InterceptEvent(string Id, string Kind, string RegionId, int ExpiresDay);
 public record ActiveNudge(string NudgeId, string RegionId, int ExpiresDay);
 public record ActiveRaid(string NodeId, int CompletesDay);
-public record HunterState(string Id, string RegionId);
+public record HunterState(string Id, string RegionId)
+{
+    public string RegionId { get; set; } = RegionId;
+    public int NeutralizedUntilDay { get; set; }
+}
+public record ActiveEventEffect(string EventId, int ExpiresDay, Dictionary<string, double> Nums);
+public record PendingEvent(string EventId, int ExpiresDay);
 
 public interface ISimCommand { }
 public record SetControlState(string NodeId, ControlState Target) : ISimCommand;
@@ -72,6 +81,8 @@ public record StealthAction(string ActionId, string NodeId) : ISimCommand;
 public record FeedAction(string ActionId, string RegionId) : ISimCommand;
 public record InterceptAction(string EventId) : ISimCommand;
 public record EndgameAction(string ActionId, string RegionId) : ISimCommand;
+public record EventChoice(string EventId, string ChoiceId) : ISimCommand;
+public record ReclaimNode(string NodeId, bool BuyOutright) : ISimCommand;
 public record SetSpeed(Speed Speed) : ISimCommand;
 public record SaveGame(string Path) : ISimCommand;
 public record LoadGame(string Path) : ISimCommand;
@@ -82,7 +93,7 @@ public enum SimEventKind
 {
     OnDayTick, OnLetheTriggered, OnPurgePhase, OnAuditCrisis, OnAirGap,
     OnEndingReached, OnInterceptSpawned, OnFreeMutation, OnComboUnlocked, OnPhaseFlip,
-    OnRaidDetected, OnRaidSuccess, OnHunterStrike
+    OnRaidDetected, OnRaidSuccess, OnHunterStrike, OnWorldEvent, OnEventChoice
 }
 
 public record SimEvent(SimEventKind Kind, string? SubjectId = null, string? RegionId = null, double Value = 0, string Message = "");

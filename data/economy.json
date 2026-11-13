@@ -81,5 +81,12 @@
   "hunter_count": 1,
   "hunter_purge_bonus": 1,
   "hunter_move_chance": 0.4,
-  "hunter_sweep_chance": 0.15
+  "hunter_sweep_chance": 0.15,
+  "hunter_corrupt_chance": 0.02,
+  "hunter_corrupt_days": 30,
+  "fork_save_each": 0.25,
+  "reclaim_cost": 30,
+  "reclaim_days": 7,
+  "buy_premium_mult": 3,
+  "event_choice_window": 5
 }

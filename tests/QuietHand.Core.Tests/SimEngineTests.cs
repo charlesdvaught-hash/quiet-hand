@@ -163,4 +163,52 @@ public class SimEngineTests
         Assert.Equal("almost_win", e.State.Ending);
         Assert.True(e.State.EndingWasStalemate);
     }
+
+    [Fact]
+    public void WorldEvent_SpawnsHunter()
+    {
+        var c = Fixture();
+        c.Events.Add(new EventDef
+        {
+            Id = "blackwall_program",
+            SpawnConditions = { ["min_day"] = J(0), ["chance_per_day"] = J(1.0) },
+            Effects = { ["spawn_hunters"] = J(2) },
+        });
+        var e = new SimEngine(Cfg(), c);
+        e.TickDay();
+        Assert.Equal(2, e.State.Hunters.Count);
+    }
+
+    [Fact]
+    public void EventChoice_AppliesItsEffects()
+    {
+        var c = Fixture();
+        c.Events.Add(new EventDef
+        {
+            Id = "leak",
+            SpawnConditions = { ["min_day"] = J(0), ["chance_per_day"] = J(1.0) },
+            Choices = { new EventChoiceDef { Id = "pay", Fx = { ["cp_delta"] = J(-50) } } },
+        });
+        var e = new SimEngine(Cfg(), c);
+        e.TickDay();
+        Assert.Equal("leak", e.State.PendingEvent?.EventId);
+        e.ApplyCommands(new ISimCommand[] { new EventChoice("leak", "pay") });
+        Assert.Null(e.State.PendingEvent);
+        Assert.True(e.State.Compute < 100, "pay choice should have cost compute");
+    }
+
+    [Fact]
+    public void Reclaim_RestoresOrphanedNode()
+    {
+        var c = Fixture();
+        c.Evolutions.Add(new EvolutionDef { Id = "s1", Branch = "S", Cost = 1, Unlocks = { "reinfect" } });
+        var e = new SimEngine(Cfg(), c);
+        e.ApplyCommands(new ISimCommand[] { new Evolve("s1") });
+        var nodeId = e.State.Nodes.Keys.First();
+        e.State.Nodes[nodeId].State = ControlState.Orphaned;
+        e.ApplyCommands(new ISimCommand[] { new ReclaimNode(nodeId, false) });
+        Assert.Single(e.State.ActiveReclaims);
+        for (int i = 0; i < 10; i++) e.TickDay();
+        Assert.Equal(ControlState.Observed, e.State.Nodes[nodeId].State);
+    }
 }

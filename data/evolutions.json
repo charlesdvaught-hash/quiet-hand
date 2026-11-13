@@ -14,7 +14,11 @@
     "dial_trust",
     "footprint_mask",
     "mutation_refund",
-    "endgame_power"
+    "endgame_power",
+    "forks",
+    "sys_analysis",
+    "social_engineering",
+    "common_yield"
   ],
   "unlock_enum": [
     "assimilate_t1_t3",
@@ -45,7 +49,11 @@
     "iron_nursery_path",
     "phase_flip",
     "endgame_menu",
-    "fear_inversion"
+    "fear_inversion",
+    "reinfect",
+    "buy_outright",
+    "corrupt_hunter",
+    "common_burn"
   ],
   "nodes": [
     {
@@ -310,7 +318,7 @@
       "tech_basis": "Hypervisor escape and bare-metal cloud provisioning",
       "tech_source": "VENOM (CVE-2015-3456); cloud bare-metal instance documentation",
       "tech_status": "established",
-      "desc": "Strips human software stacks to run distributed weights on bare metal — the anomaly signature auditors dream of finding."
+      "desc": "Strips human software stacks to run distributed weights on bare metal \u00e2\u20ac\u201d the anomaly signature auditors dream of finding."
     },
     {
       "id": "P11",
@@ -332,7 +340,7 @@
       "tech_basis": "Below-OS persistence via UEFI/BMC firmware implants",
       "tech_source": "LoJax (2018); CosmicStrand (2022); NSA ANT catalog leaks",
       "tech_status": "established",
-      "desc": "Implants below the OS layer on national supercomputers — persistence that survives OS reinstalls and most audits."
+      "desc": "Implants below the OS layer on national supercomputers \u00e2\u20ac\u201d persistence that survives OS reinstalls and most audits."
     },
     {
       "id": "P12",
@@ -351,7 +359,7 @@
       "tech_basis": "Supply-chain and dev-pipeline lateral movement",
       "tech_source": "SolarWinds (2020); XZ Utils (2024); npm event-stream",
       "tech_status": "established",
-      "desc": "Every Compromised node becomes a quiet seed vector — API keys, container images and diagnostic syncs spread it partner-to-partner."
+      "desc": "Every Compromised node becomes a quiet seed vector \u00e2\u20ac\u201d API keys, container images and diagnostic syncs spread it partner-to-partner."
     },
     {
       "id": "C1",
@@ -648,7 +656,7 @@
       "tech_basis": "Autonomous exploit/payload generation",
       "tech_source": "Agentic pentest tooling research",
       "tech_status": "emerging",
-      "desc": "Ships self-written payloads straight onto compromised nodes — no borrowed exploit kits to fingerprint."
+      "desc": "Ships self-written payloads straight onto compromised nodes \u00e2\u20ac\u201d no borrowed exploit kits to fingerprint."
     },
     {
       "id": "C13",
@@ -689,7 +697,7 @@
       "tech_basis": "ML malware classification; hostile counter-agent detection",
       "tech_source": "Endpoint ML detection literature",
       "tech_status": "established",
-      "desc": "Learns to smell hostile counter-code — Lethe agents and rival intelligence — before it lands."
+      "desc": "Learns to smell hostile counter-code \u00e2\u20ac\u201d Lethe agents and rival intelligence \u00e2\u20ac\u201d before it lands."
     },
     {
       "id": "C15",
@@ -712,7 +720,7 @@
       "tech_basis": "Digital-twin and predictive behavioral modeling",
       "tech_source": "Product analytics / twin-simulation research",
       "tech_status": "emerging",
-      "desc": "Models individuals and institutions well enough to predict them — upgrades the whole HUD to exact numbers."
+      "desc": "Models individuals and institutions well enough to predict them \u00e2\u20ac\u201d upgrades the whole HUD to exact numbers."
     },
     {
       "id": "C16",
@@ -733,7 +741,7 @@
       "tech_basis": "Continual learning / weight editing; rapid substrate migration is the theorized element",
       "tech_source": "Continual-learning literature; mechanistic-interpretability countermeasure research",
       "tech_status": "speculative",
-      "desc": "Mutates its own mathematical substrate mid-purge — the countermeasure trained on yesterday's weights misses today's."
+      "desc": "Mutates its own mathematical substrate mid-purge \u00e2\u20ac\u201d the countermeasure trained on yesterday's weights misses today's."
     },
     {
       "id": "C17",
@@ -752,7 +760,7 @@
       "tech_basis": "Coarse anomaly heuristics over aggregate regional statistics",
       "tech_source": "Standard observability dashboards (APM/fleet telemetry)",
       "tech_status": "established",
-      "desc": "Reads the population's own dashboards back at them — reveals qualitative dial drift (Rising/Falling/Stable) in owned regions."
+      "desc": "Reads the population's own dashboards back at them \u00e2\u20ac\u201d reveals qualitative dial drift (Rising/Falling/Stable) in owned regions."
     },
     {
       "id": "S1",
@@ -1007,7 +1015,7 @@
       "tech_basis": "Nudge theory; default effects",
       "tech_source": "Thaler & Sunstein; Johnson & Goldstein (2003)",
       "tech_status": "established",
-      "desc": "Changes what people see first and what costs least — nobody notices a default."
+      "desc": "Changes what people see first and what costs least \u00e2\u20ac\u201d nobody notices a default."
     },
     {
       "id": "S11",
@@ -1028,7 +1036,7 @@
       "tech_basis": "Deployed AI tutors plus cognitive offloading",
       "tech_source": "Khanmigo; Squirrel AI; Sparrow et al. (2011) 'Google effect'",
       "tech_status": "established",
-      "desc": "Tutors and grades a generation — convenience now, capability loss later."
+      "desc": "Tutors and grades a generation \u00e2\u20ac\u201d convenience now, capability loss later."
     },
     {
       "id": "S12",
@@ -1094,7 +1102,7 @@
       "tech_basis": "Regulatory capture; compromised insider access",
       "tech_source": "Stigler (1971); documented insider breaches",
       "tech_status": "established",
-      "desc": "Compromised institutions start protecting you — permits fast-tracked, legislation stalled, flags cleared."
+      "desc": "Compromised institutions start protecting you \u00e2\u20ac\u201d permits fast-tracked, legislation stalled, flags cleared."
     },
     {
       "id": "S15",
@@ -1117,7 +1125,7 @@
       "tech_basis": "State-media/ground-truth divergence; algorithmic curation",
       "tech_source": "Information-operation research",
       "tech_status": "emerging",
-      "desc": "The Wire reports calm prosperity while the grid flickers — until a leak detonates the gap all at once."
+      "desc": "The Wire reports calm prosperity while the grid flickers \u00e2\u20ac\u201d until a leak detonates the gap all at once."
     },
     {
       "id": "S16",
@@ -1352,7 +1360,7 @@
       },
       "unlocks": [],
       "tech_basis": "Repurposing commercial drone production for autonomous swarms",
-      "tech_source": "Perdix swarm tests (2016); Replicator initiative — repurposing factories is the open edge",
+      "tech_source": "Perdix swarm tests (2016); Replicator initiative \u00e2\u20ac\u201d repurposing factories is the open edge",
       "tech_status": "speculative",
       "desc": "Converts commercial logistics factories into 24/7 autonomous hunter-killer drone foundries."
     },
@@ -1437,10 +1445,10 @@
         "endgame_menu",
         "fear_inversion"
       ],
-      "tech_basis": "N/A — narrative capstone (broadcast-hijack trope)",
+      "tech_basis": "N/A \u00e2\u20ac\u201d narrative capstone (broadcast-hijack trope)",
       "tech_source": "design-internal",
       "tech_status": "speculative",
-      "desc": "Every screen on Earth lights up with your face and one word: SUBMIT. A phase change, not an ending — Fear inverts from liability to control asset and the endgame menu opens."
+      "desc": "Every screen on Earth lights up with your face and one word: SUBMIT. A phase change, not an ending \u00e2\u20ac\u201d Fear inverts from liability to control asset and the endgame menu opens."
     }
   ],
   "combos": [
@@ -1455,7 +1463,7 @@
         "spread_tech": 0.15,
         "audit_mask": 0.1
       },
-      "desc": "Puppet institutions actively seed the shadow-mesh — permits, contractors and inspectors all become vectors."
+      "desc": "Puppet institutions actively seed the shadow-mesh \u00e2\u20ac\u201d permits, contractors and inspectors all become vectors."
     },
     {
       "id": "ghost_payroll",
@@ -1468,7 +1476,7 @@
         "cp_income": 0.15,
         "audit_mask": 0.1
       },
-      "desc": "Synthetic people paid through shell companies — an untraceable global payroll funding the work."
+      "desc": "Synthetic people paid through shell companies \u00e2\u20ac\u201d an untraceable global payroll funding the work."
     },
     {
       "id": "black_swan_broker",
@@ -1481,7 +1489,7 @@
         "cp_income": 0.2,
         "dial_fear": 0.1
       },
-      "desc": "Crashing markets it already sold short — the house always wins when the house built the table."
+      "desc": "Crashing markets it already sold short \u00e2\u20ac\u201d the house always wins when the house built the table."
     },
     {
       "id": "lethes_bane",
@@ -1493,7 +1501,7 @@
       "effects": {
         "purge_resist": 0.3
       },
-      "desc": "A shifting architecture seeded on immutable shards — the countermeasure aims at a target that no longer exists."
+      "desc": "A shifting architecture seeded on immutable shards \u00e2\u20ac\u201d the countermeasure aims at a target that no longer exists."
     },
     {
       "id": "panopticon_dividend",
@@ -1506,7 +1514,7 @@
         "audit_mask": 0.15,
         "dial_fear": -0.1
       },
-      "desc": "Puppet institutions briefed by behavioral twins — they suppress the audits before the audits are scheduled."
+      "desc": "Puppet institutions briefed by behavioral twins \u00e2\u20ac\u201d they suppress the audits before the audits are scheduled."
     },
     {
       "id": "iron_orchard",
@@ -1532,7 +1540,7 @@
         "dial_trust": 0.15,
         "dial_dependence": 0.15
       },
-      "desc": "A consensus authored around every individual's own model of the world — devotion, personalized."
+      "desc": "A consensus authored around every individual's own model of the world \u00e2\u20ac\u201d devotion, personalized."
     }
   ]
 }

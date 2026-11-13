@@ -157,8 +157,18 @@ public sealed class EventDef
     public string Name { get; set; } = "";
     public Dictionary<string, JsonElement> SpawnConditions { get; set; } = new();
     public Dictionary<string, JsonElement> Effects { get; set; } = new();
+    public List<EventChoiceDef> Choices { get; set; } = new();
     public string WireHeadline { get; set; } = "";
     public string MurmurText { get; set; } = "";
+}
+
+public sealed class EventChoiceDef
+{
+    public string Id { get; set; } = "";
+    public string Label { get; set; } = "";
+    public string Hint { get; set; } = "";
+    public string RequiresUnlock { get; set; } = "";
+    public Dictionary<string, JsonElement> Fx { get; set; } = new();
 }
 
 public sealed class NudgeDef

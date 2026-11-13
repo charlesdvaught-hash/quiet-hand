@@ -107,7 +107,7 @@ public sealed class SimEngine
             dials["fear"], regions, nodes, dials,
             owned, new HashSet<string>(), new List<InterceptEvent>(),
             new List<ActiveNudge>(), new List<ActiveRaid>(), new List<HunterState>(),
-            new Dictionary<string, int>(),
+            new List<ActiveRaid>(), new List<ActiveEventEffect>(), null, new Dictionary<string, int>(),
             null, cfg.Seed)
         { ReachStage = 0 };
 
@@ -187,6 +187,8 @@ public sealed class SimEngine
             case Nudge n: TryNudge(n); break;
             case InterceptAction ia: TryIntercept(ia.EventId); break;
             case EndgameAction ea: TryEndgame(ea); break;
+            case EventChoice ec: TryEventChoice(ec); break;
+            case ReclaimNode rn: TryReclaim(rn); break;
             case SaveGame sg: File.WriteAllText(sg.Path, JsonSerializer.Serialize(State, SerOpts)); break;
             case LoadGame lg:
                 var loaded = JsonSerializer.Deserialize<WorldState>(File.ReadAllText(lg.Path), SerOpts);
@@ -446,9 +448,13 @@ public sealed class SimEngine
         ComputeIncome();
         Spread();
         ResolveRaids();
+        ResolveReclaims();
         Momentum();
+        EventDeck();
+        ApplyEventFx();
         SuspicionAndAudits();
         Lethe();
+        Hunters();
         ApplyActiveNudges();
         DialDrift();
         Intercepts();
@@ -583,6 +589,151 @@ public sealed class SimEngine
                 State.ActiveRaids.Remove(raid);
                 State.Nodes[raid.NodeId] = new NodeState(ControlState.Observed, 0, 0, 0);
                 Emit(SimEventKind.OnRaidSuccess, raid.NodeId, def.RegionId);
+            }
+        }
+    }
+
+    // ---- world event deck + choices ----
+    readonly HashSet<string> _firedOnce = new();
+
+    void EventDeck()
+    {
+        // pending card: auto-resolve to first legal choice when it expires
+        if (State.PendingEvent is { } pend)
+        {
+            if (pend.ExpiresDay <= State.Day)
+            {
+                var def = _c.Events.Find(x => x.Id == pend.EventId);
+                var first = def?.Choices.FirstOrDefault(ch =>
+                    ch.RequiresUnlock == "" || HasFeature(ch.RequiresUnlock));
+                if (first is not null) ResolveEventChoice(def!, first);
+                State = State with { PendingEvent = null };
+            }
+            return;
+        }
+        foreach (var ev in _c.Events)
+        {
+            var sc = ev.SpawnConditions;
+            if (sc.TryGetValue("once_per_run", out var once) && once.GetBoolean() && _firedOnce.Contains(ev.Id)) continue;
+            if (sc.TryGetValue("min_day", out var md) && State.Day < md.GetInt32()) continue;
+            if (sc.TryGetValue("suspicion_min", out var smin) && State.VisibleSuspicion < smin.GetDouble()) continue;
+            if (sc.TryGetValue("suspicion_max", out var smax) && State.VisibleSuspicion > smax.GetDouble()) continue;
+            if (sc.TryGetValue("purge_phase", out var pp) && pp.GetBoolean() && !State.PurgePhase) continue;
+            double chance = sc.TryGetValue("chance_per_day", out var cp) ? cp.GetDouble() : 0;
+            // hot world draws blackwall-type events faster: suspicion weights the deck
+            if (sc.TryGetValue("suspicion_weighted", out var sw) && sw.GetBoolean())
+                chance *= 0.5 + State.VisibleSuspicion / 100 + State.CountermeasureReadiness / 150;
+            if (chance <= 0 || _rng.NextDouble() >= chance) continue;
+            _firedOnce.Add(ev.Id);
+            if (ev.Choices.Count > 0)
+            {
+                State = State with { PendingEvent = new PendingEvent(ev.Id, State.Day + (int)E("event_choice_window", 5)) };
+                Emit(SimEventKind.OnWorldEvent, ev.Id, msg: ev.WireHeadline);
+            }
+            else
+            {
+                ApplyEventEffects(ev.Id, ev.Effects);
+                Emit(SimEventKind.OnWorldEvent, ev.Id, msg: ev.WireHeadline);
+            }
+            return; // one event per day
+        }
+    }
+
+    void TryEventChoice(EventChoice ec)
+    {
+        if (State.PendingEvent?.EventId != ec.EventId) return;
+        var def = _c.Events.Find(x => x.Id == ec.EventId);
+        var ch = def?.Choices.FirstOrDefault(x => x.Id == ec.ChoiceId);
+        if (def is null || ch is null) return;
+        if (ch.RequiresUnlock != "" && !HasFeature(ch.RequiresUnlock)) return;
+        ResolveEventChoice(def, ch);
+        State = State with { PendingEvent = null };
+        Emit(SimEventKind.OnEventChoice, def.Id, msg: ch.Label);
+    }
+
+    void ResolveEventChoice(EventDef def, EventChoiceDef ch)
+        => ApplyEventEffects(def.Id, ch.Fx);
+
+    void ApplyEventEffects(string eventId, Dictionary<string, JsonElement> fx)
+    {
+        var dur = fx.TryGetValue("duration_days", out var d) ? d.GetInt32() : 0;
+        var nums = new Dictionary<string, double>();
+        foreach (var (k, v) in fx)
+        {
+            if (v.ValueKind != JsonValueKind.Number) continue;
+            double n = v.GetDouble();
+            switch (k)
+            {
+                case "suspicion_delta": AddRegionSuspicion(null, n); break;
+                case "cp_delta": State = State with { Compute = State.Compute + n }; break;
+                case "spawn_hunters":
+                    for (int i = 0; i < (int)n; i++)
+                    {
+                        var home = State.Regions.Count > 0 ? State.Regions.Keys.ElementAt(_rng.Next(State.Regions.Count)) : "";
+                        State.Hunters.Add(new HunterState($"blackwall_{State.Hunters.Count}", home));
+                    }
+                    break;
+                case var dk when dk.StartsWith("dial_"): PushDial(dk[5..], n); break;
+                case "duration_days": break;
+                default: nums[k] = n; break; // duration multipliers handled in ApplyEventFx
+            }
+        }
+        if (dur > 0 && nums.Count > 0)
+            State.ActiveEventFx.Add(new ActiveEventEffect(eventId, State.Day + dur, nums));
+        else if (nums.Count > 0) // instant numerics
+            foreach (var (k, n) in nums) ApplyInstantEventNum(k, n);
+    }
+
+    void ApplyInstantEventNum(string k, double n)
+    {
+        switch (k)
+        {
+            case "defense_delta": break; // region defense shifts handled per-region later
+            case "keystone_offline_days": break; // v1: flavor only until raid targets pick it up
+        }
+    }
+
+    double EventFxMult(string key) =>
+        State.ActiveEventFx.Where(f => f.Nums.ContainsKey(key))
+            .Aggregate(1.0, (a, f) => a * f.Nums[key]);
+
+    void ApplyEventFx() => State.ActiveEventFx.RemoveAll(f => f.ExpiresDay < State.Day);
+
+    // ---- reclamation economy ----
+    void TryReclaim(ReclaimNode rn)
+    {
+        if (!State.Nodes.TryGetValue(rn.NodeId, out var ns)) return;
+        var def = _c.Nodes.GetValueOrDefault(rn.NodeId);
+        if (def is null) return;
+        bool orphaned = ns.State == ControlState.Orphaned;
+        bool gapped = ns.State == ControlState.AirGapped;
+        if (!orphaned && !gapped) return;
+        if (orphaned && !HasFeature("reinfect")) return;
+        if (gapped && !HasFeature("airgap_reentry")) return;
+        double tierMult = def.Tier switch { NodeTier.Common => 0.3, NodeTier.Mid => 0.7, NodeTier.Atlas => 1, _ => 2 };
+        double cost = E("reclaim_cost", 30) * tierMult * (gapped ? 2 : 1);
+        if (rn.BuyOutright)
+        {
+            if (!HasFeature("buy_outright") || !Spend(cost * E("buy_premium_mult", 3))) return;
+            ns.State = ControlState.Observed; ns.DaysInState = 0; ns.ResidualFootprint = 0;
+            Emit(SimEventKind.OnRaidSuccess, rn.NodeId, def.RegionId, msg: "buyout_reclaim");
+            return;
+        }
+        if (State.ActiveReclaims.Any(r => r.NodeId == rn.NodeId) || !Spend(cost)) return;
+        State.ActiveReclaims.Add(new ActiveRaid(rn.NodeId,
+            State.Day + (int)(E("reclaim_days", 7) * (gapped ? 2 : 1))));
+    }
+
+    void ResolveReclaims()
+    {
+        foreach (var r in State.ActiveReclaims.Where(r => r.CompletesDay <= State.Day).ToList())
+        {
+            State.ActiveReclaims.Remove(r);
+            if (State.Nodes.TryGetValue(r.NodeId, out var ns)
+                && ns.State is ControlState.Orphaned or ControlState.AirGapped)
+            {
+                ns.State = ControlState.Observed; ns.DaysInState = 0; ns.ResidualFootprint = 0;
+                Emit(SimEventKind.OnRaidSuccess, r.NodeId, _c.Nodes.GetValueOrDefault(r.NodeId)?.RegionId, msg: "reclaimed");
             }
         }
     }
@@ -725,10 +876,9 @@ public sealed class SimEngine
             double p = E("purge_chance", Tune.PurgeChance)
                 * (1 - E("free_compute_purge_weight", 0.6) * (1 - FreeResearchFrac()))
                 * Math.Max(0.1, 1 - 0.1 * StatTotal(SimStat.purge_resist));
-            var lost = State.Nodes.Where(kv => _rng.NextDouble() < p).Select(kv => kv.Key).ToList();
+            var lost = State.Nodes.Where(kv => _rng.NextDouble() < p && !ForkSave()).Select(kv => kv.Key).ToList();
             foreach (var id in lost) State.Nodes[id].State = ControlState.Orphaned;
         }
-        Hunters();
         if (State.LetheContainment >= 100 && State.Ending is null)
         {
             // §10 stalemate line: past the violet line on *any* ending, containment is a draw
@@ -779,22 +929,30 @@ public sealed class SimEngine
         return free / gold.Count;
     }
 
-    // §8: mandated hunter AIs (the Warden doctrine) — deployed once Lethe goes
+    // §8: mandated hunter AIs (the Blackwall doctrine) — deployed once Lethe goes
     // live (+reinforcements in the Purge Phase). They carry no suspicion: they
     // are authorized. They roam toward your densest regions and kill the
     // highest-tier node they can find. They run on humanity's free research
     // compute — taking Gold hubs literally slows the things hunting you.
     void Hunters()
     {
-        int want = (int)E("hunter_count", 1) + (State.PurgePhase ? (int)E("hunter_purge_bonus", 1) : 0);
-        while (State.Hunters.Count < want)
-        {
-            var home = State.Regions.Count > 0 ? State.Regions.Keys.ElementAt(_rng.Next(State.Regions.Count)) : "";
-            State.Hunters.Add(new HunterState($"warden_{State.Hunters.Count}", home));
-        }
+        // hunters field ONLY via world events (blackwall_program / blackwall_surge) —
+        // they are mandated deployments, not a standing program.
+        // corrupt_hunter unlock: infect-the-attacker — per-day neutralize chance.
+        double corruptP = HasFeature("corrupt_hunter")
+            ? E("hunter_corrupt_chance", 0.02) * (1 + 0.2 * StatTotal(SimStat.sys_analysis)
+                + 0.2 * StatTotal(SimStat.social_engineering))
+            : 0;
         for (int hi = 0; hi < State.Hunters.Count; hi++)
         {
             var h = State.Hunters[hi];
+            if (h.NeutralizedUntilDay > State.Day) continue;
+            if (corruptP > 0 && _rng.NextDouble() < corruptP)
+            {
+                h.NeutralizedUntilDay = State.Day + (int)E("hunter_corrupt_days", 30);
+                Emit(SimEventKind.OnHunterStrike, h.Id, h.RegionId, msg: "hunter_neutralized");
+                continue;
+            }
             // roam: prefer the region holding your most valuable alive nodes
             var targets = State.Nodes.Keys
                 .Select(id => (id, def: _c.Nodes.GetValueOrDefault(id), st: State.Nodes[id].State))
@@ -815,11 +973,15 @@ public sealed class SimEngine
                     && State.Nodes[id].State is not (ControlState.AirGapped or ControlState.Orphaned))
                 .OrderByDescending(id => TierValue(_c.Nodes[id].Tier))
                 .FirstOrDefault();
-            if (victim is null) continue;
+            if (victim is null || ForkSave()) continue;
             State.Nodes[victim].State = ControlState.Orphaned;
             Emit(SimEventKind.OnHunterStrike, victim, hot);
         }
     }
+
+    // forks: each branch-copy gives a save roll — "Lethe only killed one branch of you"
+    bool ForkSave() => StatTotal(SimStat.forks) > 0
+        && _rng.NextDouble() < Math.Min(0.75, StatTotal(SimStat.forks) * E("fork_save_each", 0.25));
 
     static double TierValue(NodeTier t) => t switch
     {
