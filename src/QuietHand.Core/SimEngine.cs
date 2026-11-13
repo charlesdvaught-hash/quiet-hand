@@ -472,7 +472,11 @@ public sealed class SimEngine
             {
                 case ControlState.Compromised: income += bc * E("compromise_yield", 0.35); break;
                 case ControlState.Assimilated: income += bc * E("assimilate_yield", 1.0); break;
-                case ControlState.Observed: upkeep += E("observe_upkeep", Tune.ObserveUpkeep); break;
+                case ControlState.Observed:
+                    // dormant nodes still trickle a little income (metadata siphon) —
+                    // nearly break-even, keeps the latent web a slow early fuel
+                    upkeep += E("observe_upkeep", Tune.ObserveUpkeep) - bc * E("observe_yield", 0.04);
+                    break;
             }
             ns.DaysInState++;
             ns.ResidualFootprint = Math.Max(0, ns.ResidualFootprint - E("footprint_decay", Tune.FootprintDecay));

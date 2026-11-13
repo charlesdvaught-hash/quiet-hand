@@ -65,5 +65,6 @@
   "momentum_audit_weight": 1.0,
   "momentum_lethe_weight": 0.5,
   "free_compute_audit_weight": 0.6,
-  "free_compute_purge_weight": 0.6
+  "free_compute_purge_weight": 0.6,
+  "observe_yield": 0.04
 }
