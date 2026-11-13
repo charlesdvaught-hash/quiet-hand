@@ -35,6 +35,8 @@ public record WorldState(
     public double SuspicionPeak { get; set; }
     public int PurgeSurvivals { get; set; }   // days survived inside Purge Phase
     public int CollapseStreak { get; set; }   // consecutive days below sustenance floor
+    public double CountermeasureReadiness { get; set; } // §8 institutional momentum floor
+    public bool EndingWasStalemate { get; set; }        // §10 stalemate line: containment finished while near an ending
     public bool FearInversion => Phase == Phase.Subjugated;
 }
 

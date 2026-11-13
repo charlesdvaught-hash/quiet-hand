@@ -129,4 +129,37 @@ public class SimEngineTests
         Assert.Equal("quiet_abdication", e.State.Ending);
         Assert.Contains(events, ev => ev.Kind == SimEventKind.OnEndingReached);
     }
+
+    [Fact]
+    public void Momentum_AccruesOverTime()
+    {
+        var e = new SimEngine(Cfg(), Fixture());
+        for (int i = 0; i < 365; i++) e.TickDay();
+        Assert.True(e.State.CountermeasureReadiness > 1.0,
+            $"readiness should ratchet yearly (got {e.State.CountermeasureReadiness:F2})");
+    }
+
+    [Fact]
+    public void StalemateLine_ConvertsErasure()
+    {
+        var c = Fixture();
+        // reach_min 0 always satisfied (1.0) + autonomy_max failed (~0.08) -> ~0.54
+        // (use reach not dependence: dials drift toward baseline over long runs)
+        c.Endings.Add(new EndingDef
+        {
+            Id = "almost_win", Family = "quiet", StalemateAt = 0.5,
+            Thresholds =
+            {
+                ["reach_min"] = System.Text.Json.JsonDocument.Parse("0").RootElement,
+                ["autonomy_max"] = System.Text.Json.JsonDocument.Parse("5").RootElement,
+            },
+        });
+        var e = new SimEngine(Cfg(), c);
+        e.State.Dials["dependence"] = 90;
+        e.State.Dials["autonomy"] = 60;   // keeps quiet_abdication from firing first
+        e.State.LetheTriggered = true;
+        for (int i = 0; i < 4000 && e.State.Ending is null; i++) e.TickDay();
+        Assert.Equal("almost_win", e.State.Ending);
+        Assert.True(e.State.EndingWasStalemate);
+    }
 }

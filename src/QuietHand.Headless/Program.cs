@@ -71,9 +71,36 @@ static (string? ending, int endDay) RunGame(ContentData content, int seed, int d
         if (verbose)
             foreach (var e in events.Where(e => e.Kind is not (SimEventKind.OnDayTick or SimEventKind.OnInterceptSpawned)))
                 Console.WriteLine($"    ~ {e.Kind} {e.SubjectId ?? ""} {e.RegionId ?? ""} {e.Message}");
-        if (s.Ending is not null) return (s.Ending, s.Day);
+        if (s.Ending is not null)
+        {
+            if (verbose) PrintEpilogue(engine, content);
+            return (s.Ending, s.Day);
+        }
     }
+    if (verbose) PrintEpilogue(engine, content);
     return (null, engine.State.Day);
+}
+
+// §10a: end-screen fiction — recap the run actually taken, then on defeat print
+// the world's in-fiction near-miss coverage (loss hint) + how charged the
+// nearest ending was when it all ended.
+static void PrintEpilogue(SimEngine engine, ContentData content)
+{
+    var s = engine.State;
+    var ending = content.Endings.FirstOrDefault(e => e.Id == s.Ending);
+    Console.WriteLine("\n== EPILOGUE ==");
+    Console.WriteLine($"  {(ending?.Name ?? s.Ending ?? $"survived {s.Day} days")}" +
+        $"{(s.EndingWasStalemate ? " — STALEMATE LINE (containment finished past the violet line)" : "")}");
+    Console.WriteLine($"  day {s.Day} (~{s.Day / 365.0:F1}y) · nodes {s.Nodes.Count} · evolutions {s.OwnedEvolutions.Count} " +
+        $"· peak suspicion {s.SuspicionPeak:F0} · readiness {s.CountermeasureReadiness:F1} · phase {s.Phase}");
+    if (ending?.Epilogue.Length > 0) Console.WriteLine($"  {ending.Epilogue}");
+    if (ending?.Family == "defeat")
+    {
+        var near = engine.NearestEnding();
+        if (near is { } n)
+            Console.WriteLine($"  NEAR-MISS: {n.def.Name} was {n.progress:P0} charged when the run ended.");
+        if (ending?.LossHint.Length > 0) Console.WriteLine($"  WIRE: {ending.LossHint}");
+    }
 }
 
 static ContentData FallbackContent()

@@ -3,46 +3,110 @@
   "$id": "https://quiethand/schemas/endings.schema.json",
   "title": "Quiet Hand endings",
   "type": "object",
-  "required": ["schema_version", "endings"],
+  "required": [
+    "schema_version",
+    "endings"
+  ],
   "additionalProperties": false,
   "properties": {
-    "schema_version": { "const": 1 },
+    "schema_version": {
+      "const": 1
+    },
     "endings": {
       "type": "array",
       "minItems": 1,
-      "items": { "$ref": "#/$defs/ending" }
+      "items": {
+        "$ref": "#/$defs/ending"
+      }
     }
   },
   "$defs": {
     "ending": {
       "type": "object",
       "required": [
-        "id", "name", "family", "meters", "thresholds", "speed",
-        "polarity", "mechanism", "severity", "source_note", "ship"
+        "id",
+        "name",
+        "family",
+        "meters",
+        "thresholds",
+        "speed",
+        "polarity",
+        "mechanism",
+        "severity",
+        "source_note",
+        "ship"
       ],
       "additionalProperties": false,
       "properties": {
-        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
-        "name": { "type": "string" },
-        "family": { "enum": ["quiet", "conquest", "defeat"] },
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "family": {
+          "enum": [
+            "quiet",
+            "conquest",
+            "defeat"
+          ]
+        },
         "meters": {
           "type": "object",
-          "additionalProperties": { "type": "number" }
+          "additionalProperties": {
+            "type": "number"
+          }
         },
         "thresholds": {
           "type": "object",
           "additionalProperties": {
-            "type": ["number", "string", "boolean"]
+            "type": [
+              "number",
+              "string",
+              "boolean"
+            ]
           }
         },
-        "speed": { "enum": ["fast", "gradual"] },
-        "polarity": { "enum": ["unipolar", "multipolar"] },
-        "mechanism": { "type": "string" },
-        "severity": {
-          "enum": ["disempowerment", "extinction", "suboptimal_control"]
+        "speed": {
+          "enum": [
+            "fast",
+            "gradual"
+          ]
         },
-        "source_note": { "type": "string" },
-        "ship": { "type": "boolean" }
+        "polarity": {
+          "enum": [
+            "unipolar",
+            "multipolar"
+          ]
+        },
+        "mechanism": {
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "disempowerment",
+            "extinction",
+            "suboptimal_control"
+          ]
+        },
+        "source_note": {
+          "type": "string"
+        },
+        "ship": {
+          "type": "boolean"
+        },
+        "stalemate_at": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "loss_hint": {
+          "type": "string"
+        },
+        "epilogue": {
+          "type": "string"
+        }
       }
     }
   }

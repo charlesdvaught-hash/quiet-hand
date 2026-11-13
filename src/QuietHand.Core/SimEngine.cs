@@ -417,6 +417,7 @@ public sealed class SimEngine
         BurnWeaponizedNodes();
         ComputeIncome();
         Spread();
+        Momentum();
         SuspicionAndAudits();
         Lethe();
         DialDrift();
@@ -520,6 +521,7 @@ public sealed class SimEngine
             {
                 double p = E("audit_base", Tune.AuditBase)
                     * Math.Max(0.2, (_c.Regions.Find(r => r.Id == region)?.DefenseTier ?? 50) / 50.0)
+                    * (1 + State.CountermeasureReadiness / 100 * E("momentum_audit_weight", 1.0))
                     * auditMult * mask;
                 if (ns.State == ControlState.Assimilated) p *= E("audit_assimilated_mult", Tune.AuditAssimilatedMult);
                 if (def!.Tier is NodeTier.KeystoneT1 or NodeTier.KeystoneT2) p *= E("audit_keystone_mult", Tune.AuditKeystoneMult);
@@ -570,7 +572,8 @@ public sealed class SimEngine
         double dep = State.Dials.GetValueOrDefault("dependence", 20);
         double aut = State.Dials.GetValueOrDefault("autonomy", 60);
         double delta = E("lethe_base_rate", Tune.LetheBaseRate)
-            * freeFrac * (1 - dep / 100) * (aut / 100) * DifficultyLetheMult();
+            * freeFrac * (1 - dep / 100) * (aut / 100) * DifficultyLetheMult()
+            * (1 + State.CountermeasureReadiness / 100 * E("momentum_lethe_weight", 0.5));
         State = State with { LetheContainment = Math.Clamp(State.LetheContainment + delta, 0, 100) };
 
         double fear = Math.Max(0, State.Fear - E("fear_decay_under_lethe", Tune.FearDecayUnderLethe));
@@ -587,9 +590,68 @@ public sealed class SimEngine
         }
         if (State.LetheContainment >= 100 && State.Ending is null)
         {
-            State = State with { Ending = "lethe_erasure" };
-            Emit(SimEventKind.OnEndingReached, "lethe_erasure");
+            // §10 stalemate line: past the violet line on *any* ending, containment is a draw
+            var near = _c.Endings
+                .Where(e => e.Ship && e.Family != "defeat" && e.Thresholds.Count > 0
+                    && (e.Family != "conquest" || State.Phase == Phase.Subjugated))
+                .Select(e => (e, prog: e.Thresholds.Average(kv => GateProgress(e, kv))))
+                .Where(x => x.prog >= x.e.StalemateAt)
+                .OrderByDescending(x => x.prog)
+                .Cast<(EndingDef def, double progress)?>()
+                .FirstOrDefault();
+            if (near is (var def, var prog))
+            {
+                State = State with { Ending = def.Id };
+                State.EndingWasStalemate = true;
+                Emit(SimEventKind.OnEndingReached, def.Id, msg: def.Name + " (stalemate)");
+            }
+            else
+            {
+                State = State with { Ending = "lethe_erasure" };
+                Emit(SimEventKind.OnEndingReached, "lethe_erasure");
+            }
         }
+    }
+
+    // §8 institutional momentum: readiness ratchets up over game-years regardless of
+    // suspicion — audits and Lethe scale with it, so perfect stealth has a clock too.
+    void Momentum()
+    {
+        double perDay = E("momentum_per_year", 1.5) / 365.0;
+        State.CountermeasureReadiness = Math.Clamp(State.CountermeasureReadiness + perDay, 0, 100);
+    }
+
+    // §10a: progress toward each ending = mean per-gate satisfaction ratio (0..1).
+    // Used by the stalemate line and by the epilogue's nearest-miss coverage.
+    public (EndingDef def, double progress)? NearestEnding()
+    {
+        (EndingDef def, double progress)? best = null;
+        foreach (var e in _c.Endings)
+        {
+            if (!e.Ship || e.Family == "defeat" || e.Thresholds.Count == 0) continue;
+            if (e.Family == "conquest" && State.Phase != Phase.Subjugated) continue;
+            double prog = e.Thresholds.Average(kv => GateProgress(e, kv));
+            if (best is null || prog > best.Value.progress) best = (e, prog);
+        }
+        return best;
+    }
+
+    double GateProgress(EndingDef e, KeyValuePair<string, JsonElement> kv)
+    {
+        if (kv.Value.ValueKind == JsonValueKind.String)
+            return GatePasses(kv, 0) ? 1 : 0;
+        double v = kv.Value.GetDouble();
+        if (v == 0) return GatePasses(kv, 0) ? 1 : 0;
+        if (kv.Key == "meter")
+            return Math.Clamp(e.Meters.Sum(m => m.Value * Metric(m.Key)) / v, 0, 1);
+        if (kv.Key == "suspicion_max_reached")
+            return Metric("suspicion_peak") <= v ? 1
+                : Math.Clamp(1 - (Metric("suspicion_peak") - v) / Math.Max(1, 100 - v), 0, 1);
+        if (kv.Key.EndsWith("_max"))
+            return Math.Clamp(v / Math.Max(1e-9, Metric(kv.Key[..^4])), 0, 1);
+        if (kv.Key.EndsWith("_min"))
+            return Math.Clamp(Metric(kv.Key[..^4]) / v, 0, 1);
+        return Math.Clamp(Metric(kv.Key) / v, 0, 1);
     }
 
     void DialDrift()

@@ -122,6 +122,9 @@ public sealed class EndingDef
     public string Severity { get; set; } = "";
     public string SourceNote { get; set; } = "";
     public bool Ship { get; set; } = true;
+    public double StalemateAt { get; set; } = 0.9;   // §10 stalemate line, fraction of ending progress
+    public string LossHint { get; set; } = "";       // §10a in-fiction near-miss coverage
+    public string Epilogue { get; set; } = "";       // §10a ending-screen text
 }
 
 public sealed class ScenarioDef
