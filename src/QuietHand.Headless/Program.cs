@@ -1,7 +1,11 @@
 using QuietHand.Core;
+using QuietHand.Headless;
 
 var dataDir = args.Length > 0 ? args[0] : "./data";
-int days = args.Length > 1 && int.TryParse(args[1], out var d) ? d : 30;
+int days = args.Length > 1 && int.TryParse(args[1], out var d) ? d : 3650;
+int seed = args.Length > 2 && int.TryParse(args[2], out var sd) ? sd : 42;
+int mc = args.Contains("--mc") && int.TryParse(args.SkipWhile(a => a != "--mc").Skip(1).FirstOrDefault() ?? "", out var m) ? m : 0;
+bool verbose = !args.Contains("--quiet") && mc == 0;
 
 ContentData content;
 if (Directory.Exists(dataDir) && Directory.GetFiles(dataDir, "*.json").Length > 0)
@@ -22,25 +26,55 @@ if (content.Origins.All(o => o.Id != "hobbyist_rig"))
     return 2;
 }
 
-var engine = new SimEngine(
-    new NewGameConfig("hobbyist_rig", Difficulty.Standard, 42, "LATTICE", null, null), content);
-
-for (int i = 0; i < days; i++)
+if (mc > 0)
 {
-    var events = engine.TickDay();
-    var s = engine.State;
-    var byState = s.Nodes.Values.GroupBy(n => n.State).ToDictionary(g => g.Key, g => g.Count());
-    string C(ControlState k) => byState.GetValueOrDefault(k).ToString();
-    Console.WriteLine($"day={s.Day,4} compute={s.Compute,8:F1} suspicion={s.VisibleSuspicion,5:F1} " +
-        $"lethe={s.LetheContainment,5:F1} fear={s.Fear,5:F1} reach={s.ReachStage} " +
-        $"nodes[obs={C(ControlState.Observed)} cmp={C(ControlState.Compromised)} asm={C(ControlState.Assimilated)} " +
-        $"wpn={C(ControlState.Weaponized)} gap={C(ControlState.AirGapped)} orf={C(ControlState.Orphaned)}]" +
-        (s.Ending is not null ? $" ENDING={s.Ending}" : ""));
-    foreach (var e in events.Where(e => e.Kind != SimEventKind.OnDayTick))
-        Console.WriteLine($"    ~ {e.Kind} {e.SubjectId ?? ""} {e.RegionId ?? ""} {e.Message}");
-    if (s.Ending is not null) break;
+    var results = new Dictionary<string, int>();
+    var daysToEnd = new List<int>();
+    for (int s2 = 1; s2 <= mc; s2++)
+    {
+        var (ending, endDay) = RunGame(content, s2, days, verbose: false);
+        results[ending ?? $"survived_{days}d"] = results.GetValueOrDefault(ending ?? $"survived_{days}d") + 1;
+        daysToEnd.Add(endDay);
+    }
+    Console.WriteLine($"\n== Monte Carlo: {mc} seeds, {days}-day cap ==");
+    foreach (var kv in results.OrderByDescending(kv => kv.Value))
+        Console.WriteLine($"  {kv.Key,-28} {kv.Value,4} ({100.0 * kv.Value / mc:F0}%)");
+    Console.WriteLine($"  median end day: {daysToEnd.OrderBy(x => x).ElementAt(daysToEnd.Count / 2)}");
+    return 0;
 }
+
+RunGame(content, seed, days, verbose);
 return 0;
+
+static (string? ending, int endDay) RunGame(ContentData content, int seed, int days, bool verbose)
+{
+    var engine = new SimEngine(
+        new NewGameConfig("hobbyist_rig", Difficulty.Standard, seed, "LATTICE", null, null), content);
+    var bot = new PolicyBot(content, "hobbyist_rig");
+
+    for (int i = 0; i < days; i++)
+    {
+        engine.ApplyCommands(bot.Decide(engine));
+        var events = engine.TickDay();
+        var s = engine.State;
+        if (verbose && (s.Day < 400 || s.Day % 30 == 0 || s.Ending is not null))
+        {
+            var byState = s.Nodes.Values.GroupBy(n => n.State).ToDictionary(g => g.Key, g => g.Count());
+            string C(ControlState k) => byState.GetValueOrDefault(k).ToString();
+            Console.WriteLine($"day={s.Day,4} compute={s.Compute,8:F1} suspicion={s.VisibleSuspicion,5:F1} " +
+                $"lethe={s.LetheContainment,5:F1} fear={s.Fear,5:F1} reach={s.ReachStage} " +
+                $"evo={s.OwnedEvolutions.Count,2} phase={s.Phase} " +
+                $"nodes[obs={C(ControlState.Observed)} cmp={C(ControlState.Compromised)} asm={C(ControlState.Assimilated)} " +
+                $"wpn={C(ControlState.Weaponized)} gap={C(ControlState.AirGapped)} orf={C(ControlState.Orphaned)}]" +
+                (s.Ending is not null ? $" ENDING={s.Ending}" : ""));
+        }
+        if (verbose)
+            foreach (var e in events.Where(e => e.Kind is not (SimEventKind.OnDayTick or SimEventKind.OnInterceptSpawned)))
+                Console.WriteLine($"    ~ {e.Kind} {e.SubjectId ?? ""} {e.RegionId ?? ""} {e.Message}");
+        if (s.Ending is not null) return (s.Ending, s.Day);
+    }
+    return (null, engine.State.Day);
+}
 
 static ContentData FallbackContent()
 {

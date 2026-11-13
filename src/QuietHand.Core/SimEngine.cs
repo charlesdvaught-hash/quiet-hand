@@ -10,7 +10,7 @@ public sealed class SimEngine
     {
         public const double SpreadBase = 0.01;          // §5 P_spread base (~1%/day)
         public const double CorridorSameRegion = 1.0;
-        public const double ObserveUpkeep = 0.05;
+        public const double ObserveUpkeep = 0.005;      // negligible — presence ≠ heat; mass spread mustn't bankrupt
         public const double SusCompromised = 0.05;      // per-node/day suspicion contribution
         public const double SusAssimilatedMult = 3.0;
         public const double SusWeaponized = 0.3;
@@ -46,6 +46,8 @@ public sealed class SimEngine
         public const double InterceptBaseChance = 0.10;
         public const double CollapseFloor = -50;
         public const double DialDrift = 0.02;
+        public const int ReemergenceDays = 14;          // dormant seed wakes after N days at zero nodes
+        public const double ReemergenceSuspicion = 2;
     }
 
     static readonly int[] ReachThresholds = { 1, 3, 8, 20, 50, 120 }; // owned nodes → stage 0..5
@@ -59,6 +61,7 @@ public sealed class SimEngine
     readonly HashSet<string> _features = new();
     readonly List<SimEvent> _pending = new();
     int _lastInterceptDay = int.MinValue / 2;
+    int _daysSinceEmpty;
 
     public WorldState State { get; private set; }
 
@@ -223,7 +226,7 @@ public sealed class SimEngine
         if (State.Compute < cost) return;
         State = State with { Compute = State.Compute - cost };
         GrantEvolution(nodeId);
-        if (ev.Unlocks.Contains("subjugate") && State.Phase == Phase.Covert) DoPhaseFlip();
+        if ((ev.Unlocks.Contains("phase_flip") || ev.Unlocks.Contains("subjugate")) && State.Phase == Phase.Covert) DoPhaseFlip();
         CheckCombos();
     }
 
@@ -419,6 +422,7 @@ public sealed class SimEngine
         DialDrift();
         Intercepts();
         UpdateReach();
+        Reemergence();
         EvaluateEndings();
         Emit(SimEventKind.OnDayTick);
         return Drain();
@@ -443,8 +447,8 @@ public sealed class SimEngine
             double bc = def?.BaseCompute ?? 0;
             switch (ns.State)
             {
-                case ControlState.Compromised: income += bc * 0.35; break;
-                case ControlState.Assimilated: income += bc; break;
+                case ControlState.Compromised: income += bc * E("compromise_yield", 0.35); break;
+                case ControlState.Assimilated: income += bc * E("assimilate_yield", 1.0); break;
                 case ControlState.Observed: upkeep += E("observe_upkeep", Tune.ObserveUpkeep); break;
             }
             ns.DaysInState++;
@@ -452,6 +456,9 @@ public sealed class SimEngine
         }
         income *= 1 + 0.05 * StatTotal(SimStat.cp_income);
         State = State with { Compute = State.Compute + income - upkeep };
+        // sustenance-failure streak: collapse is a *condition*, not a one-day dip
+        if (State.Compute <= E("sustenance_floor", 2)) State.CollapseStreak++;
+        else State.CollapseStreak = 0;
         if (State.Compute < E("collapse_floor", Tune.CollapseFloor) && State.Ending is null)
         {
             State = State with { Ending = "fractured_collapse" };
@@ -512,7 +519,7 @@ public sealed class SimEngine
             if (ns.State is ControlState.Compromised or ControlState.Assimilated)
             {
                 double p = E("audit_base", Tune.AuditBase)
-                    * Math.Max(0.2, _c.Regions.Find(r => r.Id == region)?.DefenseTier ?? 1)
+                    * Math.Max(0.2, (_c.Regions.Find(r => r.Id == region)?.DefenseTier ?? 50) / 50.0)
                     * auditMult * mask;
                 if (ns.State == ControlState.Assimilated) p *= E("audit_assimilated_mult", Tune.AuditAssimilatedMult);
                 if (def!.Tier is NodeTier.KeystoneT1 or NodeTier.KeystoneT2) p *= E("audit_keystone_mult", Tune.AuditKeystoneMult);
@@ -613,6 +620,24 @@ public sealed class SimEngine
         Emit(SimEventKind.OnInterceptSpawned, ev.Id, region, msg: ev.Kind);
     }
 
+    // Provisional v1 rule (Dave veto-able): when every foothold is lost, a dormant
+    // copy re-seeds a single Observe node elsewhere after a delay — total node loss
+    // is a setback with a Suspicion cost, not a soft-lock. Lethe erasure still ends it.
+    void Reemergence()
+    {
+        bool alive = State.Nodes.Values.Any(n => n.State is not (ControlState.AirGapped or ControlState.Orphaned));
+        if (alive) { _daysSinceEmpty = 0; return; }
+        if (++_daysSinceEmpty < E("reemergence_days", Tune.ReemergenceDays)) return;
+        _daysSinceEmpty = 0;
+        var commons = _c.Nodes.Values.Where(d => d.Tier is NodeTier.Common && !State.Nodes.ContainsKey(d.Id)).ToList();
+        if (commons.Count == 0) commons = _c.Nodes.Values.Where(d => d.Tier is NodeTier.Common).ToList();
+        if (commons.Count == 0) return;
+        var pick = commons[_rng.Next(commons.Count)];
+        State.Nodes[pick.Id] = new NodeState(ControlState.Observed, 0, 0, 0);
+        AddRegionSuspicion(pick.RegionId, E("reemergence_suspicion", Tune.ReemergenceSuspicion));
+        Emit(SimEventKind.OnFreeMutation, pick.Id, pick.RegionId, msg: "dormant_seed_reemergence");
+    }
+
     void UpdateReach()
     {
         int owned = State.Nodes.Count(kv => kv.Value.State is not (ControlState.AirGapped or ControlState.Orphaned));
@@ -655,7 +680,9 @@ public sealed class SimEngine
 
     double Metric(string key) => key switch
     {
-        "compute" or "global_compute" => State.Compute,
+        "compute" => State.Compute,
+        // fractured_collapse = sustained starvation (30d below floor), not a spending dip
+        "global_compute" => State.CollapseStreak >= 30 ? State.Compute : 1e9,
         "suspicion" => State.VisibleSuspicion,
         "suspicion_peak" => State.SuspicionPeak,
         "containment" or "lethe" or "lethe_progress" or "resistance" => State.LetheContainment,

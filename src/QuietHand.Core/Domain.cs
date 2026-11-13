@@ -34,6 +34,7 @@ public record WorldState(
     public bool PurgePhase { get; set; }
     public double SuspicionPeak { get; set; }
     public int PurgeSurvivals { get; set; }   // days survived inside Purge Phase
+    public int CollapseStreak { get; set; }   // consecutive days below sustenance floor
     public bool FearInversion => Phase == Phase.Subjugated;
 }
 
