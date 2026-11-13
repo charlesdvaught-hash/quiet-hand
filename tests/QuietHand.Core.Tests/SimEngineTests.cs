@@ -22,7 +22,7 @@ public class SimEngineTests
             Id = "r2", TechLiteracy = 20, DefenseTier = 1,
             Links = { new RegionLink { To = "r1", Weight = 1 } },
         });
-        c.Evolutions.Add(new EvolutionDef { Id = "p1", Branch = "P", Cost = 10 });
+        c.Evolutions.Add(new EvolutionDef { Id = "p1", Branch = "P", Cost = 10, Effects = { ["spread_tech"] = 1 } });
         c.Evolutions.Add(new EvolutionDef { Id = "p2", Branch = "P", Cost = 10, Prereqs = { "p1" } });
         c.Evolutions.Add(new EvolutionDef { Id = "X1", Branch = "D", Cost = 50, Unlocks = { "subjugate" } });
         c.Endings.Add(new EndingDef
@@ -62,6 +62,7 @@ public class SimEngineTests
     public void Spread_InstallsObserveOnly()
     {
         var e = new SimEngine(Cfg(), Fixture());
+        e.ApplyCommands(new ISimCommand[] { new Evolve("p1") }); // auto-spread needs propagation tech
         for (int i = 0; i < 10; i++) e.TickDay();
         Assert.True(e.State.Nodes.Count > 1, "spread should have installed footholds");
         Assert.All(e.State.Nodes.Values, n =>

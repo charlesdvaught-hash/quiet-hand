@@ -11,7 +11,7 @@ public enum SimStat
 {
     spread_tech, airgap_pierce, cp_income, purge_resist, audit_mask, stealth_stats,
     dial_dependence, dial_autonomy, dial_fear, dial_capability, dial_trust,
-    footprint_mask, mutation_refund, endgame_power
+    footprint_mask, mutation_refund, endgame_power, common_yield
 }
 
 public record WorldState(
@@ -60,6 +60,7 @@ public record ActiveNudge(string NudgeId, string RegionId, int ExpiresDay);
 
 public interface ISimCommand { }
 public record SetControlState(string NodeId, ControlState Target) : ISimCommand;
+public record SpreadAction(string TargetNodeId) : ISimCommand;
 public record Evolve(string NodeId) : ISimCommand;
 public record RollbackEvolution(string NodeId) : ISimCommand;
 public record Nudge(string NudgeId, string RegionId) : ISimCommand;

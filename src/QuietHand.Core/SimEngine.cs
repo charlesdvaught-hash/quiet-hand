@@ -179,6 +179,8 @@ public sealed class SimEngine
         {
             case SetSpeed s: State = State with { Speed = s.Speed }; break;
             case SetControlState sc: TrySetState(sc); break;
+            case SpreadAction sp: TryManualSpread(sp); break;
+            case StealthAction sa: TryStealth(sa); break;
             case Evolve ev: TryEvolve(ev.NodeId); break;
             case RollbackEvolution rb: TryRollback(rb.NodeId); break;
             case Nudge n: TryNudge(n); break;
@@ -271,6 +273,10 @@ public sealed class SimEngine
         if (ns.State is ControlState.AirGapped or ControlState.Orphaned or ControlState.Weaponized) return;
         var cur = ns.State; var tgt = sc.Target;
         if (cur == tgt) return;
+        // §7 Dave 2026-11-14: Common is the spread canvas only — no verbs.
+        // Compromise/Assimilate/Weaponize live on Mid+ tiers.
+        if (def.Tier == NodeTier.Common && tgt is ControlState.Compromised
+            or ControlState.Assimilated or ControlState.Weaponized) return;
 
         bool Upgrade() => Spend(sc.Target switch
         {
@@ -475,7 +481,8 @@ public sealed class SimEngine
                 case ControlState.Observed:
                     // dormant nodes still trickle a little income (metadata siphon) —
                     // nearly break-even, keeps the latent web a slow early fuel
-                    upkeep += E("observe_upkeep", Tune.ObserveUpkeep) - bc * E("observe_yield", 0.04);
+                    upkeep += E("observe_upkeep", Tune.ObserveUpkeep)
+                        - bc * E("observe_yield", 0.04) * (1 + 0.25 * StatTotal(SimStat.common_yield));
                     break;
             }
             ns.DaysInState++;
@@ -493,17 +500,57 @@ public sealed class SimEngine
         }
     }
 
+    // §7 Dave 2026-11-14: tree can break Common's verb-free rule for a price.
+    // burn_mesh (unlock: common_burn) — harvest a region's whole Common web in
+    // one burst: nodes die, payout per device, and it makes noise.
+    void TryStealth(StealthAction sa)
+    {
+        if (sa.ActionId != "burn_mesh" || !HasFeature("common_burn")) return;
+        var anchor = _c.Nodes.GetValueOrDefault(sa.NodeId);
+        if (anchor is null) return;
+        double payout = 0; int burned = 0;
+        foreach (var (id, ns) in State.Nodes.ToList())
+            if (ns.State == ControlState.Observed
+                && _c.Nodes.GetValueOrDefault(id)?.RegionId == anchor.RegionId)
+            { payout += _c.Nodes[id].BaseCompute; ns.State = ControlState.Orphaned; burned++; }
+        if (burned == 0) return;
+        State = State with { Compute = State.Compute + payout * E("burn_mesh_mult", 20) };
+        AddRegionSuspicion(anchor.RegionId, E("burn_mesh_suspicion", 8));
+        Emit(SimEventKind.OnAirGap, sa.NodeId, anchor.RegionId, msg: $"burn_mesh x{burned}");
+    }
+
+    // §5: manual spread — the early-game verb. Tap a neighbor house/device:
+    // needs a live foothold in the same region (or a corridor link at Region+
+    // scope), small Compute cost, installs dormant Observe.
+    void TryManualSpread(SpreadAction sp)
+    {
+        if (State.Nodes.ContainsKey(sp.TargetNodeId)) return;
+        if (!_c.Nodes.TryGetValue(sp.TargetNodeId, out var def)) return;
+        if (def.Tier is not (NodeTier.Common or NodeTier.Mid)) return;
+        bool reachable = State.Nodes.Keys.Any(id =>
+        {
+            var d = _c.Nodes.GetValueOrDefault(id);
+            var alive = State.Nodes[id].State is not (ControlState.AirGapped or ControlState.Orphaned);
+            return alive && d is not null && d.Tier == NodeTier.Common && d.RegionId == def.RegionId;
+        });
+        if (!reachable || !Spend(E("spread_manual_cost", 3))) return;
+        State.Nodes[sp.TargetNodeId] = new NodeState(ControlState.Observed, 0, 0, 0);
+    }
+
     void Spread()
     {
+        // §5 Dave: spread is manual until you own Propagation tech — the first
+        // P-branch node flips the mesh to automated growth.
+        if (StatTotal(SimStat.spread_tech) <= 0) return;
         var newly = new List<string>();
         double baseP = E("spread_base", Tune.SpreadBase) * (1 + 0.1 * StatTotal(SimStat.spread_tech));
         var links = _c.Regions.ToDictionary(r => r.Id,
             r => r.Links.GroupBy(l => l.To).ToDictionary(g => g.Key, g => g.Max(l => l.Weight)));
         foreach (var (id, ns) in State.Nodes)
         {
-            if (ns.State != ControlState.Compromised) continue;
+            if (ns.State is ControlState.AirGapped or ControlState.Orphaned) continue;
             var src = _c.Nodes.GetValueOrDefault(id);
-            if (src is null) continue;
+            if (src?.Tier != NodeTier.Common) continue; // only the Common mesh self-propagates
             foreach (var tgt in _c.Nodes.Values)
             {
                 if (State.Nodes.ContainsKey(tgt.Id) || newly.Contains(tgt.Id)) continue;

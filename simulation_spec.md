@@ -45,6 +45,7 @@ Three internal tracks (0–100 each) decay slowly; they feed the single visible 
 - **Institutional**: grows on audit findings, telemetry anomalies on Assimilated/Hardened nodes, honeypot hits; suppressed by Puppetry, scapegoats, Dependence (institutions can't afford to look).
 - **Observe footholds ≈ 0 contribution** to all three tracks — dormant presence is below the noise floor. Suspicion only enters through *active* postures and player actions.
 - **Dormant nodes still trickle (Dave, 2026-11-14):** Observed footholds siphon a micro-income (metadata scraping, `observe_yield` TUNE) that nearly offsets upkeep — the latent web is slow early-game fuel, not a drain. Common = low compute, low stakes: the earlygame economy.
+- **Common is spread-only — until the tree says otherwise (Dave, 2026-11-14):** Common nodes have no Compromise/Assimilate/Weaponize verbs; spread is the only move (manual tap early → automated once any `spread_tech` node is owned). But evolutions can break the rule for a price: `common_yield` stat boosts the mesh's passive income, and the `common_burn` unlock enables `burn_mesh` — harvest a region's entire Common web in one burst (nodes die + suspicion cost). The latent web becomes an asset you can also *spend*.
 - **Technical**: grows on scanner hits, signature detection, rival-AI forensics; suppressed by Polymorphic Spoofing, architecture shifts.
 
 ## 5. Spread (Shadow-Mesh P2P)

@@ -56,9 +56,19 @@ sealed class PolicyBot
 
         double reserve = 15;
 
-        // Activate latent web — cheap footholds first.
+        // Manual spread — the early verb. One new house per day while liquid.
+        var spreadTgt = _c.Nodes.Values.FirstOrDefault(d =>
+            d.Tier == NodeTier.Common && !s.Nodes.ContainsKey(d.Id)
+            && s.Nodes.Keys.Any(id => _c.Nodes.TryGetValue(id, out var od) && od.RegionId == d.RegionId
+                && od.Tier == NodeTier.Common
+                && s.Nodes[id].State is not (ControlState.AirGapped or ControlState.Orphaned)));
+        if (spreadTgt is not null && s.Compute > 8)
+            cmds.Add(new SpreadAction(spreadTgt.Id));
+
+        // Activate latent web — Common is spread-only; verbs live on Mid+.
         foreach (var (id, ns) in s.Nodes.Where(kv => kv.Value.State == ControlState.Observed))
         {
+            if (_c.Nodes.GetValueOrDefault(id)?.Tier == NodeTier.Common) continue;
             if (s.Compute < reserve + 4) break;
             cmds.Add(new SetControlState(id, ControlState.Compromised));
             reserve += 4;

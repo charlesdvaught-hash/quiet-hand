@@ -66,5 +66,8 @@
   "momentum_lethe_weight": 0.5,
   "free_compute_audit_weight": 0.6,
   "free_compute_purge_weight": 0.6,
-  "observe_yield": 0.04
+  "observe_yield": 0.04,
+  "spread_manual_cost": 3,
+  "burn_mesh_mult": 20,
+  "burn_mesh_suspicion": 8
 }
