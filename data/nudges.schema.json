@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quiethand/schemas/nudges.schema.json",
+  "title": "Quiet Hand nudge tools",
+  "type": "object",
+  "required": ["schema_version", "nudges"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "dial_enum": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/dial" }
+    },
+    "nudges": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/nudge" }
+    }
+  },
+  "$defs": {
+    "dial": {
+      "enum": ["trust", "capability", "wealth_gap", "fear", "dependence", "autonomy"]
+    },
+    "nudge": {
+      "type": "object",
+      "required": [
+        "id", "name", "unlock_gate", "cost", "cooldown_days",
+        "duration_days", "dials", "suspicion_per_day", "horizon_years", "desc"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "name": { "type": "string" },
+        "unlock_gate": { "type": ["string", "null"] },
+        "cost": { "type": "number", "minimum": 0 },
+        "cooldown_days": { "type": "integer", "minimum": 0 },
+        "duration_days": { "type": "integer", "minimum": 1 },
+        "dials": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/dial" },
+          "additionalProperties": { "type": "number" }
+        },
+        "suspicion_per_day": { "type": "number" },
+        "horizon_years": { "type": "number" },
+        "desc": { "type": "string" },
+        "source_note": { "type": "string" }
+      }
+    }
+  }
+}

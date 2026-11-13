@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quiethand/schemas/events.schema.json",
+  "title": "Quiet Hand world-event deck",
+  "type": "object",
+  "required": ["schema_version", "events"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "effect_keys": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/event" }
+    }
+  },
+  "$defs": {
+    "spawnConditions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "min_day": { "type": "integer", "minimum": 0 },
+        "max_day": { "type": "integer", "minimum": 0 },
+        "min_suspicion": { "type": "number", "minimum": 0, "maximum": 100 },
+        "max_suspicion": { "type": "number", "minimum": 0, "maximum": 100 },
+        "min_reach_regions": { "type": "integer", "minimum": 0 },
+        "requires_phase": { "enum": ["covert", "subjugated"] },
+        "requires_unlock": { "type": "string" },
+        "chance_per_day": { "type": "number", "minimum": 0, "maximum": 1 },
+        "once_per_run": { "type": "boolean" },
+        "cooldown_days": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "suspicion_delta": { "type": "number" },
+        "lethe_delta": { "type": "number" },
+        "dial_trust": { "type": "number" },
+        "dial_fear": { "type": "number" },
+        "dial_capability": { "type": "number" },
+        "dial_dependence": { "type": "number" },
+        "dial_autonomy": { "type": "number" },
+        "dial_wealthgap": { "type": "number" },
+        "cp_delta": { "type": "number" },
+        "cp_income_multiplier": { "type": "number" },
+        "spread_multiplier": { "type": "number" },
+        "audit_rate_multiplier": { "type": "number" },
+        "defense_delta": { "type": "number" },
+        "sever_link_kinds": {
+          "type": "array",
+          "items": { "enum": ["cable", "land", "air", "satellite"] }
+        },
+        "airgap_random_region": { "type": "boolean" },
+        "keystone_offline_days": { "type": "integer", "minimum": 0 },
+        "duration_days": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "event": {
+      "type": "object",
+      "required": ["id", "name", "spawn_conditions", "effects", "wire_headline", "murmur_text"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "name": { "type": "string" },
+        "spawn_conditions": { "$ref": "#/$defs/spawnConditions" },
+        "effects": { "$ref": "#/$defs/effects" },
+        "wire_headline": { "type": "string" },
+        "murmur_text": { "type": "string" }
+      }
+    }
+  }
+}

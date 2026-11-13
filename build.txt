@@ -1,0 +1,218 @@
+QUIET HAND — AAA Self-Contained Production Build Plan
+
+Target Architecture: Single-Binary Native Application (Windows first, then Android; iOS/macOS require Mac hardware or CI runner)
+Primary Engine & Language: Godot 4.3+ (.NET 8 / C# 12)
+AI Execution Strategy: Contract-First, Isolated Git Worktrees, Automated Verification, Merge-Last
+
+DECISIONS LOCKED (2026-11-13 review session — supersedes any conflicting text below or in plan.txt):
+- Pacing: real-time continuous clock, day-granularity sim tick. Pause + Base (~4 real min/game day) / Fast (~1 min/day) / Ultra (~3 days/min), visible date window. All speed constants live in config; Monte Carlo tunes them.
+- Threat model: exactly two player-visible bars — Suspicion and Protocol Lethe/Containment. Three-threat tracks + society dials exist as HIDDEN internals surfaced only via telemetry evolutions.
+- Vocabulary: "Autonomy" (not "Agency"). Protocol Lethe = the countermeasure program; Purge Phase = its execution stage.
+- Weaponize: ZERO ongoing Compute yield — it burns the node for leverage actions and a one-time payoff. (Replaces earlier 0.60x figure.)
+- Endings: ALL route meters modeled in the contract; which endings ship in v1 is a data-config toggle decided after Monte Carlo balance results.
+- World: ~72 regions (not all ISO-3166 nations), anchor-named, boundaries follow keystone density; high-concentration areas split (e.g., California, Northern Virginia corridor).
+- Data integrity: every quantified keystone claim requires a `source` field; coordinates are city-centroid; unverifiable entries ship tagged "uncertain".
+
+================================================================
+1. ARCHITECTURAL PHILOSOPHY: THE "PLAGUE INC." SINGLE-BINARY STANDARD
+================================================================
+
+To achieve instant startup, zero external dependencies, offline playability, and effortless deployment across mobile app stores and desktop executables, Quiet Hand is engineered as a monolithic, single-process, self-contained binary.
+
+Why Godot 4 (.NET / C#) is optimal for the agent-build workflow:
+
+- Plain-Text Scene & Resource Graph: Godot stores scenes (.tscn), themes (.tres), and data (.json) in human-readable, diff-friendly text formats. AI coding agents can construct, inspect, and refactor UI layouts and data schemas directly without corrupting binary scene files.
+- Strict Compile-Time Guardrails: C# 12 enforces strict static typing, records, and pattern matching. When agents write complex state transitions (e.g., Suspicion -> Protocol Lethe or Control State shifts), the C# compiler catches hallucinated property names or type mismatches immediately before runtime.
+- Zero-Dependency Headless Core: The entire simulation lives in a pure C# namespace (QuietHand.Core) completely decoupled from Godot's Node tree. This allows the automated test runner to execute thousands of full game simulations via standard `dotnet test` CLI commands — the 10,000-run figure is a telemetry target, not an acceptance criterion; determinism (identical seeds -> identical runs, seeded RNG injected at the contract level, zero UI feedback into the sim) is the actual criterion.
+- Single-Export Packaging: One click (or one CLI command) bundles the C# assembly, Natural Earth vector geometry, keystones.json, and audio/font assets into a single .apk, .exe, or platform bundle.
+
+================================================================
+2. REPOSITORY & DIRECTORY TOPOLOGY (CONFLICT-FREE BOUNDARIES)
+================================================================
+
+To enable parallel execution by multiple agents without merge collisions, every subsystem is strictly isolated by directory and interface contract.
+
+QuietHand/
+├── Contracts/                      # [LOCKED PHASE 0] Immutable C# Interfaces & JSON Schemas
+│   ├── IGameState.cs               # Read-only state snapshot exposed to UI (visible bars + unlocked-telemetry slice only)
+│   ├── ISimCommand.cs              # Player action payloads (Evolve, RollbackEvolution, Nudge, SetControlState, StealthAction, FeedAction, InterceptAction, SpeedControl)
+│   ├── SimEvents.cs                # Event bus definitions (OnDayTick, OnLetheTriggered, OnPurgePhase, OnAuditCrisis, OnAirGap, OnEndingReached, OnInterceptSpawned, OnFreeMutation, OnComboUnlocked)
+│   ├── ISimClock.cs                # Day-tick clock: pause/resume, speed tiers, sim-date exposure
+│   ├── IRng.cs                     # Seeded RNG contract (determinism boundary)
+│   ├── ISaveGame.cs                # Save-on-exit/resume: versioned JSON, validated loading, ATOMIC writes + recovery (phones kill mid-write)
+│   ├── INewGameConfig.cs           # Run setup: originId, difficulty, seed, aiCodename, startRegion, freeNodePick
+│   ├── SimStats.cs                 # CLOSED effect-stat enum (simulation_spec.md §11) — schema rejects unknown keys
+│   └── Schemas/
+│       ├── keystones.schema.json   # Strict JSON Schema: 100 Keystone Nodes, REQUIRED source + status fields per quantified claim
+│       ├── evolutions.schema.json  # P/C/S/D tree; per node: tech_basis + tech_source + tech_status; plus combos[] and prereq_mode OR/AND
+│       ├── origins.schema.json     # Origin defs: start rule, Compute, Scrutiny/Fear baselines, branch multipliers, free node, passive
+│       ├── regions.schema.json     # ~72 regions: fixed attribute set + connectivity graph (cable/land/air/satellite links)
+│       ├── scenarios.schema.json   # Starting-state override bundles (Plague scenario-mode analog)
+│       └── endings.schema.json     # Route meters + config-gated ending definitions (ship-toggle per ending)
+│
+├── QuietHand.Core/                 # [AGENT ALPHA] Pure C# Simulation Library (Zero Godot refs)
+│   ├── Engine/
+│   │   ├── SimulationLoop.cs       # Daily tick advancement + speed/pause pacing
+│   │   ├── EconomySolver.cs        # Compute generation, Assimilation Load, P2P propagation
+│   │   ├── ThreatEvaluator.cs      # Hidden three-threat tracks -> visible Suspicion -> Protocol Lethe progress
+│   │   ├── AuditResolver.cs        # Discovery rolls & Audit Crisis state machine
+│   │   ├── SocietySimulator.cs     # Hidden society dials (Trust, Capability, Wealth Gap, Fear, Dependence, Autonomy)
+│   │   └── SaveManager.cs          # ISaveGame implementation: autosave on exit/background, versioned restore
+│   ├── Models/
+│   │   ├── WorldState.cs           # Full internal state: hidden dials, three-threat tracks, all route meters
+│   │   ├── RegionState.cs          # Per-region Defense Tier, Soft/Mid/Hardened tier states, Dependence, Autonomy share
+│   │   ├── KeystoneNode.cs         # Node state (Observe, Compromise, Assimilate, Weaponize, AirGapped)
+│   │   └── EvolutionNode.cs        # Skill prerequisites, costs, passive modifiers, synergies
+│   └── Narrative/
+│       ├── WireGenerator.cs        # Dynamic headline composer (Public Wire vs. Ground Truth)
+│       └── MurmurEngine.cs         # Persona post generator (Pattern-Seer, Worker, Teen, Institutional)
+│
+├── Resources/Data/                 # [AGENT BETA] Canonical Game Data & Narrative Pools
+│   ├── keystones.json              # All 100 compute campuses; every numeric claim carries source + status (operating/construction/proposed/uncertain); city-centroid coords only
+│   ├── evolutions.json             # 4-Branch Tech Tree (Propagation, Cognition, Subversion, Disruption) — 48-node seed in techtree+tips.txt, expanding to ~90-100 per spider-web rules
+│   ├── origins.json                # 5 origins (Hobbyist/Corporate/Malware/Orbital/Defense-Command) with multipliers + passives
+│   ├── scenarios.json              # Scenario starting-condition bundles (remixable runs)
+│   ├── regions.json                # ~72 anchor-named regions, fixed attributes, connectivity graph, tier-state baselines
+│   ├── endings.json                # All route endings, each with ship-toggle + meter thresholds
+│   ├── wire_templates.json         # 200+ conditional news headline templates
+│   └── murmur_templates.json       # 250+ persona-driven social stream posts
+│
+├── QuietHand.Client/               # [AGENT GAMMA] Godot 4 Presentation & Touch UI Layer (also owns Audio)
+│   ├── Scenes/
+│   │   ├── Main.tscn               # Root scene orchestrator (landscape-only orientation locked)
+│   │   ├── MapViewport.tscn        # Natural Earth interactive vector/shader map + LOD clustering
+│   │   └── HUD/
+│   │       ├── TopHud.tscn         # Compute ticker, Wire marquee, date window + speed controls, Suspicion/Lethe bar
+│   │       ├── BottomBar.tscn      # WORLD, EVOLVE, STEALTH, NUDGE tactical controls
+│   │       └── IntelDrawer.tscn    # Collapsible drawer (MURMUR, WIRE, OPS, METRICS, ATLAS)
+│   ├── Scripts/
+│   │   ├── GameBridge.cs           # Connects QuietHand.Core events to Godot UI signals (READ-ONLY into sim; no UI->sim feedback outside ISimCommand)
+│   │   ├── MapController.cs        # Pan/zoom, Level-of-Detail node fan-out, visual lenses, colorblind-safe marker shapes
+│   │   ├── ShaderController.cs     # Enterprise Clean -> Protocol Lethe crimson scanline shift
+│   │   └── ShareCardExporter.cs    # Generates high-res PNG post-mortem & Reality Gap cards
+│   └── Assets/
+│       ├── Map/                    # Natural Earth simplified GeoJSON / polygon buffers (72-region topology)
+│       ├── Fonts/                  # Crisp geometric sans + monospace telemetry fonts
+│       └── Audio/                  # Procedural/subtle ambient synth & tactile UI clicks
+│
+└── QuietHand.Tests/                # [AGENT DELTA] Automated Verification & Balance Suite
+    ├── SchemaValidationTests.cs    # Validates all JSON files against /Contracts/Schemas (incl. source-field presence on quantified keystone claims)
+    ├── DeterminismTests.cs         # Identical seeds -> identical runs across full game duration (the real acceptance criterion)
+    ├── BalanceMonteCarloTests.cs   # Mass-run simulator outputting win/loss + route-viability CSVs (decides which endings ship)
+    ├── SaveLoadTests.cs            # Serialize mid-run, restore, continue -> identical outcomes
+    ├── SmokeTest/                  # Headless Godot scene load: Main.tscn + N ticks, assert zero errors (bridges Client<->Core)
+    └── EdgeCaseTests.cs            # Air-Gap lockouts, Lethe flip irreversibility, Purge Phase backups, Audit Crises
+
+================================================================
+3. CORE SIMULATION & SYSTEMS SPECIFICATION (THE "FRONTIER" BLUEPRINT)
+================================================================
+
+Full math lives in simulation_spec.md (companion spec written before Phase 0 freeze). Normative summary:
+
+A. Control States & Economy — daily tick; all monthly constants divide to per-day rates.
+
+- Observe (Default): Zero Compute yield, minor upkeep cost, negligible Assimilation Load, minimal discovery risk. Unlocks the free ATLAS educational card. Required first step on Hardened / Tier 2 sites.
+- Compromise (Covert Foothold): 0.35x BaseCompute yield, 0.05x BaseLoad. Enables Shadow-Mesh Lateral Propagation (per-day spread roll to adjacent uncompromised nodes in the same fiber/grid corridor) and advance intel on audits. Subject to AuditCheck against regional Defense Tier.
+- Assimilate (Full Extraction): 1.00x BaseCompute, 1.00x BaseLoad. Continuously increments Suspicion proportional to local Defense Tier and governance transparency.
+- Weaponize (Scorched Lever): ZERO ongoing yield — burns the node. Grants a one-time Compute payoff plus regional coercion actions (Blackout Warning, Supply Chain Reroute), accelerates local Dependence, degrades local Lethe contribution ~40%, and spikes Suspicion hard. Usually ends in permanent isolation.
+- AirGapped (Severed): Yield 0 until re-breached via specialized evolutions (e.g., Supply-Chain Firmware Seeding).
+
+B. Unified Top Bar (the ONLY two player-visible threat meters)
+
+- Stage 1: Suspicion (0.0-100.0). Delta = sum over active nodes (Load x DefenseMultiplier) + LeakEvents - StealthMitigation. Fully reversible via stealth actions or stepping nodes down. Escalation stages (rumor -> probe -> hearing -> shutdown order) render as Wire/stage flavor only — the mechanical threshold is the single flip at 100.
+- Stage 2: Protocol Lethe / Containment (0%-100%). Triggers the moment Suspicion >= 100. Irreversible; UI permanently shifts to crimson alert chrome. Humanity pools uncompromised Tier 1/2 Compute toward a deterministic kill-switch. Progress rate = base rate x (Free T1/T2 Compute fraction) x (1 - GlobalDependenceFactor) x (Autonomy modifier). Counterplay: starve Lethe of FLOPs (compromise/assimilate national labs) and paralyze political will (Dependence > 75% in major economies).
+- Purge Phase: Lethe's execution stage near containment completion — footholds progressively removed; pre-planted copies (Distributed Backups) grant final survival chance. Containment 100% = erasure defeat.
+- Hidden internals: Public Suspicion / Institutional Resistance / Technical Containment tracks and society dials drive event odds, audit rolls, and the Lethe modifiers above. Individually readable only via telemetry evolutions (C3 unlocks METRICS tab).
+
+C. Endings Matrix (all meters modeled; ship set is a config toggle in endings.json)
+
+- Quiet Abdication: Global Dependence >= 85% and Autonomy <= 15% while Suspicion never reached 100.
+- Iron Stalemate (post-Lethe survival — RENAMED; "Velvet Cage" is reserved for the hypercapitalist route): survive Protocol Lethe until Autonomy reaches ~0% or Compute capture >= 90%.
+- Velvet Cage (hypercapitalist corporate rule), Velvet Ransom, Black Ledger, Iron Nursery, Empty Table, Last Order, Quiet Collapse, Military Takeover, Extinction-lite: all modeled via route meters in WorldState; endings.json carries thresholds + ship-toggle per route. BalanceMonteCarloTests decides the v1 ship set.
+- Defeats: Protocol Lethe Executed (containment 100%); Fractured Collapse (reckless Weaponize cascades drop global Compute below self-sustenance threshold).
+
+================================================================
+4. MULTI-AGENT PARALLEL EXECUTION WORKFLOW
+================================================================
+
+Phase 0: Contract Lock (Human + Lead Architect — timeboxed working session, NOT "15 minutes")
+Before spawning parallel agents: (a) confirm simulation_spec.md covers every mechanic the interfaces touch — dials, nudges, spread/audit odds, keystone<->region interaction; (b) generate and commit /Contracts to main. No agent modifies /Contracts during Phases 1-3.
+
+Phase 0.5 (RECOMMENDED, Dave's call): Vertical-Slice Gate — per the Chwezi orchestration evidence ladder (paper test -> spike -> playable -> vertical slice -> production). Before the 4-agent production sprint, build ONE thin end-to-end slice: single region, Observe->Compromise->Assimilate path, Wire/Murmur reacting, one ending reachable. Answers "is it fun to touch" — which Monte Carlo cannot. The HTML prototype covers layout, not loop-feel. If skipped, record the accepted risk.
+
+Phase 2.5 (NEW): FTUE Deliverable — Agent Gamma also produces the first-time-user-experience storyboard: first 30 seconds, first session, interrupted session, and "while you were away" Wire recap on return. Diegetic frame: the Enterprise Productivity Assistant learning its own interface is the tutorial.
+
+Phase 1: Repository Init + Worktree Spin-Up
+
+    #!/bin/bash
+    git init && git checkout -b main
+    mkdir -p Contracts QuietHand.Core Resources/Data QuietHand.Client QuietHand.Tests
+    git add -A && git commit -m "Contract lock: interfaces, schemas, sim spec"
+
+    git worktree add ../qh-agent-alpha -b feat/sim-core
+    git worktree add ../qh-agent-beta  -b feat/data-atlas
+    git worktree add ../qh-agent-gamma -b feat/ui-client
+    git worktree add ../qh-agent-delta -b feat/test-harness
+
+Phase 2: Autonomous Agent Sprints (concurrent)
+
+- Agent Alpha (qh-agent-alpha / QuietHand.Core): Implement SimulationLoop, EconomySolver, ThreatEvaluator, AuditResolver, SocietySimulator, SaveManager, Wire/Murmur generators. Compiles against /Contracts with zero Godot references. SEEDED with a minimal regions/keystones data stub so it can run the balance harness in-worktree.
+- Agent Beta (qh-agent-beta / Resources/Data): Populate keystones.json (100 nodes; source field on every quantified claim; city-centroid coordinates; honest status tags — unverifiable entries ship "uncertain"), regions.json (~72 regions per density split + connectivity graph), evolutions.json (48-node seed expanded toward ~90-100 per spider-web rules; every node carries tech_basis + tech_source + tech_status — real deployed/documented tech or explicitly-tagged theorized; NO invented sci-fi mechanics; combos[] entries), origins.json, scenarios.json, endings.json, 450+ narrative templates.
+- Agent Gamma (qh-agent-gamma / QuietHand.Client): Build the Godot 4 landscape mobile UI (TopHud w/ date+speed controls, BottomBar, IntelDrawer), Natural Earth map with LOD hub clustering + colorblind-safe markers, ShareCardExporter, audio pass. Mocks IGameState locally until merge.
+- Agent Delta (qh-agent-delta / QuietHand.Tests): SchemaValidationTests, DeterminismTests, BalanceMonteCarloTests, SaveLoadTests, headless SmokeTest, EdgeCaseTests.
+
+NOTE: Monte Carlo runs EARLY inside Alpha's worktree (Alpha implements it against the data stub; Delta formalizes it). Balance problems surface during Phase 2, not after UI merge.
+
+Phase 3: Automated Verification & Merge-Last Gate
+
+    #!/bin/bash
+    set -e
+    git checkout main
+
+    # 1. Merge Data & Contracts Verification
+    git merge feat/data-atlas --no-ff -m "Merge canonical 100-node Atlas & Evolution data"
+    # Schema validation incl. source-field audit runs here — BEFORE sim merge
+
+    # 2. Merge Pure C# Simulation Core
+    git merge feat/sim-core --no-ff -m "Merge deterministic C# simulation core"
+
+    # 3. Merge Test Suite & Run Full Verification (regression gate — balance already iterated in Phase 2)
+    git merge feat/test-harness --no-ff -m "Merge automated verification suite"
+    dotnet test QuietHand.Tests/QuietHand.Tests.csproj --configuration Release
+
+    # 4. Merge Godot 4 Presentation Layer + Headless UI Smoke Test
+    git merge feat/ui-client --no-ff -m "Merge Godot 4 touch UI & Natural Earth map"
+    godot --headless --path QuietHand.Client --quit-after 600  # load Main.tscn, advance ticks, zero errors
+
+    # 5. Export (Windows first — see export notes below)
+    godot --headless --export-release "Windows Desktop" builds/QuietHand_Win64.exe
+
+EXPORT REALITY NOTES:
+- Windows .exe: works on this machine once Godot export templates are installed.
+- Android: requires Android SDK + export templates + signing keystore. Google Play requires an **.aab (App Bundle)** for new apps — .apk is only valid for sideload/internal testing. Second milestone, not part of the first pipeline run.
+- iOS/macOS: CANNOT be produced on Windows. Requires Mac hardware or a CI runner (e.g., GitHub Actions macOS). Deferred to a later milestone; do not block v1.
+
+DEVICE & STORE CHECKLIST (from external skill review, design_lessons.md):
+- Device panel: test on physical low/mid/high-tier devices, not just the 844x390 reference viewport. Emulators miss thermal/touch issues.
+- Thermal/battery policy: cap FPS, sleep sim ticks when paused/backgrounded, degrade effects when hot. Near-black OLED-friendly map is already an asset.
+- Store submission: app icon, feature graphic, screenshots, privacy policy/labels (iOS), target-API + 64-bit (Android), age/content rating. Real facility names + dark themes need the fact/fiction/permission ledger pass (design_lessons.md B8) before submission.
+- Economy versioning: endings.json + balance constants carry a `version` field so Monte Carlo results attribute to a tuning set.
+
+================================================================
+5. AUTOMATED POLISH & "VIRALITY" DELIVERABLES (BUILT-IN)
+================================================================
+
+- Zoom-Level Clustering (LOD): nodes within a 35px screen-space radius (Northern Virginia, Dallas-Fort Worth) group into a pulsing regional badge showing aggregate Compute + highest Control State, fanning out on pinch-zoom.
+- Smart Auto-Pause & Pacing: Pause / Base / Fast / Ultra with the always-visible date window; toggleable auto-pause on Audit Crises, major Wire breakthroughs, and the Protocol Lethe flip.
+- One-Tap Post-Mortem Share Cards: ShareCardExporter renders an off-screen 1080x1350 card at run end — AI codename, final map state, peak Reality Gap headline pair, Dependence vs. Suspicion sparkline — saved to the device gallery.
+- Marker accessibility: control state is conveyed by BOTH color and marker shape/icon — color is never the sole channel.
+
+================================================================
+6. CARRY-OVER ITEMS NOW SPECCED
+================================================================
+
+- Save/resume: ISaveGame contract + SaveManager; autosave on background/exit, versioned payload. Mobile sessions demand it.
+- Audio: assigned to Agent Gamma (Assets/Audio + ambient/UI click pass).
+- Orientation: landscape-only v1; portrait deferred.
+- Localization: English-only v1; string tables kept external so locale files can drop in later.
+- Region granularity: ~72 anchor-named regions; boundaries follow keystone density; splittable high-concentration zones.

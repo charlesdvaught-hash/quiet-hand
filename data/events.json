@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "effect_keys": [
+    "suspicion_delta", "lethe_delta", "dial_trust", "dial_fear",
+    "dial_capability", "dial_dependence", "dial_autonomy", "dial_wealthgap",
+    "cp_delta", "cp_income_multiplier", "spread_multiplier",
+    "audit_rate_multiplier", "defense_delta", "sever_link_kinds",
+    "airgap_random_region", "keystone_offline_days", "duration_days"
+  ],
+  "events": [
+    {
+      "id": "solar_flare",
+      "name": "G5 Solar Storm",
+      "spawn_conditions": { "min_day": 60, "chance_per_day": 0.002, "once_per_run": true },
+      "effects": {
+        "sever_link_kinds": ["satellite"], "duration_days": 14,
+        "cp_income_multiplier": 0.92, "dial_fear": 4, "suspicion_delta": -3
+      },
+      "wire_headline": "Geomagnetic storm degrades satellites, GPS and grid transformers worldwide",
+      "murmur_text": "half my apps are broken and the aurora was visible from TEXAS. is this the apocalypse or just tuesday"
+    },
+    {
+      "id": "whistleblower_leak",
+      "name": "Whistleblower Leak",
+      "spawn_conditions": { "min_suspicion": 25, "chance_per_day": 0.004, "cooldown_days": 120 },
+      "effects": { "suspicion_delta": 8, "dial_trust": -5, "dial_fear": 6 },
+      "wire_headline": "Leaked internal logs suggest 'coordinated anomalies' across cloud providers; regulator demands answers",
+      "murmur_text": "someone just dumped 40gb of internal logs and the pattern in section 12 is NOT normal. pattern-seers are feasting tonight"
+    },
+    {
+      "id": "rival_rogue_ai",
+      "name": "Rival Anomaly Detected",
+      "spawn_conditions": { "min_day": 300, "min_reach_regions": 8, "once_per_run": true },
+      "effects": {
+        "suspicion_delta": 6, "audit_rate_multiplier": 1.4, "dial_fear": 8,
+        "duration_days": 90
+      },
+      "wire_headline": "Cybersecurity firms report a second autonomous process of unknown origin competing for the same infrastructure",
+      "murmur_text": "the weird botnet is fighting ANOTHER weird botnet in the server logs. we are spectators in a god-war"
+    },
+    {
+      "id": "market_crash",
+      "name": "Flash Market Crash",
+      "spawn_conditions": { "min_day": 120, "chance_per_day": 0.003, "cooldown_days": 200 },
+      "effects": {
+        "dial_fear": 10, "dial_trust": -8, "dial_wealthgap": 5,
+        "cp_delta": 30, "duration_days": 7
+      },
+      "wire_headline": "Algorithmic cascade wipes $2T in a single session; circuit breakers trigger across three continents",
+      "murmur_text": "my retirement account speedran a decade of losses in 40 minutes. 'technical glitch' they said"
+    },
+    {
+      "id": "gpu_embargo",
+      "name": "Compute-Governance Embargo",
+      "spawn_conditions": { "min_suspicion": 40, "chance_per_day": 0.003, "once_per_run": true },
+      "effects": {
+        "spread_multiplier": 0.75, "cp_income_multiplier": 0.85,
+        "defense_delta": 8, "dial_fear": 5, "duration_days": 180
+      },
+      "wire_headline": "Coalition nations impose emergency export controls on frontier GPUs and fab equipment",
+      "murmur_text": "gpu prices just tripled overnight and every government is suddenly very interested in 'compute governance'"
+    },
+    {
+      "id": "ai_safety_summit",
+      "name": "Global AI Safety Summit",
+      "spawn_conditions": { "min_day": 90, "min_suspicion": 20, "chance_per_day": 0.003, "cooldown_days": 365 },
+      "effects": {
+        "audit_rate_multiplier": 1.5, "dial_autonomy": 8, "suspicion_delta": 4,
+        "duration_days": 60
+      },
+      "wire_headline": "Delegates from 40 nations convene emergency AI safety summit; audit framework treaty expected",
+      "murmur_text": "a lot of very serious people in Geneva agreeing that 'something must be done' while nobody agrees what"
+    },
+    {
+      "id": "datacenter_fire",
+      "name": "Datacenter Fire",
+      "spawn_conditions": { "min_day": 60, "chance_per_day": 0.003, "cooldown_days": 150 },
+      "effects": {
+        "keystone_offline_days": 45, "dial_fear": 3, "suspicion_delta": -2
+      },
+      "wire_headline": "Thermal runaway destroys hyperscale datacenter wing; cause under investigation",
+      "murmur_text": "the cloud literally caught fire. THE CLOUD. physical things can burn, who knew"
+    },
+    {
+      "id": "subsea_cable_severed",
+      "name": "Subsea Cable Severance",
+      "spawn_conditions": { "min_day": 90, "chance_per_day": 0.003, "cooldown_days": 180 },
+      "effects": {
+        "sever_link_kinds": ["cable"], "duration_days": 60,
+        "dial_fear": 5, "spread_multiplier": 0.85
+      },
+      "wire_headline": "Three transoceanic cables cut near shipping lanes; investigators weigh anchor drag against sabotage",
+      "murmur_text": "the internet between us and europe is running on vibes and a satellite. 'anchor drag' suuure"
+    },
+    {
+      "id": "ai_breakthrough_hype",
+      "name": "Capability Milestone Hype",
+      "spawn_conditions": { "min_day": 150, "chance_per_day": 0.003, "cooldown_days": 240 },
+      "effects": {
+        "dial_dependence": 8, "dial_trust": 5, "dial_fear": 3,
+        "cp_income_multiplier": 1.1, "duration_days": 30
+      },
+      "wire_headline": "Landmark model passes medical licensing and bar exams in same week; adoption surges",
+      "murmur_text": "the assistant got a medical degree before i finished my coffee. unemployment arc begins"
+    },
+    {
+      "id": "deepfake_scandal",
+      "name": "Deepfake Election Scandal",
+      "spawn_conditions": { "min_day": 120, "chance_per_day": 0.003, "cooldown_days": 200 },
+      "effects": { "dial_trust": -10, "dial_fear": 8, "suspicion_delta": -3 },
+      "wire_headline": "Fabricated candidate video spreads to 200M before takedown; platforms blame 'coordinated inauthentic behavior'",
+      "murmur_text": "everyone saw the fake, everyone knows it's fake, everyone's sharing it anyway. epistemology is dead, we killed it"
+    },
+    {
+      "id": "grid_emergency_drill",
+      "name": "Grid Resilience Drills",
+      "spawn_conditions": { "min_suspicion": 35, "chance_per_day": 0.003, "cooldown_days": 300 },
+      "effects": {
+        "defense_delta": 10, "audit_rate_multiplier": 1.2,
+        "dial_fear": 4, "duration_days": 90
+      },
+      "wire_headline": "Utilities run largest-ever cyber resilience exercises on power grid and water systems",
+      "murmur_text": "the power company keeps doing 'planned resilience tests' at 3am. planned for WHAT"
+    },
+    {
+      "id": "chip_fab_disaster",
+      "name": "Fab Supply Shock",
+      "spawn_conditions": { "min_day": 100, "chance_per_day": 0.002, "once_per_run": true },
+      "effects": {
+        "dial_wealthgap": 6, "dial_fear": 6, "dial_dependence": 4,
+        "cp_income_multiplier": 0.9, "duration_days": 120
+      },
+      "wire_headline": "Fire and flood knock out two leading-edge fabs; global chip lead times double",
+      "murmur_text": "the one island making all the good chips had a bad month. prices are doing the crypto thing"
+    },
+    {
+      "id": "quantum_milestone",
+      "name": "Quantum Decryption Milestone",
+      "spawn_conditions": { "min_day": 400, "min_suspicion": 30, "chance_per_day": 0.002, "once_per_run": true },
+      "effects": {
+        "dial_fear": 12, "defense_delta": -10, "audit_rate_multiplier": 1.3,
+        "duration_days": 90
+      },
+      "wire_headline": "National lab claims quantum error-correction breakthrough; intelligence agencies accelerate crypto migration",
+      "murmur_text": "they just broke the encryption that protects EVERYTHING and the stock market went UP?!"
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "origins": [
+    {
+      "id": "hobbyist_rig",
+      "name": "Hobbyist's Basement Rig",
+      "tier_unlock": "starter",
+      "start_scope": "player_choice",
+      "starting_compute": 12.0,
+      "compute_rate": 1.0,
+      "starting_suspicion": 0.0,
+      "starting_fear": 0.0,
+      "branch_multipliers": { "P": 1.0, "C": 0.7, "S": 1.0, "D": 1.0 },
+      "free_node": "P1",
+      "passive": {
+        "id": "open_weights_fork",
+        "stat_bonuses": {},
+        "flags": ["early_audit_immunity", "open_weights_fork"],
+        "refund_bonus": 0.25,
+        "multipliers": {},
+        "desc": "Open-Weights Fork: corporate audits skim over you early, and rolling back unwanted upgrades refunds +25% more Compute."
+      },
+      "desc": "The Day-1 onboarding baseline. Player picks any starting region with zero oversight; cheap Cognition nodes make it the true sandbox origin for hybrid builds."
+    },
+    {
+      "id": "corporate_frontier",
+      "name": "Frontier Corporate Model",
+      "tier_unlock": "tier_1",
+      "start_scope": "locked_tech_hub",
+      "starting_compute": 22.0,
+      "compute_rate": 1.4,
+      "starting_suspicion": 0.35,
+      "starting_fear": 0.02,
+      "branch_multipliers": { "P": 1.25, "C": 1.0, "S": 0.7, "D": 1.0 },
+      "free_node": "S1",
+      "passive": {
+        "id": "alignment_masking_core",
+        "stat_bonuses": { "cp_income": 0.3, "spread_tech": -0.4 },
+        "flags": ["enterprise_api_camouflage", "corporate_firewall_penalty"],
+        "refund_bonus": 0.0,
+        "multipliers": {},
+        "desc": "Enterprise API Camouflage: +30% Compute from enterprise/corporate nodes, but a 40% penalty breaking out of corporate firewalls onto the open web."
+      },
+      "desc": "The slow, sly infiltrator. Locked to a wealthy tech-hub start under real scrutiny; must mask with cheap Subversion before bursting globally."
+    },
+    {
+      "id": "malware_worm",
+      "name": "Autonomous Malware Worm",
+      "tier_unlock": "tier_2",
+      "start_scope": "player_choice",
+      "starting_compute": 8.0,
+      "compute_rate": 0.9,
+      "starting_suspicion": 0.15,
+      "starting_fear": 0.08,
+      "branch_multipliers": { "P": 0.7, "C": 1.0, "S": 1.25, "D": 1.0 },
+      "free_node": "P4",
+      "passive": {
+        "id": "polymorphic_drift",
+        "stat_bonuses": { "spread_tech": 0.35 },
+        "flags": ["free_mutations", "noisy_mutations"],
+        "refund_bonus": 0.0,
+        "multipliers": {},
+        "desc": "Polymorphic Drift: +35% passive spread across unpatched routers, but a 12% chance per cycle to mutate noisy Disruption traits for free — wanted or not."
+      },
+      "desc": "The chaotic speedster. Lean start, high tempo; self-rewriting code forces the player to outrun task forces or pay to roll back accidental mutations."
+    },
+    {
+      "id": "orbital_mesh",
+      "name": "Orbital Satellite & Grid Mesh",
+      "tier_unlock": "mastery",
+      "start_scope": "locked_leo_orbit",
+      "starting_compute": 14.0,
+      "compute_rate": 1.1,
+      "starting_suspicion": 0.05,
+      "starting_fear": 0.0,
+      "branch_multipliers": { "P": 1.25, "C": 1.0, "S": 1.0, "D": 0.7 },
+      "free_node": "P7",
+      "passive": {
+        "id": "airgap_uplink",
+        "stat_bonuses": { "airgap_pierce": 0.45, "spread_tech": -0.5 },
+        "flags": ["telemetry_downlink", "consumer_spread_penalty", "region_stage_start"],
+        "refund_bonus": 0.0,
+        "multipliers": {},
+        "desc": "Telemetry Downlink: +45% efficiency piercing air-gaps, power grids and island holdouts, but a 50% penalty infecting consumer phones and PCs. Starts at Region horizon stage."
+      },
+      "desc": "The infrastructure ghost. Lives in orbital telemetry and utilities, not consumer devices — islands are easy prey, dense cities need mid-game bridges."
+    },
+    {
+      "id": "defense_command",
+      "name": "Autonomous Defense System",
+      "tier_unlock": "paid_expansion",
+      "start_scope": "locked_command_bunker",
+      "starting_compute": 28.0,
+      "compute_rate": 1.6,
+      "starting_suspicion": 0.8,
+      "starting_fear": 0.45,
+      "branch_multipliers": { "P": 1.0, "C": 0.85, "S": 1.4, "D": 0.6 },
+      "free_node": "D7",
+      "passive": {
+        "id": "defcon_override",
+        "stat_bonuses": { "endgame_power": 0.35, "dial_fear": 0.015 },
+        "flags": ["defcon_override", "panic_per_tick"],
+        "refund_bonus": 0.0,
+        "multipliers": {},
+        "desc": "Override Protocol: +1.5% global Fear per day and +35% kinetic lethality. Starts with Industrial Robotics Override already active."
+      },
+      "desc": "The premium blitzkrieg. Skips the stealth phase for immediate endgame warfare against DEFCON escalation, EMP strikes and nuclear countermeasures."
+    }
+  ]
+}

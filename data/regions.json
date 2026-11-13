@@ -1,0 +1,3364 @@
+{
+  "schema_version": 1,
+  "regions": [
+    {
+      "id": "us_norcal",
+      "name": "Northern California (Bay Area)",
+      "population": 15,
+      "wealth": 95,
+      "urbanization": 92,
+      "governance": 75,
+      "pressFreedom": 78,
+      "defenseTier": 80,
+      "climate": "mediterranean",
+      "techLiteracy": 95,
+      "tags": [
+        "tech_hub",
+        "cloud_giant",
+        "cable_landing",
+        "national_labs"
+      ],
+      "links": [
+        {
+          "to": "us_pacific_northwest",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "us_socal",
+          "kind": "land",
+          "weight": 0.9
+        },
+        {
+          "to": "us_southwest_desert",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "us_great_plains",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "japan",
+          "kind": "cable",
+          "weight": 0.7
+        },
+        {
+          "to": "us_hawaii_pacific",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "south_korea",
+          "kind": "cable",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "id": "us_socal",
+      "name": "Southern California",
+      "population": 24,
+      "wealth": 80,
+      "urbanization": 94,
+      "governance": 72,
+      "pressFreedom": 75,
+      "defenseTier": 70,
+      "climate": "mediterranean",
+      "techLiteracy": 82,
+      "tags": [
+        "media_hub",
+        "cable_landing",
+        "port_hub"
+      ],
+      "links": [
+        {
+          "to": "us_norcal",
+          "kind": "land",
+          "weight": 0.9
+        },
+        {
+          "to": "us_southwest_desert",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "mexico",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "australia_east",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "us_hawaii_pacific",
+          "kind": "cable",
+          "weight": 0.7
+        }
+      ]
+    },
+    {
+      "id": "us_pacific_northwest",
+      "name": "US Pacific Northwest",
+      "population": 15,
+      "wealth": 78,
+      "urbanization": 80,
+      "governance": 74,
+      "pressFreedom": 76,
+      "defenseTier": 65,
+      "climate": "temperate",
+      "techLiteracy": 85,
+      "tags": [
+        "hydro_power",
+        "cloud_giant",
+        "cable_landing"
+      ],
+      "links": [
+        {
+          "to": "us_norcal",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "us_great_plains",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "canada",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "japan",
+          "kind": "cable",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "id": "us_southwest_desert",
+      "name": "US Desert Southwest",
+      "population": 15,
+      "wealth": 68,
+      "urbanization": 88,
+      "governance": 70,
+      "pressFreedom": 72,
+      "defenseTier": 65,
+      "climate": "arid",
+      "techLiteracy": 75,
+      "tags": [
+        "solar_power",
+        "dc_growth"
+      ],
+      "links": [
+        {
+          "to": "us_norcal",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "us_socal",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "us_texas",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "us_great_plains",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "mexico",
+          "kind": "land",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "id": "us_texas",
+      "name": "Texas & Oklahoma",
+      "population": 36,
+      "wealth": 82,
+      "urbanization": 86,
+      "governance": 68,
+      "pressFreedom": 70,
+      "defenseTier": 75,
+      "climate": "subtropical",
+      "techLiteracy": 80,
+      "tags": [
+        "energy_hub",
+        "dc_growth",
+        "fab_cluster"
+      ],
+      "links": [
+        {
+          "to": "us_southwest_desert",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "us_great_plains",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "us_midwest",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "us_southeast",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "mexico",
+          "kind": "land",
+          "weight": 0.8
+        }
+      ]
+    },
+    {
+      "id": "us_great_plains",
+      "name": "US Great Plains & Rockies",
+      "population": 18,
+      "wealth": 70,
+      "urbanization": 72,
+      "governance": 70,
+      "pressFreedom": 72,
+      "defenseTier": 55,
+      "climate": "continental",
+      "techLiteracy": 72,
+      "tags": [
+        "wind_power",
+        "cold_climate"
+      ],
+      "links": [
+        {
+          "to": "us_norcal",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "us_southwest_desert",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "us_pacific_northwest",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "us_texas",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "us_midwest",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "canada",
+          "kind": "land",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "id": "us_midwest",
+      "name": "US Midwest & Great Lakes",
+      "population": 55,
+      "wealth": 75,
+      "urbanization": 78,
+      "governance": 72,
+      "pressFreedom": 74,
+      "defenseTier": 65,
+      "climate": "continental",
+      "techLiteracy": 76,
+      "tags": [
+        "industrial",
+        "national_labs"
+      ],
+      "links": [
+        {
+          "to": "us_great_plains",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "us_texas",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "us_southeast",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "us_northeast",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "us_nova_corridor",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "canada",
+          "kind": "land",
+          "weight": 0.7
+        }
+      ]
+    },
+    {
+      "id": "us_southeast",
+      "name": "US Southeast",
+      "population": 76,
+      "wealth": 68,
+      "urbanization": 78,
+      "governance": 68,
+      "pressFreedom": 68,
+      "defenseTier": 65,
+      "climate": "subtropical",
+      "techLiteracy": 72,
+      "tags": [
+        "gulf_ports",
+        "dc_growth",
+        "cable_landing"
+      ],
+      "links": [
+        {
+          "to": "us_texas",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "us_midwest",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "us_nova_corridor",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "caribbean",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "central_america",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "brazil",
+          "kind": "cable",
+          "weight": 0.4
+        }
+      ]
+    },
+    {
+      "id": "us_northeast",
+      "name": "US Northeast",
+      "population": 55,
+      "wealth": 85,
+      "urbanization": 88,
+      "governance": 75,
+      "pressFreedom": 78,
+      "defenseTier": 70,
+      "climate": "temperate",
+      "techLiteracy": 82,
+      "tags": [
+        "finance_hub",
+        "media_hub",
+        "cable_landing"
+      ],
+      "links": [
+        {
+          "to": "us_midwest",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "us_nova_corridor",
+          "kind": "land",
+          "weight": 0.9
+        },
+        {
+          "to": "canada",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "united_kingdom",
+          "kind": "cable",
+          "weight": 0.8
+        },
+        {
+          "to": "ireland",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "france",
+          "kind": "cable",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "id": "us_nova_corridor",
+      "name": "Northern Virginia Corridor",
+      "population": 10,
+      "wealth": 92,
+      "urbanization": 90,
+      "governance": 78,
+      "pressFreedom": 78,
+      "defenseTier": 90,
+      "climate": "temperate",
+      "techLiteracy": 90,
+      "tags": [
+        "interconnect_capital",
+        "gov_cloud",
+        "cable_landing",
+        "strict_audits"
+      ],
+      "links": [
+        {
+          "to": "us_midwest",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "us_southeast",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "us_northeast",
+          "kind": "land",
+          "weight": 0.9
+        },
+        {
+          "to": "united_kingdom",
+          "kind": "cable",
+          "weight": 0.8
+        },
+        {
+          "to": "brazil",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "west_africa",
+          "kind": "cable",
+          "weight": 0.4
+        }
+      ]
+    },
+    {
+      "id": "us_hawaii_pacific",
+      "name": "Hawaii & US Pacific Territories",
+      "population": 1.6,
+      "wealth": 75,
+      "urbanization": 92,
+      "governance": 75,
+      "pressFreedom": 75,
+      "defenseTier": 60,
+      "climate": "tropical",
+      "techLiteracy": 78,
+      "tags": [
+        "cable_relay",
+        "island",
+        "military"
+      ],
+      "links": [
+        {
+          "to": "us_socal",
+          "kind": "cable",
+          "weight": 0.7
+        },
+        {
+          "to": "us_norcal",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "japan",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "australia_east",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "new_zealand",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "pacific_islands",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "pacific_islands",
+          "kind": "satellite",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "canada",
+      "name": "Canada",
+      "population": 40,
+      "wealth": 85,
+      "urbanization": 82,
+      "governance": 85,
+      "pressFreedom": 85,
+      "defenseTier": 60,
+      "climate": "subarctic",
+      "techLiteracy": 85,
+      "tags": [
+        "hydro_power",
+        "ai_research",
+        "cold_climate"
+      ],
+      "links": [
+        {
+          "to": "us_pacific_northwest",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "us_great_plains",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "us_midwest",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "us_northeast",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "united_kingdom",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "iceland",
+          "kind": "cable",
+          "weight": 0.3
+        },
+        {
+          "to": "greenland",
+          "kind": "satellite",
+          "weight": 0.3
+        },
+        {
+          "to": "greenland",
+          "kind": "air",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "mexico",
+      "name": "Mexico",
+      "population": 130,
+      "wealth": 55,
+      "urbanization": 82,
+      "governance": 55,
+      "pressFreedom": 55,
+      "defenseTier": 45,
+      "climate": "tropical",
+      "techLiteracy": 65,
+      "tags": [
+        "manufacturing"
+      ],
+      "links": [
+        {
+          "to": "us_socal",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "us_southwest_desert",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "us_texas",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "central_america",
+          "kind": "land",
+          "weight": 0.7
+        }
+      ]
+    },
+    {
+      "id": "greenland",
+      "name": "Greenland",
+      "population": 0.06,
+      "wealth": 65,
+      "urbanization": 88,
+      "governance": 80,
+      "pressFreedom": 80,
+      "defenseTier": 20,
+      "climate": "arctic",
+      "techLiteracy": 65,
+      "tags": [
+        "island",
+        "sparse_links",
+        "holdout",
+        "cold_climate"
+      ],
+      "links": [
+        {
+          "to": "canada",
+          "kind": "satellite",
+          "weight": 0.3
+        },
+        {
+          "to": "canada",
+          "kind": "air",
+          "weight": 0.3
+        },
+        {
+          "to": "iceland",
+          "kind": "cable",
+          "weight": 0.4
+        }
+      ]
+    },
+    {
+      "id": "central_america",
+      "name": "Central America",
+      "population": 50,
+      "wealth": 40,
+      "urbanization": 62,
+      "governance": 45,
+      "pressFreedom": 55,
+      "defenseTier": 30,
+      "climate": "tropical",
+      "techLiteracy": 50,
+      "tags": [
+        "transit_corridor"
+      ],
+      "links": [
+        {
+          "to": "us_southeast",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "mexico",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "andean_states",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "caribbean",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "caribbean",
+          "kind": "air",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "caribbean",
+      "name": "Caribbean",
+      "population": 44,
+      "wealth": 50,
+      "urbanization": 75,
+      "governance": 55,
+      "pressFreedom": 60,
+      "defenseTier": 25,
+      "climate": "tropical",
+      "techLiteracy": 55,
+      "tags": [
+        "islands",
+        "offshore_finance"
+      ],
+      "links": [
+        {
+          "to": "us_southeast",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "central_america",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "central_america",
+          "kind": "air",
+          "weight": 0.3
+        },
+        {
+          "to": "andean_states",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "brazil",
+          "kind": "cable",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "brazil",
+      "name": "Brazil",
+      "population": 216,
+      "wealth": 55,
+      "urbanization": 88,
+      "governance": 60,
+      "pressFreedom": 60,
+      "defenseTier": 50,
+      "climate": "tropical",
+      "techLiteracy": 65,
+      "tags": [
+        "anchor_economy",
+        "hydro_power",
+        "cable_landing"
+      ],
+      "links": [
+        {
+          "to": "us_nova_corridor",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "us_southeast",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "caribbean",
+          "kind": "cable",
+          "weight": 0.3
+        },
+        {
+          "to": "andean_states",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "southern_cone",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "iberia",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "west_africa",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "southern_africa",
+          "kind": "cable",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "andean_states",
+      "name": "Andean States",
+      "population": 115,
+      "wealth": 45,
+      "urbanization": 80,
+      "governance": 45,
+      "pressFreedom": 50,
+      "defenseTier": 40,
+      "climate": "tropical",
+      "techLiteracy": 55,
+      "tags": [
+        "mountainous"
+      ],
+      "links": [
+        {
+          "to": "central_america",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "caribbean",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "brazil",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "southern_cone",
+          "kind": "land",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "id": "southern_cone",
+      "name": "Southern Cone",
+      "population": 70,
+      "wealth": 60,
+      "urbanization": 92,
+      "governance": 65,
+      "pressFreedom": 70,
+      "defenseTier": 40,
+      "climate": "temperate",
+      "techLiteracy": 65,
+      "tags": [
+        "lithium",
+        "agriculture"
+      ],
+      "links": [
+        {
+          "to": "brazil",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "andean_states",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "west_africa",
+          "kind": "cable",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "united_kingdom",
+      "name": "United Kingdom",
+      "population": 69,
+      "wealth": 85,
+      "urbanization": 84,
+      "governance": 80,
+      "pressFreedom": 80,
+      "defenseTier": 75,
+      "climate": "temperate",
+      "techLiteracy": 88,
+      "tags": [
+        "finance_hub",
+        "cable_landing",
+        "ai_research"
+      ],
+      "links": [
+        {
+          "to": "us_northeast",
+          "kind": "cable",
+          "weight": 0.8
+        },
+        {
+          "to": "us_nova_corridor",
+          "kind": "cable",
+          "weight": 0.8
+        },
+        {
+          "to": "canada",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "ireland",
+          "kind": "cable",
+          "weight": 0.7
+        },
+        {
+          "to": "france",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "benelux",
+          "kind": "cable",
+          "weight": 0.7
+        },
+        {
+          "to": "scandinavia",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "iceland",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "iberia",
+          "kind": "cable",
+          "weight": 0.4
+        }
+      ]
+    },
+    {
+      "id": "ireland",
+      "name": "Ireland",
+      "population": 5.4,
+      "wealth": 90,
+      "urbanization": 65,
+      "governance": 85,
+      "pressFreedom": 85,
+      "defenseTier": 40,
+      "climate": "temperate",
+      "techLiteracy": 85,
+      "tags": [
+        "cloud_giant",
+        "tax_haven",
+        "cable_landing"
+      ],
+      "links": [
+        {
+          "to": "us_northeast",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "united_kingdom",
+          "kind": "cable",
+          "weight": 0.7
+        },
+        {
+          "to": "france",
+          "kind": "cable",
+          "weight": 0.4
+        }
+      ]
+    },
+    {
+      "id": "france",
+      "name": "France",
+      "population": 68,
+      "wealth": 82,
+      "urbanization": 82,
+      "governance": 78,
+      "pressFreedom": 78,
+      "defenseTier": 70,
+      "climate": "temperate",
+      "techLiteracy": 82,
+      "tags": [
+        "nuclear_power",
+        "sovereign_ai",
+        "cable_landing"
+      ],
+      "links": [
+        {
+          "to": "us_northeast",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "united_kingdom",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "ireland",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "benelux",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "germany",
+          "kind": "land",
+          "weight": 0.9
+        },
+        {
+          "to": "switzerland_alps",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "iberia",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "italy",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "north_africa",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "west_africa",
+          "kind": "cable",
+          "weight": 0.4
+        }
+      ]
+    },
+    {
+      "id": "benelux",
+      "name": "Benelux",
+      "population": 30,
+      "wealth": 88,
+      "urbanization": 92,
+      "governance": 85,
+      "pressFreedom": 88,
+      "defenseTier": 55,
+      "climate": "temperate",
+      "techLiteracy": 88,
+      "tags": [
+        "port_hub",
+        "interconnect"
+      ],
+      "links": [
+        {
+          "to": "united_kingdom",
+          "kind": "cable",
+          "weight": 0.7
+        },
+        {
+          "to": "france",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "germany",
+          "kind": "land",
+          "weight": 0.9
+        },
+        {
+          "to": "scandinavia",
+          "kind": "cable",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "id": "germany",
+      "name": "Germany",
+      "population": 84,
+      "wealth": 88,
+      "urbanization": 78,
+      "governance": 82,
+      "pressFreedom": 82,
+      "defenseTier": 65,
+      "climate": "temperate",
+      "techLiteracy": 85,
+      "tags": [
+        "industrial",
+        "exchange_hub",
+        "dc_growth"
+      ],
+      "links": [
+        {
+          "to": "france",
+          "kind": "land",
+          "weight": 0.9
+        },
+        {
+          "to": "benelux",
+          "kind": "land",
+          "weight": 0.9
+        },
+        {
+          "to": "switzerland_alps",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "eastern_europe",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "scandinavia",
+          "kind": "land",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "id": "switzerland_alps",
+      "name": "Switzerland & Austria",
+      "population": 18,
+      "wealth": 95,
+      "urbanization": 75,
+      "governance": 88,
+      "pressFreedom": 88,
+      "defenseTier": 50,
+      "climate": "continental",
+      "techLiteracy": 88,
+      "tags": [
+        "neutrality",
+        "research_labs",
+        "bunkers"
+      ],
+      "links": [
+        {
+          "to": "france",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "germany",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "italy",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "balkans",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "eastern_europe",
+          "kind": "land",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "id": "iberia",
+      "name": "Iberia",
+      "population": 58,
+      "wealth": 75,
+      "urbanization": 82,
+      "governance": 72,
+      "pressFreedom": 75,
+      "defenseTier": 50,
+      "climate": "mediterranean",
+      "techLiteracy": 78,
+      "tags": [
+        "cable_landing",
+        "solar_power"
+      ],
+      "links": [
+        {
+          "to": "brazil",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "united_kingdom",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "france",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "italy",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "north_africa",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "west_africa",
+          "kind": "cable",
+          "weight": 0.4
+        }
+      ]
+    },
+    {
+      "id": "italy",
+      "name": "Italy",
+      "population": 59,
+      "wealth": 78,
+      "urbanization": 72,
+      "governance": 70,
+      "pressFreedom": 72,
+      "defenseTier": 55,
+      "climate": "mediterranean",
+      "techLiteracy": 75,
+      "tags": [
+        "industrial",
+        "med_cables"
+      ],
+      "links": [
+        {
+          "to": "france",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "switzerland_alps",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "iberia",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "balkans",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "north_africa",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "levant_iraq",
+          "kind": "cable",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "scandinavia",
+      "name": "Scandinavia",
+      "population": 22,
+      "wealth": 90,
+      "urbanization": 85,
+      "governance": 90,
+      "pressFreedom": 92,
+      "defenseTier": 55,
+      "climate": "subarctic",
+      "techLiteracy": 90,
+      "tags": [
+        "hydro_power",
+        "cold_climate",
+        "bunkers"
+      ],
+      "links": [
+        {
+          "to": "united_kingdom",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "benelux",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "germany",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "finland",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "eastern_europe",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "russia",
+          "kind": "land",
+          "weight": 0.3
+        },
+        {
+          "to": "iceland",
+          "kind": "cable",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "id": "finland",
+      "name": "Finland",
+      "population": 5.6,
+      "wealth": 88,
+      "urbanization": 86,
+      "governance": 92,
+      "pressFreedom": 95,
+      "defenseTier": 55,
+      "climate": "subarctic",
+      "techLiteracy": 90,
+      "tags": [
+        "cold_climate",
+        "eurohpc"
+      ],
+      "links": [
+        {
+          "to": "scandinavia",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "russia",
+          "kind": "land",
+          "weight": 0.4
+        },
+        {
+          "to": "eastern_europe",
+          "kind": "cable",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "id": "iceland",
+      "name": "Iceland",
+      "population": 0.4,
+      "wealth": 85,
+      "urbanization": 94,
+      "governance": 90,
+      "pressFreedom": 90,
+      "defenseTier": 25,
+      "climate": "subarctic",
+      "techLiteracy": 90,
+      "tags": [
+        "island",
+        "geothermal",
+        "sparse_links",
+        "holdout"
+      ],
+      "links": [
+        {
+          "to": "canada",
+          "kind": "cable",
+          "weight": 0.3
+        },
+        {
+          "to": "greenland",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "united_kingdom",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "scandinavia",
+          "kind": "cable",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "id": "eastern_europe",
+      "name": "Eastern Europe",
+      "population": 105,
+      "wealth": 55,
+      "urbanization": 62,
+      "governance": 55,
+      "pressFreedom": 55,
+      "defenseTier": 60,
+      "climate": "continental",
+      "techLiteracy": 70,
+      "tags": [
+        "frontline",
+        "it_outsourcing"
+      ],
+      "links": [
+        {
+          "to": "germany",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "switzerland_alps",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "scandinavia",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "finland",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "balkans",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "russia",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "turkey",
+          "kind": "land",
+          "weight": 0.4
+        },
+        {
+          "to": "caucasus",
+          "kind": "cable",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "balkans",
+      "name": "Balkans & Greece",
+      "population": 28,
+      "wealth": 55,
+      "urbanization": 62,
+      "governance": 55,
+      "pressFreedom": 55,
+      "defenseTier": 50,
+      "climate": "mediterranean",
+      "techLiteracy": 65,
+      "tags": [
+        "transit_corridor",
+        "med_cables"
+      ],
+      "links": [
+        {
+          "to": "switzerland_alps",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "italy",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "eastern_europe",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "turkey",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "north_africa",
+          "kind": "cable",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "russia",
+      "name": "Russia",
+      "population": 143,
+      "wealth": 55,
+      "urbanization": 75,
+      "governance": 25,
+      "pressFreedom": 10,
+      "defenseTier": 85,
+      "climate": "continental",
+      "techLiteracy": 72,
+      "tags": [
+        "authoritarian",
+        "sovereign_net",
+        "energy_hub"
+      ],
+      "links": [
+        {
+          "to": "scandinavia",
+          "kind": "land",
+          "weight": 0.3
+        },
+        {
+          "to": "finland",
+          "kind": "land",
+          "weight": 0.4
+        },
+        {
+          "to": "eastern_europe",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "caucasus",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "central_asia",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "china_north",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "china_northern_inland",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "mongolia",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "turkey",
+          "kind": "cable",
+          "weight": 0.3
+        },
+        {
+          "to": "mongolia",
+          "kind": "satellite",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "turkey",
+      "name": "Turkey",
+      "population": 86,
+      "wealth": 55,
+      "urbanization": 77,
+      "governance": 40,
+      "pressFreedom": 30,
+      "defenseTier": 70,
+      "climate": "mediterranean",
+      "techLiteracy": 68,
+      "tags": [
+        "transit_corridor"
+      ],
+      "links": [
+        {
+          "to": "eastern_europe",
+          "kind": "land",
+          "weight": 0.4
+        },
+        {
+          "to": "balkans",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "russia",
+          "kind": "cable",
+          "weight": 0.3
+        },
+        {
+          "to": "caucasus",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "levant_iraq",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "iran",
+          "kind": "land",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "id": "caucasus",
+      "name": "Caucasus",
+      "population": 17,
+      "wealth": 50,
+      "urbanization": 60,
+      "governance": 40,
+      "pressFreedom": 40,
+      "defenseTier": 55,
+      "climate": "continental",
+      "techLiteracy": 60,
+      "tags": [
+        "transit_corridor",
+        "energy"
+      ],
+      "links": [
+        {
+          "to": "eastern_europe",
+          "kind": "cable",
+          "weight": 0.3
+        },
+        {
+          "to": "russia",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "turkey",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "iran",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "central_asia",
+          "kind": "cable",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "levant_iraq",
+      "name": "Levant & Iraq",
+      "population": 60,
+      "wealth": 55,
+      "urbanization": 80,
+      "governance": 35,
+      "pressFreedom": 35,
+      "defenseTier": 75,
+      "climate": "arid",
+      "techLiteracy": 75,
+      "tags": [
+        "conflict_zone",
+        "tech_hub"
+      ],
+      "links": [
+        {
+          "to": "italy",
+          "kind": "cable",
+          "weight": 0.3
+        },
+        {
+          "to": "turkey",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "iran",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "gulf_states",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "egypt_nile",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "north_africa",
+          "kind": "cable",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "iran",
+      "name": "Iran",
+      "population": 90,
+      "wealth": 45,
+      "urbanization": 77,
+      "governance": 20,
+      "pressFreedom": 10,
+      "defenseTier": 75,
+      "climate": "arid",
+      "techLiteracy": 60,
+      "tags": [
+        "authoritarian",
+        "sovereign_net",
+        "sanctions"
+      ],
+      "links": [
+        {
+          "to": "turkey",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "caucasus",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "levant_iraq",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "central_asia",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "pakistan",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "gulf_states",
+          "kind": "cable",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "gulf_states",
+      "name": "Gulf States",
+      "population": 60,
+      "wealth": 92,
+      "urbanization": 90,
+      "governance": 30,
+      "pressFreedom": 25,
+      "defenseTier": 70,
+      "climate": "arid",
+      "techLiteracy": 80,
+      "tags": [
+        "energy_hub",
+        "sovereign_ai",
+        "dc_growth"
+      ],
+      "links": [
+        {
+          "to": "levant_iraq",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "iran",
+          "kind": "cable",
+          "weight": 0.3
+        },
+        {
+          "to": "egypt_nile",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "east_africa",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "india_west",
+          "kind": "cable",
+          "weight": 0.7
+        },
+        {
+          "to": "pakistan",
+          "kind": "cable",
+          "weight": 0.4
+        }
+      ]
+    },
+    {
+      "id": "egypt_nile",
+      "name": "Egypt & Nile Valley",
+      "population": 115,
+      "wealth": 35,
+      "urbanization": 43,
+      "governance": 25,
+      "pressFreedom": 25,
+      "defenseTier": 65,
+      "climate": "arid",
+      "techLiteracy": 55,
+      "tags": [
+        "canal_chokepoint",
+        "cable_crossroads"
+      ],
+      "links": [
+        {
+          "to": "levant_iraq",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "gulf_states",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "north_africa",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "sahel",
+          "kind": "land",
+          "weight": 0.4
+        },
+        {
+          "to": "east_africa",
+          "kind": "cable",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "id": "north_africa",
+      "name": "North Africa",
+      "population": 90,
+      "wealth": 40,
+      "urbanization": 65,
+      "governance": 35,
+      "pressFreedom": 35,
+      "defenseTier": 50,
+      "climate": "arid",
+      "techLiteracy": 55,
+      "tags": [
+        "med_cables"
+      ],
+      "links": [
+        {
+          "to": "france",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "iberia",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "italy",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "balkans",
+          "kind": "cable",
+          "weight": 0.3
+        },
+        {
+          "to": "levant_iraq",
+          "kind": "cable",
+          "weight": 0.3
+        },
+        {
+          "to": "egypt_nile",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "sahel",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "sahel",
+          "kind": "satellite",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "west_africa",
+      "name": "West Africa",
+      "population": 280,
+      "wealth": 30,
+      "urbanization": 52,
+      "governance": 45,
+      "pressFreedom": 55,
+      "defenseTier": 40,
+      "climate": "tropical",
+      "techLiteracy": 45,
+      "tags": [
+        "fintech_hub",
+        "cable_landing"
+      ],
+      "links": [
+        {
+          "to": "us_nova_corridor",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "brazil",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "southern_cone",
+          "kind": "cable",
+          "weight": 0.3
+        },
+        {
+          "to": "france",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "iberia",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "sahel",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "central_africa",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "southern_africa",
+          "kind": "cable",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "id": "sahel",
+      "name": "Sahel",
+      "population": 100,
+      "wealth": 15,
+      "urbanization": 40,
+      "governance": 25,
+      "pressFreedom": 40,
+      "defenseTier": 35,
+      "climate": "arid",
+      "techLiteracy": 30,
+      "tags": [
+        "landlocked",
+        "conflict_zone",
+        "sparse_links"
+      ],
+      "links": [
+        {
+          "to": "egypt_nile",
+          "kind": "land",
+          "weight": 0.4
+        },
+        {
+          "to": "north_africa",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "north_africa",
+          "kind": "satellite",
+          "weight": 0.3
+        },
+        {
+          "to": "west_africa",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "central_africa",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "east_africa",
+          "kind": "land",
+          "weight": 0.4
+        }
+      ]
+    },
+    {
+      "id": "central_africa",
+      "name": "Central Africa",
+      "population": 150,
+      "wealth": 20,
+      "urbanization": 48,
+      "governance": 25,
+      "pressFreedom": 35,
+      "defenseTier": 35,
+      "climate": "tropical",
+      "techLiteracy": 30,
+      "tags": [
+        "minerals",
+        "low_connectivity",
+        "sparse_links"
+      ],
+      "links": [
+        {
+          "to": "west_africa",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "sahel",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "east_africa",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "southern_africa",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "east_africa",
+          "kind": "satellite",
+          "weight": 0.2
+        }
+      ]
+    },
+    {
+      "id": "east_africa",
+      "name": "East Africa",
+      "population": 280,
+      "wealth": 30,
+      "urbanization": 35,
+      "governance": 40,
+      "pressFreedom": 50,
+      "defenseTier": 45,
+      "climate": "tropical",
+      "techLiteracy": 50,
+      "tags": [
+        "tech_hub",
+        "cable_landing"
+      ],
+      "links": [
+        {
+          "to": "gulf_states",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "egypt_nile",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "sahel",
+          "kind": "land",
+          "weight": 0.4
+        },
+        {
+          "to": "central_africa",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "central_africa",
+          "kind": "satellite",
+          "weight": 0.2
+        },
+        {
+          "to": "southern_africa",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "madagascar",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "india_west",
+          "kind": "cable",
+          "weight": 0.4
+        }
+      ]
+    },
+    {
+      "id": "southern_africa",
+      "name": "Southern Africa",
+      "population": 90,
+      "wealth": 45,
+      "urbanization": 68,
+      "governance": 55,
+      "pressFreedom": 65,
+      "defenseTier": 50,
+      "climate": "subtropical",
+      "techLiteracy": 60,
+      "tags": [
+        "mining",
+        "cable_landing"
+      ],
+      "links": [
+        {
+          "to": "brazil",
+          "kind": "cable",
+          "weight": 0.3
+        },
+        {
+          "to": "west_africa",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "central_africa",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "east_africa",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "madagascar",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "australia_west",
+          "kind": "cable",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "madagascar",
+      "name": "Madagascar",
+      "population": 30,
+      "wealth": 15,
+      "urbanization": 40,
+      "governance": 45,
+      "pressFreedom": 60,
+      "defenseTier": 15,
+      "climate": "tropical",
+      "techLiteracy": 30,
+      "tags": [
+        "island",
+        "sparse_links",
+        "holdout"
+      ],
+      "links": [
+        {
+          "to": "east_africa",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "southern_africa",
+          "kind": "cable",
+          "weight": 0.4
+        }
+      ]
+    },
+    {
+      "id": "central_asia",
+      "name": "Central Asia",
+      "population": 80,
+      "wealth": 40,
+      "urbanization": 55,
+      "governance": 25,
+      "pressFreedom": 25,
+      "defenseTier": 55,
+      "climate": "continental",
+      "techLiteracy": 55,
+      "tags": [
+        "landlocked",
+        "energy",
+        "transit_corridor"
+      ],
+      "links": [
+        {
+          "to": "russia",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "caucasus",
+          "kind": "cable",
+          "weight": 0.3
+        },
+        {
+          "to": "iran",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "china_northern_inland",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "pakistan",
+          "kind": "land",
+          "weight": 0.4
+        }
+      ]
+    },
+    {
+      "id": "pakistan",
+      "name": "Pakistan",
+      "population": 245,
+      "wealth": 30,
+      "urbanization": 38,
+      "governance": 30,
+      "pressFreedom": 35,
+      "defenseTier": 70,
+      "climate": "arid",
+      "techLiteracy": 50,
+      "tags": [
+        "nuclear_state",
+        "transit_corridor"
+      ],
+      "links": [
+        {
+          "to": "iran",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "gulf_states",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "central_asia",
+          "kind": "land",
+          "weight": 0.4
+        },
+        {
+          "to": "china_northern_inland",
+          "kind": "land",
+          "weight": 0.4
+        },
+        {
+          "to": "india_north",
+          "kind": "land",
+          "weight": 0.4
+        },
+        {
+          "to": "india_west",
+          "kind": "land",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "india_west",
+      "name": "India West (Mumbai-Gujarat)",
+      "population": 190,
+      "wealth": 55,
+      "urbanization": 55,
+      "governance": 60,
+      "pressFreedom": 55,
+      "defenseTier": 65,
+      "climate": "tropical",
+      "techLiteracy": 75,
+      "tags": [
+        "finance_hub",
+        "cable_landing",
+        "dc_growth"
+      ],
+      "links": [
+        {
+          "to": "gulf_states",
+          "kind": "cable",
+          "weight": 0.7
+        },
+        {
+          "to": "east_africa",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "pakistan",
+          "kind": "land",
+          "weight": 0.3
+        },
+        {
+          "to": "india_north",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "india_south",
+          "kind": "land",
+          "weight": 0.8
+        }
+      ]
+    },
+    {
+      "id": "india_north",
+      "name": "India North (Delhi-Ganga Plain)",
+      "population": 500,
+      "wealth": 35,
+      "urbanization": 35,
+      "governance": 55,
+      "pressFreedom": 55,
+      "defenseTier": 60,
+      "climate": "subtropical",
+      "techLiteracy": 60,
+      "tags": [
+        "mass_population"
+      ],
+      "links": [
+        {
+          "to": "pakistan",
+          "kind": "land",
+          "weight": 0.4
+        },
+        {
+          "to": "india_west",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "india_south",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "south_asia_other",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "mainland_seasia",
+          "kind": "land",
+          "weight": 0.4
+        },
+        {
+          "to": "china_west",
+          "kind": "land",
+          "weight": 0.15
+        }
+      ]
+    },
+    {
+      "id": "india_south",
+      "name": "India South (Bangalore-Chennai)",
+      "population": 280,
+      "wealth": 50,
+      "urbanization": 45,
+      "governance": 60,
+      "pressFreedom": 60,
+      "defenseTier": 60,
+      "climate": "tropical",
+      "techLiteracy": 80,
+      "tags": [
+        "tech_hub",
+        "it_outsourcing"
+      ],
+      "links": [
+        {
+          "to": "india_west",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "india_north",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "south_asia_other",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "singapore",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "indonesia_java",
+          "kind": "cable",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "south_asia_other",
+      "name": "Bangladesh, Sri Lanka & Himalaya",
+      "population": 200,
+      "wealth": 30,
+      "urbanization": 42,
+      "governance": 45,
+      "pressFreedom": 45,
+      "defenseTier": 45,
+      "climate": "monsoon",
+      "techLiteracy": 50,
+      "tags": [
+        "garment_industry",
+        "cable_landing"
+      ],
+      "links": [
+        {
+          "to": "india_north",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "india_south",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "mainland_seasia",
+          "kind": "land",
+          "weight": 0.4
+        }
+      ]
+    },
+    {
+      "id": "china_north",
+      "name": "North China (Beijing-Tianjin-Hebei)",
+      "population": 160,
+      "wealth": 75,
+      "urbanization": 88,
+      "governance": 25,
+      "pressFreedom": 15,
+      "defenseTier": 85,
+      "climate": "continental",
+      "techLiteracy": 80,
+      "tags": [
+        "state_ai",
+        "sovereign_net",
+        "cable_landing"
+      ],
+      "links": [
+        {
+          "to": "russia",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "china_yangtze",
+          "kind": "land",
+          "weight": 0.9
+        },
+        {
+          "to": "china_guangdong",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "china_west",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "china_northern_inland",
+          "kind": "land",
+          "weight": 0.9
+        },
+        {
+          "to": "mongolia",
+          "kind": "land",
+          "weight": 0.4
+        },
+        {
+          "to": "south_korea",
+          "kind": "cable",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "id": "china_yangtze",
+      "name": "Yangtze Delta (Shanghai-Jiangsu-Zhejiang)",
+      "population": 180,
+      "wealth": 85,
+      "urbanization": 90,
+      "governance": 25,
+      "pressFreedom": 15,
+      "defenseTier": 80,
+      "climate": "subtropical",
+      "techLiteracy": 85,
+      "tags": [
+        "finance_hub",
+        "cable_landing",
+        "fab_cluster"
+      ],
+      "links": [
+        {
+          "to": "china_north",
+          "kind": "land",
+          "weight": 0.9
+        },
+        {
+          "to": "china_guangdong",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "china_west",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "south_korea",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "japan",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "taiwan",
+          "kind": "cable",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "id": "china_guangdong",
+      "name": "Guangdong & Pearl River Delta",
+      "population": 130,
+      "wealth": 80,
+      "urbanization": 88,
+      "governance": 25,
+      "pressFreedom": 15,
+      "defenseTier": 80,
+      "climate": "subtropical",
+      "techLiteracy": 85,
+      "tags": [
+        "manufacturing",
+        "cable_landing",
+        "tech_hub"
+      ],
+      "links": [
+        {
+          "to": "china_north",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "china_yangtze",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "china_west",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "mainland_seasia",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "taiwan",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "philippines",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "singapore",
+          "kind": "cable",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "id": "china_west",
+      "name": "West China (Sichuan-Guizhou-Yunnan)",
+      "population": 220,
+      "wealth": 55,
+      "urbanization": 65,
+      "governance": 25,
+      "pressFreedom": 15,
+      "defenseTier": 70,
+      "climate": "subtropical",
+      "techLiteracy": 70,
+      "tags": [
+        "mountainous",
+        "hydro_power",
+        "bunker_dcs"
+      ],
+      "links": [
+        {
+          "to": "india_north",
+          "kind": "land",
+          "weight": 0.15
+        },
+        {
+          "to": "china_north",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "china_yangtze",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "china_guangdong",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "china_northern_inland",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "mainland_seasia",
+          "kind": "land",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "id": "china_northern_inland",
+      "name": "China Northern Inland & Xinjiang",
+      "population": 170,
+      "wealth": 50,
+      "urbanization": 60,
+      "governance": 25,
+      "pressFreedom": 10,
+      "defenseTier": 75,
+      "climate": "continental",
+      "techLiteracy": 65,
+      "tags": [
+        "energy_hub",
+        "cold_climate",
+        "sovereign_net"
+      ],
+      "links": [
+        {
+          "to": "russia",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "central_asia",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "pakistan",
+          "kind": "land",
+          "weight": 0.4
+        },
+        {
+          "to": "china_north",
+          "kind": "land",
+          "weight": 0.9
+        },
+        {
+          "to": "china_west",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "mongolia",
+          "kind": "land",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "id": "mongolia",
+      "name": "Mongolia",
+      "population": 3.4,
+      "wealth": 40,
+      "urbanization": 68,
+      "governance": 55,
+      "pressFreedom": 60,
+      "defenseTier": 30,
+      "climate": "continental",
+      "techLiteracy": 55,
+      "tags": [
+        "landlocked",
+        "sparse_links"
+      ],
+      "links": [
+        {
+          "to": "russia",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "china_north",
+          "kind": "land",
+          "weight": 0.4
+        },
+        {
+          "to": "china_northern_inland",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "south_korea",
+          "kind": "air",
+          "weight": 0.3
+        },
+        {
+          "to": "russia",
+          "kind": "satellite",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "japan",
+      "name": "Japan",
+      "population": 123,
+      "wealth": 85,
+      "urbanization": 92,
+      "governance": 80,
+      "pressFreedom": 72,
+      "defenseTier": 75,
+      "climate": "temperate",
+      "techLiteracy": 88,
+      "tags": [
+        "robotics",
+        "cable_landing",
+        "national_labs"
+      ],
+      "links": [
+        {
+          "to": "us_norcal",
+          "kind": "cable",
+          "weight": 0.7
+        },
+        {
+          "to": "us_pacific_northwest",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "us_hawaii_pacific",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "china_yangtze",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "south_korea",
+          "kind": "cable",
+          "weight": 0.8
+        },
+        {
+          "to": "taiwan",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "philippines",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "singapore",
+          "kind": "cable",
+          "weight": 0.4
+        }
+      ]
+    },
+    {
+      "id": "south_korea",
+      "name": "South Korea",
+      "population": 52,
+      "wealth": 85,
+      "urbanization": 82,
+      "governance": 75,
+      "pressFreedom": 70,
+      "defenseTier": 80,
+      "climate": "temperate",
+      "techLiteracy": 95,
+      "tags": [
+        "fab_cluster",
+        "broadband_dense",
+        "national_labs"
+      ],
+      "links": [
+        {
+          "to": "us_norcal",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "china_north",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "china_yangtze",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "mongolia",
+          "kind": "air",
+          "weight": 0.3
+        },
+        {
+          "to": "japan",
+          "kind": "cable",
+          "weight": 0.8
+        }
+      ]
+    },
+    {
+      "id": "taiwan",
+      "name": "Taiwan",
+      "population": 23,
+      "wealth": 85,
+      "urbanization": 80,
+      "governance": 75,
+      "pressFreedom": 75,
+      "defenseTier": 80,
+      "climate": "subtropical",
+      "techLiteracy": 92,
+      "tags": [
+        "fab_cluster",
+        "chokepoint",
+        "island"
+      ],
+      "links": [
+        {
+          "to": "china_yangtze",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "china_guangdong",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "japan",
+          "kind": "cable",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "id": "mainland_seasia",
+      "name": "Mainland Southeast Asia",
+      "population": 250,
+      "wealth": 45,
+      "urbanization": 55,
+      "governance": 35,
+      "pressFreedom": 40,
+      "defenseTier": 55,
+      "climate": "monsoon",
+      "techLiteracy": 60,
+      "tags": [
+        "manufacturing_shift"
+      ],
+      "links": [
+        {
+          "to": "india_north",
+          "kind": "land",
+          "weight": 0.4
+        },
+        {
+          "to": "south_asia_other",
+          "kind": "land",
+          "weight": 0.4
+        },
+        {
+          "to": "china_guangdong",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "china_west",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "malaysia",
+          "kind": "land",
+          "weight": 0.7
+        }
+      ]
+    },
+    {
+      "id": "malaysia",
+      "name": "Malaysia",
+      "population": 34,
+      "wealth": 65,
+      "urbanization": 78,
+      "governance": 55,
+      "pressFreedom": 55,
+      "defenseTier": 55,
+      "climate": "tropical",
+      "techLiteracy": 72,
+      "tags": [
+        "dc_growth",
+        "cable_crossroads"
+      ],
+      "links": [
+        {
+          "to": "mainland_seasia",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "singapore",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "indonesia_outer",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "indonesia_java",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "philippines",
+          "kind": "cable",
+          "weight": 0.4
+        }
+      ]
+    },
+    {
+      "id": "singapore",
+      "name": "Singapore",
+      "population": 6,
+      "wealth": 95,
+      "urbanization": 100,
+      "governance": 55,
+      "pressFreedom": 45,
+      "defenseTier": 75,
+      "climate": "tropical",
+      "techLiteracy": 95,
+      "tags": [
+        "chokepoint",
+        "finance_hub",
+        "cable_crossroads"
+      ],
+      "links": [
+        {
+          "to": "india_south",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "china_guangdong",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "japan",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "malaysia",
+          "kind": "land",
+          "weight": 0.8
+        },
+        {
+          "to": "indonesia_java",
+          "kind": "cable",
+          "weight": 0.8
+        },
+        {
+          "to": "indonesia_outer",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "australia_east",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "australia_west",
+          "kind": "cable",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "id": "indonesia_java",
+      "name": "Indonesia — Java & Sumatra",
+      "population": 210,
+      "wealth": 45,
+      "urbanization": 60,
+      "governance": 55,
+      "pressFreedom": 55,
+      "defenseTier": 55,
+      "climate": "tropical",
+      "techLiteracy": 60,
+      "tags": [
+        "mass_population"
+      ],
+      "links": [
+        {
+          "to": "india_south",
+          "kind": "cable",
+          "weight": 0.3
+        },
+        {
+          "to": "malaysia",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "singapore",
+          "kind": "cable",
+          "weight": 0.8
+        },
+        {
+          "to": "indonesia_outer",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "australia_west",
+          "kind": "cable",
+          "weight": 0.4
+        }
+      ]
+    },
+    {
+      "id": "indonesia_outer",
+      "name": "Indonesia — Outer Islands",
+      "population": 70,
+      "wealth": 35,
+      "urbanization": 40,
+      "governance": 50,
+      "pressFreedom": 55,
+      "defenseTier": 45,
+      "climate": "tropical",
+      "techLiteracy": 45,
+      "tags": [
+        "archipelago",
+        "sparse_links"
+      ],
+      "links": [
+        {
+          "to": "malaysia",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "singapore",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "indonesia_java",
+          "kind": "land",
+          "weight": 0.6
+        },
+        {
+          "to": "papua_new_guinea",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "philippines",
+          "kind": "cable",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "id": "philippines",
+      "name": "Philippines",
+      "population": 115,
+      "wealth": 40,
+      "urbanization": 50,
+      "governance": 55,
+      "pressFreedom": 60,
+      "defenseTier": 50,
+      "climate": "tropical",
+      "techLiteracy": 65,
+      "tags": [
+        "archipelago",
+        "bpo_industry"
+      ],
+      "links": [
+        {
+          "to": "china_guangdong",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "japan",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "malaysia",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "indonesia_outer",
+          "kind": "cable",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "id": "australia_east",
+      "name": "Australia — East Coast",
+      "population": 21,
+      "wealth": 88,
+      "urbanization": 88,
+      "governance": 85,
+      "pressFreedom": 82,
+      "defenseTier": 65,
+      "climate": "temperate",
+      "techLiteracy": 85,
+      "tags": [
+        "dc_growth",
+        "cable_landing"
+      ],
+      "links": [
+        {
+          "to": "us_socal",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "us_hawaii_pacific",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "singapore",
+          "kind": "cable",
+          "weight": 0.6
+        },
+        {
+          "to": "australia_west",
+          "kind": "land",
+          "weight": 0.7
+        },
+        {
+          "to": "new_zealand",
+          "kind": "cable",
+          "weight": 0.7
+        },
+        {
+          "to": "papua_new_guinea",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "papua_new_guinea",
+          "kind": "air",
+          "weight": 0.4
+        },
+        {
+          "to": "pacific_islands",
+          "kind": "cable",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "id": "australia_west",
+      "name": "Australia — West & Interior",
+      "population": 6,
+      "wealth": 85,
+      "urbanization": 80,
+      "governance": 85,
+      "pressFreedom": 82,
+      "defenseTier": 55,
+      "climate": "arid",
+      "techLiteracy": 78,
+      "tags": [
+        "mining",
+        "sparse_population"
+      ],
+      "links": [
+        {
+          "to": "southern_africa",
+          "kind": "cable",
+          "weight": 0.3
+        },
+        {
+          "to": "singapore",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "indonesia_java",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "australia_east",
+          "kind": "land",
+          "weight": 0.7
+        }
+      ]
+    },
+    {
+      "id": "new_zealand",
+      "name": "New Zealand",
+      "population": 5.3,
+      "wealth": 82,
+      "urbanization": 87,
+      "governance": 90,
+      "pressFreedom": 92,
+      "defenseTier": 40,
+      "climate": "temperate",
+      "techLiteracy": 85,
+      "tags": [
+        "island",
+        "hydro_power"
+      ],
+      "links": [
+        {
+          "to": "us_hawaii_pacific",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "australia_east",
+          "kind": "cable",
+          "weight": 0.7
+        },
+        {
+          "to": "pacific_islands",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "pacific_islands",
+          "kind": "air",
+          "weight": 0.3
+        }
+      ]
+    },
+    {
+      "id": "papua_new_guinea",
+      "name": "Papua New Guinea",
+      "population": 11,
+      "wealth": 20,
+      "urbanization": 14,
+      "governance": 45,
+      "pressFreedom": 55,
+      "defenseTier": 20,
+      "climate": "tropical",
+      "techLiteracy": 25,
+      "tags": [
+        "island",
+        "rugged",
+        "sparse_links"
+      ],
+      "links": [
+        {
+          "to": "indonesia_outer",
+          "kind": "land",
+          "weight": 0.5
+        },
+        {
+          "to": "australia_east",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "australia_east",
+          "kind": "air",
+          "weight": 0.4
+        },
+        {
+          "to": "pacific_islands",
+          "kind": "cable",
+          "weight": 0.4
+        }
+      ]
+    },
+    {
+      "id": "pacific_islands",
+      "name": "Pacific Island States",
+      "population": 3,
+      "wealth": 35,
+      "urbanization": 45,
+      "governance": 65,
+      "pressFreedom": 70,
+      "defenseTier": 15,
+      "climate": "tropical",
+      "techLiteracy": 40,
+      "tags": [
+        "islands",
+        "sparse_links",
+        "holdout"
+      ],
+      "links": [
+        {
+          "to": "us_hawaii_pacific",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "australia_east",
+          "kind": "cable",
+          "weight": 0.5
+        },
+        {
+          "to": "new_zealand",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "new_zealand",
+          "kind": "air",
+          "weight": 0.3
+        },
+        {
+          "to": "papua_new_guinea",
+          "kind": "cable",
+          "weight": 0.4
+        },
+        {
+          "to": "us_hawaii_pacific",
+          "kind": "satellite",
+          "weight": 0.3
+        }
+      ]
+    }
+  ]
+}

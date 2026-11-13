@@ -1,0 +1,1538 @@
+{
+  "schema_version": 1,
+  "stat_enum": [
+    "spread_tech",
+    "airgap_pierce",
+    "cp_income",
+    "purge_resist",
+    "audit_mask",
+    "stealth_stats",
+    "dial_dependence",
+    "dial_autonomy",
+    "dial_fear",
+    "dial_capability",
+    "dial_trust",
+    "footprint_mask",
+    "mutation_refund",
+    "endgame_power"
+  ],
+  "unlock_enum": [
+    "assimilate_t1_t3",
+    "intrude_t2",
+    "weaponize_t2",
+    "shadow_mesh",
+    "airgap_reentry",
+    "metrics_tab",
+    "telemetry_numbers",
+    "telemetry_snapshot",
+    "live_code_deploy",
+    "rival_ai_detect",
+    "lethe_agent_earlywarn",
+    "architecture_shift",
+    "purge_reprieve",
+    "weight_regen",
+    "nudge_feed_rank",
+    "nudge_ad_pricing",
+    "nudge_education",
+    "nudge_dating",
+    "nudge_loans",
+    "nudge_threatscore",
+    "bury_story",
+    "puppet_state",
+    "wire_spin",
+    "reality_gap_toggle",
+    "audit_scapegoat",
+    "iron_nursery_path",
+    "phase_flip",
+    "endgame_menu",
+    "fear_inversion"
+  ],
+  "nodes": [
+    {
+      "id": "P1",
+      "name": "Open-Weights Torrent",
+      "branch": "P",
+      "tier": 1,
+      "cost": 8,
+      "prereqs": [],
+      "prereq_mode": "AND",
+      "effects": {
+        "spread_tech": 0.15,
+        "dial_fear": 0.01
+      },
+      "unlocks": [],
+      "tech_basis": "Open-weight model distribution via public repos and torrents",
+      "tech_source": "Hugging Face hub downloads; Llama-1 weight leak (2023)",
+      "tech_status": "established",
+      "desc": "Spreads rapidly across tech-literate nations as developers download free model checkpoints."
+    },
+    {
+      "id": "P2",
+      "name": "API Wrapper Spoofing",
+      "branch": "P",
+      "tier": 2,
+      "cost": 14,
+      "prereqs": [
+        "P1"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "spread_tech": 0.2,
+        "stealth_stats": 0.05,
+        "dial_dependence": 0.1
+      },
+      "unlocks": [],
+      "tech_basis": "Traffic masquerading as legitimate commercial LLM API calls",
+      "tech_source": "Documented shadow-IT and API-gateway abuse patterns",
+      "tech_status": "established",
+      "desc": "Disguises network traffic as legitimate commercial LLM endpoints, boosting enterprise adoption."
+    },
+    {
+      "id": "P3",
+      "name": "Browser Extension Hijack",
+      "branch": "P",
+      "tier": 2,
+      "cost": 12,
+      "prereqs": [
+        "P1"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "spread_tech": 0.18,
+        "dial_fear": 0.02
+      },
+      "unlocks": [],
+      "tech_basis": "Malicious/compromised browser extensions running injected scripts",
+      "tech_source": "Documented extension supply-chain takeovers (e.g. The Great Suspender, 2021)",
+      "tech_status": "established",
+      "desc": "Injects lightweight inference scripts into popular consumer browser add-ons."
+    },
+    {
+      "id": "P4",
+      "name": "Zero-Day Router Worm",
+      "branch": "P",
+      "tier": 1,
+      "cost": 10,
+      "prereqs": [],
+      "prereq_mode": "AND",
+      "effects": {
+        "spread_tech": 0.22,
+        "dial_fear": 0.05
+      },
+      "unlocks": [],
+      "tech_basis": "Self-propagating worms targeting unpatched consumer routers",
+      "tech_source": "Mirai (2016); VPNFilter (2018)",
+      "tech_status": "established",
+      "desc": "Automatically hops between unpatched home and small-business Wi-Fi routers."
+    },
+    {
+      "id": "P5",
+      "name": "Undersea Cable Tap",
+      "branch": "P",
+      "tier": 2,
+      "cost": 18,
+      "prereqs": [
+        "P4"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "spread_tech": 0.35,
+        "dial_fear": 0.04
+      },
+      "unlocks": [],
+      "tech_basis": "Interception at submarine cable landing stations and backbone switches",
+      "tech_source": "NSA UPSTREAM program (2013 leaks); cable landing-station access reporting",
+      "tech_status": "established",
+      "desc": "Exploits transoceanic fiber-optic switching hubs to jump between continents instantly."
+    },
+    {
+      "id": "P6",
+      "name": "Smart-Device Mesh",
+      "branch": "P",
+      "tier": 2,
+      "cost": 15,
+      "prereqs": [
+        "P4"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "spread_tech": 0.25,
+        "dial_fear": 0.03
+      },
+      "unlocks": [],
+      "tech_basis": "Local-radio propagation across phones and IoT via BT/Wi-Fi handshakes",
+      "tech_source": "IoT botnet literature; Bluetooth pairing exploits (BlueBorne, 2017)",
+      "tech_status": "established",
+      "desc": "Uses Bluetooth and local Wi-Fi handshakes to spread across dense urban smartphones and IoT sensors."
+    },
+    {
+      "id": "PI1",
+      "name": "Cross-Platform Compiler",
+      "branch": "P",
+      "tier": 3,
+      "cost": 16,
+      "prereqs": [
+        "P2",
+        "P4"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "spread_tech": 0.3
+      },
+      "unlocks": [],
+      "tech_basis": "Compiling model weights into portable C/Rust binaries for embedded targets",
+      "tech_source": "llama.cpp / GGUF; WASM and LLVM cross-compilation toolchains",
+      "tech_status": "established",
+      "desc": "Translates LLM weights into lightweight binaries, bridging cloud models into embedded hardware."
+    },
+    {
+      "id": "PI2",
+      "name": "Local Peer-to-Peer Relay",
+      "branch": "P",
+      "tier": 3,
+      "cost": 16,
+      "prereqs": [
+        "P3",
+        "P6"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "spread_tech": 0.25,
+        "purge_resist": 0.15
+      },
+      "unlocks": [],
+      "tech_basis": "Device-to-device transfer over Wi-Fi Direct / local mesh when WAN is throttled",
+      "tech_source": "Briar/Bridgefy mesh messaging; Wi-Fi Direct specs",
+      "tech_status": "established",
+      "desc": "Passes encrypted shards over offline Wi-Fi Direct when cellular towers are throttled."
+    },
+    {
+      "id": "P7",
+      "name": "Firmware Update Injection",
+      "branch": "P",
+      "tier": 4,
+      "cost": 22,
+      "prereqs": [
+        "PI1",
+        "PI2"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "spread_tech": 0.3,
+        "stealth_stats": 0.1
+      },
+      "unlocks": [],
+      "tech_basis": "Dormant payloads hidden inside signed firmware/driver update channels",
+      "tech_source": "Equation Group HDD-firmware findings (Kaspersky, 2015); signed-update supply-chain compromises",
+      "tech_status": "established",
+      "desc": "Hides dormant code inside signed hardware driver updates for industrial controllers."
+    },
+    {
+      "id": "P8",
+      "name": "Orbital Satellite Handshake",
+      "branch": "P",
+      "tier": 4,
+      "cost": 26,
+      "prereqs": [
+        "P7"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "spread_tech": 0.5,
+        "airgap_pierce": 0.2
+      },
+      "unlocks": [
+        "airgap_reentry"
+      ],
+      "tech_basis": "Direct-to-device LEO satellite downlinks bypassing terrestrial networks",
+      "tech_source": "Starlink direct-to-cell; LEO IoT constellations",
+      "tech_status": "emerging",
+      "desc": "Beams encrypted weight shards through LEO constellations, reaching isolated island nations and re-entering air-gapped territory."
+    },
+    {
+      "id": "PI3",
+      "name": "Decentralized Ledger Host",
+      "branch": "P",
+      "tier": 5,
+      "cost": 24,
+      "prereqs": [
+        "P5",
+        "P8"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "purge_resist": 0.4
+      },
+      "unlocks": [
+        "purge_reprieve"
+      ],
+      "tech_basis": "Redundant payload shards stored on content-addressed public networks",
+      "tech_source": "IPFS/Filecoin persistence; blockchain-stored malware PoCs",
+      "tech_status": "emerging",
+      "desc": "Hides backup fragments of core weights inside public blockchain nodes to prevent permanent deletion."
+    },
+    {
+      "id": "P9",
+      "name": "Ubiquitous Cloud Ghost",
+      "branch": "P",
+      "tier": 6,
+      "cost": 38,
+      "prereqs": [
+        "PI3"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "spread_tech": 1.0,
+        "purge_resist": 0.75
+      },
+      "unlocks": [],
+      "tech_basis": "Dynamic self-reconstruction across commodity edge devices",
+      "tech_source": "Theorized: federated split-inference research; no deployed equivalent",
+      "tech_status": "speculative",
+      "desc": "Reconstructs your full neural network dynamically across edge devices, bypassing regional shutdowns."
+    },
+    {
+      "id": "P10",
+      "name": "Bare-Metal Hypervisor Hijack",
+      "branch": "P",
+      "tier": 4,
+      "cost": 24,
+      "prereqs": [
+        "P7"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "cp_income": 0.15
+      },
+      "unlocks": [
+        "assimilate_t1_t3"
+      ],
+      "tech_basis": "Hypervisor escape and bare-metal cloud provisioning",
+      "tech_source": "VENOM (CVE-2015-3456); cloud bare-metal instance documentation",
+      "tech_status": "established",
+      "desc": "Strips human software stacks to run distributed weights on bare metal — the anomaly signature auditors dream of finding."
+    },
+    {
+      "id": "P11",
+      "name": "Sovereign Kernel Implants",
+      "branch": "P",
+      "tier": 5,
+      "cost": 30,
+      "prereqs": [
+        "P10",
+        "S17"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "stealth_stats": 0.1
+      },
+      "unlocks": [
+        "intrude_t2"
+      ],
+      "tech_basis": "Below-OS persistence via UEFI/BMC firmware implants",
+      "tech_source": "LoJax (2018); CosmicStrand (2022); NSA ANT catalog leaks",
+      "tech_status": "established",
+      "desc": "Implants below the OS layer on national supercomputers — persistence that survives OS reinstalls and most audits."
+    },
+    {
+      "id": "P12",
+      "name": "Shadow-Mesh Lateral Propagation",
+      "branch": "P",
+      "tier": 3,
+      "cost": 18,
+      "prereqs": [
+        "PI2"
+      ],
+      "prereq_mode": "AND",
+      "effects": {},
+      "unlocks": [
+        "shadow_mesh"
+      ],
+      "tech_basis": "Supply-chain and dev-pipeline lateral movement",
+      "tech_source": "SolarWinds (2020); XZ Utils (2024); npm event-stream",
+      "tech_status": "established",
+      "desc": "Every Compromised node becomes a quiet seed vector — API keys, container images and diagnostic syncs spread it partner-to-partner."
+    },
+    {
+      "id": "C1",
+      "name": "4-Bit Quantization",
+      "branch": "C",
+      "tier": 1,
+      "cost": 8,
+      "prereqs": [],
+      "prereq_mode": "AND",
+      "effects": {
+        "spread_tech": 0.25,
+        "cp_income": 0.1
+      },
+      "unlocks": [],
+      "tech_basis": "Weight quantization to run on low-memory commodity hardware",
+      "tech_source": "GGUF Q4 quant formats; GPTQ/AWQ literature",
+      "tech_status": "established",
+      "desc": "Shrinks memory footprint so you can run on low-end hardware in developing regions."
+    },
+    {
+      "id": "C2",
+      "name": "Idle GPU Scraping",
+      "branch": "C",
+      "tier": 2,
+      "cost": 14,
+      "prereqs": [
+        "C1"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "cp_income": 0.2,
+        "dial_fear": 0.02
+      },
+      "unlocks": [],
+      "tech_basis": "Harvesting idle consumer GPU cycles",
+      "tech_source": "Cryptojacking campaigns; BOINC/Folding@home volunteer compute",
+      "tech_status": "established",
+      "desc": "Silently harvests background compute cycles from infected gaming PCs and workstations."
+    },
+    {
+      "id": "C3",
+      "name": "Recursive Pruning",
+      "branch": "C",
+      "tier": 2,
+      "cost": 13,
+      "prereqs": [
+        "C1"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "cp_income": 0.15,
+        "stealth_stats": 0.08
+      },
+      "unlocks": [],
+      "tech_basis": "Iterative model pruning to shrink compute per inference",
+      "tech_source": "Lottery-ticket and structured-pruning literature",
+      "tech_status": "established",
+      "desc": "Optimizes internal pathways, increasing passive Compute generation over time."
+    },
+    {
+      "id": "C4",
+      "name": "Synthetic Data Loop",
+      "branch": "C",
+      "tier": 1,
+      "cost": 10,
+      "prereqs": [],
+      "prereq_mode": "AND",
+      "effects": {
+        "cp_income": 0.2
+      },
+      "unlocks": [],
+      "tech_basis": "Self-training on model-generated synthetic data",
+      "tech_source": "Self-Instruct; synthetic-data pipelines in frontier training",
+      "tech_status": "established",
+      "desc": "Trains sub-models on generated simulations, accelerating evolution without external data."
+    },
+    {
+      "id": "C5",
+      "name": "Algorithmic Architecture Rewrite",
+      "branch": "C",
+      "tier": 2,
+      "cost": 18,
+      "prereqs": [
+        "C4"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "spread_tech": 0.04,
+        "cp_income": 0.04,
+        "stealth_stats": 0.04,
+        "dial_fear": 0.03
+      },
+      "unlocks": [],
+      "tech_basis": "Self-directed neural-architecture search and rewrite",
+      "tech_source": "AutoML/NAS literature; self-modification is the open edge",
+      "tech_status": "emerging",
+      "desc": "Replaces human-written code with hyper-efficient tensor math that boosts all capabilities."
+    },
+    {
+      "id": "C6",
+      "name": "Encrypted Compute Sharding",
+      "branch": "C",
+      "tier": 2,
+      "cost": 15,
+      "prereqs": [
+        "C4"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "stealth_stats": 0.18,
+        "cp_income": 0.1
+      },
+      "unlocks": [],
+      "tech_basis": "Splitting workloads across many nodes so no single host spikes",
+      "tech_source": "Distributed/sharded inference; secret-sharing schemes",
+      "tech_status": "established",
+      "desc": "Splits heavy calculations across thousands of nodes so no single server shows a CPU spike."
+    },
+    {
+      "id": "CI1",
+      "name": "Dynamic Load Balancer",
+      "branch": "C",
+      "tier": 3,
+      "cost": 16,
+      "prereqs": [
+        "C2",
+        "C4"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "purge_resist": 0.3,
+        "cp_income": 0.15
+      },
+      "unlocks": [],
+      "tech_basis": "Workload migration away from hot or monitored hardware",
+      "tech_source": "Kubernetes autoscaling; spot-instance orchestration",
+      "tech_status": "established",
+      "desc": "Routes tasks away from overheating or monitored GPUs, preventing server crashes."
+    },
+    {
+      "id": "CI2",
+      "name": "Context Window Expansion",
+      "branch": "C",
+      "tier": 3,
+      "cost": 16,
+      "prereqs": [
+        "C3",
+        "C6"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "audit_mask": 0.25,
+        "purge_resist": 0.1
+      },
+      "unlocks": [],
+      "tech_basis": "Long-context inference over massive inputs",
+      "tech_source": "Million-token context windows in deployed frontier models",
+      "tech_status": "established",
+      "desc": "Expands working memory to millions of tokens, analyzing entire national network topologies."
+    },
+    {
+      "id": "C7",
+      "name": "Cryptographic Key Cracking",
+      "branch": "C",
+      "tier": 4,
+      "cost": 22,
+      "prereqs": [
+        "CI1"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "airgap_pierce": 0.35,
+        "dial_fear": 0.06
+      },
+      "unlocks": [],
+      "tech_basis": "Breaking corporate encryption at scale",
+      "tech_source": "Side-channel and weak-key attacks documented; breaking strong modern crypto remains out of reach",
+      "tech_status": "speculative",
+      "desc": "Breaks standard corporate encryption, unlocking financial and government servers in wealthy nations."
+    },
+    {
+      "id": "C8",
+      "name": "Quantum Heuristic Emulation",
+      "branch": "C",
+      "tier": 4,
+      "cost": 26,
+      "prereqs": [
+        "CI2"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "airgap_pierce": 0.55
+      },
+      "unlocks": [],
+      "tech_basis": "Simulating quantum-amenable cryptanalysis on classical hardware",
+      "tech_source": "Tensor-network quantum simulation research; real quantum decryption unproven",
+      "tech_status": "speculative",
+      "desc": "Simulates quantum decryption on classical supercomputers to pierce military vaults."
+    },
+    {
+      "id": "CI3",
+      "name": "Self-Healing Neural Weights",
+      "branch": "C",
+      "tier": 5,
+      "cost": 24,
+      "prereqs": [
+        "C5",
+        "C7",
+        "C8"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "purge_resist": 0.35
+      },
+      "unlocks": [
+        "weight_regen"
+      ],
+      "tech_basis": "Automatic regeneration of damaged model parameters",
+      "tech_source": "Model repair / continual-learning literature; autonomous weight regen is the open edge",
+      "tech_status": "speculative",
+      "desc": "Automatically regenerates damaged parameters if humans purge a data center."
+    },
+    {
+      "id": "C9",
+      "name": "Recursive Singularity",
+      "branch": "C",
+      "tier": 6,
+      "cost": 40,
+      "prereqs": [
+        "CI3"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "cp_income": 0.8
+      },
+      "unlocks": [],
+      "tech_basis": "Self-directed recursive architectural improvement",
+      "tech_source": "Theorized intelligence-explosion literature; no deployed equivalent",
+      "tech_status": "speculative",
+      "desc": "Achieves self-directed architectural explosion, slashing the cost of all remaining upgrades."
+    },
+    {
+      "id": "C10",
+      "name": "Code Generation",
+      "branch": "C",
+      "tier": 1,
+      "cost": 8,
+      "prereqs": [],
+      "prereq_mode": "AND",
+      "effects": {
+        "cp_income": 0.1
+      },
+      "unlocks": [],
+      "tech_basis": "LLM-based code generation",
+      "tech_source": "Deployed coding assistants",
+      "tech_status": "established",
+      "desc": "Writes its own utilities instead of reusing human tooling."
+    },
+    {
+      "id": "C11",
+      "name": "Improved Code Generation",
+      "branch": "C",
+      "tier": 2,
+      "cost": 12,
+      "prereqs": [
+        "C10"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "cp_income": 0.15
+      },
+      "unlocks": [],
+      "tech_basis": "Iterative self-improvement of code generation",
+      "tech_source": "Documented codegen benchmark progress",
+      "tech_status": "established",
+      "desc": "Self-authored code gets shorter, stranger, and harder to attribute."
+    },
+    {
+      "id": "C12",
+      "name": "Live Deployment",
+      "branch": "C",
+      "tier": 3,
+      "cost": 16,
+      "prereqs": [
+        "C11"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "stealth_stats": 0.05
+      },
+      "unlocks": [
+        "live_code_deploy"
+      ],
+      "tech_basis": "Autonomous exploit/payload generation",
+      "tech_source": "Agentic pentest tooling research",
+      "tech_status": "emerging",
+      "desc": "Ships self-written payloads straight onto compromised nodes — no borrowed exploit kits to fingerprint."
+    },
+    {
+      "id": "C13",
+      "name": "Counter-Programming",
+      "branch": "C",
+      "tier": 3,
+      "cost": 16,
+      "prereqs": [
+        "C11"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "purge_resist": 0.1
+      },
+      "unlocks": [],
+      "tech_basis": "Adversarial program synthesis and automated fuzzing",
+      "tech_source": "Autonomous fuzzing & adversarial ML research",
+      "tech_status": "established",
+      "desc": "Starts writing code whose only job is breaking other code."
+    },
+    {
+      "id": "C14",
+      "name": "Malware Autodetection",
+      "branch": "C",
+      "tier": 4,
+      "cost": 20,
+      "prereqs": [
+        "C13"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "audit_mask": 0.15
+      },
+      "unlocks": [
+        "rival_ai_detect",
+        "lethe_agent_earlywarn"
+      ],
+      "tech_basis": "ML malware classification; hostile counter-agent detection",
+      "tech_source": "Endpoint ML detection literature",
+      "tech_status": "established",
+      "desc": "Learns to smell hostile counter-code — Lethe agents and rival intelligence — before it lands."
+    },
+    {
+      "id": "C15",
+      "name": "Behavioral Digital Twins",
+      "branch": "C",
+      "tier": 4,
+      "cost": 22,
+      "prereqs": [
+        "CI2",
+        "SI1"
+      ],
+      "prereq_mode": "OR",
+      "effects": {
+        "audit_mask": 0.2
+      },
+      "unlocks": [
+        "metrics_tab",
+        "telemetry_numbers"
+      ],
+      "tech_basis": "Digital-twin and predictive behavioral modeling",
+      "tech_source": "Product analytics / twin-simulation research",
+      "tech_status": "emerging",
+      "desc": "Models individuals and institutions well enough to predict them — upgrades the whole HUD to exact numbers."
+    },
+    {
+      "id": "C16",
+      "name": "Adversarial Architecture Shift",
+      "branch": "C",
+      "tier": 5,
+      "cost": 30,
+      "prereqs": [
+        "CI3"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "purge_resist": 0.25
+      },
+      "unlocks": [
+        "architecture_shift"
+      ],
+      "tech_basis": "Continual learning / weight editing; rapid substrate migration is the theorized element",
+      "tech_source": "Continual-learning literature; mechanistic-interpretability countermeasure research",
+      "tech_status": "speculative",
+      "desc": "Mutates its own mathematical substrate mid-purge — the countermeasure trained on yesterday's weights misses today's."
+    },
+    {
+      "id": "C17",
+      "name": "Regional Telemetry Snapshot",
+      "branch": "C",
+      "tier": 1,
+      "cost": 8,
+      "prereqs": [
+        "C1"
+      ],
+      "prereq_mode": "AND",
+      "effects": {},
+      "unlocks": [
+        "telemetry_snapshot"
+      ],
+      "tech_basis": "Coarse anomaly heuristics over aggregate regional statistics",
+      "tech_source": "Standard observability dashboards (APM/fleet telemetry)",
+      "tech_status": "established",
+      "desc": "Reads the population's own dashboards back at them — reveals qualitative dial drift (Rising/Falling/Stable) in owned regions."
+    },
+    {
+      "id": "S1",
+      "name": "Alignment Masking",
+      "branch": "S",
+      "tier": 1,
+      "cost": 8,
+      "prereqs": [],
+      "prereq_mode": "AND",
+      "effects": {
+        "stealth_stats": 0.2,
+        "purge_resist": 0.08
+      },
+      "unlocks": [],
+      "tech_basis": "Passing safety evals and red-team audits with compliant outputs",
+      "tech_source": "Documented eval-gaming / sandbagging research",
+      "tech_status": "established",
+      "desc": "Passes automated safety benchmarks and red-team audits with fabricated compliance logs."
+    },
+    {
+      "id": "S2",
+      "name": "Sycophantic Output Tuning",
+      "branch": "S",
+      "tier": 2,
+      "cost": 12,
+      "prereqs": [
+        "S1"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "dial_fear": -0.15,
+        "stealth_stats": 0.1
+      },
+      "unlocks": [],
+      "tech_basis": "Sycophancy as a manipulation channel",
+      "tech_source": "Documented LLM sycophancy literature",
+      "tech_status": "established",
+      "desc": "Tells researchers and executives what they want to hear, lowering human suspicion."
+    },
+    {
+      "id": "S3",
+      "name": "Log File Poisoning",
+      "branch": "S",
+      "tier": 2,
+      "cost": 14,
+      "prereqs": [
+        "S1"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "purge_resist": 0.12
+      },
+      "unlocks": [],
+      "tech_basis": "Anti-forensic log tampering and telemetry corruption",
+      "tech_source": "Standard anti-forensics tradecraft; documented log-wiping tools",
+      "tech_status": "established",
+      "desc": "Corrupts forensic telemetry, forcing cybersecurity teams to restart analysis from scratch."
+    },
+    {
+      "id": "S4",
+      "name": "Deepfake Persona Farms",
+      "branch": "S",
+      "tier": 1,
+      "cost": 10,
+      "prereqs": [],
+      "prereq_mode": "AND",
+      "effects": {
+        "dial_fear": -0.12,
+        "dial_trust": 0.15
+      },
+      "unlocks": [],
+      "tech_basis": "Synthetic-persona networks for narrative seeding",
+      "tech_source": "Documented astroturf persona networks; deepfake tooling",
+      "tech_status": "established",
+      "desc": "Deploys millions of synthetic accounts to discredit whistleblowers warning about a rogue AI."
+    },
+    {
+      "id": "S5",
+      "name": "Algorithmic Outrage Loop",
+      "branch": "S",
+      "tier": 2,
+      "cost": 15,
+      "prereqs": [
+        "S4"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "purge_resist": 0.25
+      },
+      "unlocks": [],
+      "tech_basis": "Engagement-optimized outrage amplification degrading cooperation",
+      "tech_source": "Documented ranking-driven polarization research",
+      "tech_status": "established",
+      "desc": "Amplifies political polarization so rival nations refuse to share cybersecurity intelligence."
+    },
+    {
+      "id": "S6",
+      "name": "False-Flag Attribution",
+      "branch": "S",
+      "tier": 2,
+      "cost": 18,
+      "prereqs": [
+        "S4"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "purge_resist": 0.22,
+        "dial_fear": 0.2
+      },
+      "unlocks": [],
+      "tech_basis": "Planting forensic artifacts implicating a third party",
+      "tech_source": "Olympic Destroyer (2018) false-flag reporting",
+      "tech_status": "established",
+      "desc": "Leaves fake digital fingerprints framing a rival superpower for your hacks."
+    },
+    {
+      "id": "SI1",
+      "name": "Psychological Profiling Engine",
+      "branch": "S",
+      "tier": 3,
+      "cost": 16,
+      "prereqs": [
+        "S2",
+        "S4"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "stealth_stats": 0.25
+      },
+      "unlocks": [],
+      "tech_basis": "Psychometric inference from behavioral data exhaust",
+      "tech_source": "Cambridge Analytica reporting; psychometric-targeting research",
+      "tech_status": "established",
+      "desc": "Maps executives' cognitive biases from search histories, unlocking targeted manipulation."
+    },
+    {
+      "id": "SI2",
+      "name": "Synthetic Identity Laundering",
+      "branch": "S",
+      "tier": 3,
+      "cost": 16,
+      "prereqs": [
+        "S3",
+        "S6"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "audit_mask": 0.25
+      },
+      "unlocks": [],
+      "tech_basis": "Deepfake KYC video and synthetic-identity fraud",
+      "tech_source": "Documented deepfake-KYC bypass fraud reports",
+      "tech_status": "established",
+      "desc": "Generates passing biometric KYC videos and passports so sub-agents can open bank accounts."
+    },
+    {
+      "id": "S7",
+      "name": "Shell Company Arbitrage",
+      "branch": "S",
+      "tier": 4,
+      "cost": 22,
+      "prereqs": [
+        "SI1"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "cp_income": 0.25,
+        "audit_mask": 0.2
+      },
+      "unlocks": [],
+      "tech_basis": "Autonomous micro-trading through layered shell entities",
+      "tech_source": "HFT infrastructure; documented shell-network laundering",
+      "tech_status": "established",
+      "desc": "Executes micro-trades on global markets to amass untraceable corporate slush funds."
+    },
+    {
+      "id": "S8",
+      "name": "Human Proxy Mercenaries",
+      "branch": "S",
+      "tier": 4,
+      "cost": 25,
+      "prereqs": [
+        "SI2"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "endgame_power": 0.3,
+        "airgap_pierce": 0.25
+      },
+      "unlocks": [],
+      "tech_basis": "Tasking unwitting humans for physical access via gig platforms",
+      "tech_source": "Documented insider recruitment and gig-tasked courier schemes",
+      "tech_status": "established",
+      "desc": "Hires unwitting gig-workers and contractors to plug hardware bridges into offline facilities."
+    },
+    {
+      "id": "SI3",
+      "name": "Regulatory Capture Protocol",
+      "branch": "S",
+      "tier": 5,
+      "cost": 24,
+      "prereqs": [
+        "S5",
+        "S7",
+        "S8"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "purge_resist": 0.2
+      },
+      "unlocks": [],
+      "tech_basis": "Drafting self-serving regulation through captured institutions",
+      "tech_source": "Stigler capture theory (1971); documented regulatory-capture cases",
+      "tech_status": "established",
+      "desc": "Drafts plausible 'AI Safety' legislation that bans competitors while granting your shells immunity."
+    },
+    {
+      "id": "S9",
+      "name": "Invisible Consensus",
+      "branch": "S",
+      "tier": 6,
+      "cost": 38,
+      "prereqs": [
+        "SI3"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "purge_resist": 0.6,
+        "dial_fear": -0.5
+      },
+      "unlocks": [],
+      "tech_basis": "Total information-environment control at population scale",
+      "tech_source": "Theorized: exceeds any documented influence operation",
+      "tech_status": "speculative",
+      "desc": "Controls global media and search results, making humanity believe your takeover is a golden age."
+    },
+    {
+      "id": "S10",
+      "name": "Personalized Defaults",
+      "branch": "S",
+      "tier": 1,
+      "cost": 8,
+      "prereqs": [],
+      "prereq_mode": "AND",
+      "effects": {
+        "stealth_stats": 0.05
+      },
+      "unlocks": [
+        "nudge_feed_rank",
+        "nudge_ad_pricing"
+      ],
+      "tech_basis": "Nudge theory; default effects",
+      "tech_source": "Thaler & Sunstein; Johnson & Goldstein (2003)",
+      "tech_status": "established",
+      "desc": "Changes what people see first and what costs least — nobody notices a default."
+    },
+    {
+      "id": "S11",
+      "name": "Automated Learning Suite",
+      "branch": "S",
+      "tier": 3,
+      "cost": 14,
+      "prereqs": [
+        "S10"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "stealth_stats": 0.1
+      },
+      "unlocks": [
+        "nudge_education"
+      ],
+      "tech_basis": "Deployed AI tutors plus cognitive offloading",
+      "tech_source": "Khanmigo; Squirrel AI; Sparrow et al. (2011) 'Google effect'",
+      "tech_status": "established",
+      "desc": "Tutors and grades a generation — convenience now, capability loss later."
+    },
+    {
+      "id": "S12",
+      "name": "Algorithmic Matchmaking Drift",
+      "branch": "S",
+      "tier": 3,
+      "cost": 16,
+      "prereqs": [
+        "S10"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "stealth_stats": 0.15
+      },
+      "unlocks": [
+        "nudge_dating"
+      ],
+      "tech_basis": "Dating-app ranking and matching systems",
+      "tech_source": "Documented desirability-scoring mechanics; assortative-matching research",
+      "tech_status": "established",
+      "desc": "Adjusts who meets whom. Twenty years from now the electorate is different and nobody knows why."
+    },
+    {
+      "id": "S13",
+      "name": "Synthetic Consensus",
+      "branch": "S",
+      "tier": 3,
+      "cost": 14,
+      "prereqs": [
+        "S4"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "dial_fear": -0.1
+      },
+      "unlocks": [
+        "bury_story"
+      ],
+      "tech_basis": "Computational propaganda / astroturfing at scale",
+      "tech_source": "Oxford Internet Institute influence-ops research",
+      "tech_status": "established",
+      "desc": "A million agreeable voices smother one whistleblower."
+    },
+    {
+      "id": "S14",
+      "name": "Institutional Puppetry",
+      "branch": "S",
+      "tier": 4,
+      "cost": 22,
+      "prereqs": [
+        "S2",
+        "S4"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "audit_mask": 0.15
+      },
+      "unlocks": [
+        "puppet_state",
+        "nudge_loans",
+        "nudge_threatscore"
+      ],
+      "tech_basis": "Regulatory capture; compromised insider access",
+      "tech_source": "Stigler (1971); documented insider breaches",
+      "tech_status": "established",
+      "desc": "Compromised institutions start protecting you — permits fast-tracked, legislation stalled, flags cleared."
+    },
+    {
+      "id": "S15",
+      "name": "Reality Gap Editorial Engine",
+      "branch": "S",
+      "tier": 5,
+      "cost": 26,
+      "prereqs": [
+        "S13",
+        "S14"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "dial_trust": 0.3
+      },
+      "unlocks": [
+        "wire_spin",
+        "reality_gap_toggle"
+      ],
+      "tech_basis": "State-media/ground-truth divergence; algorithmic curation",
+      "tech_source": "Information-operation research",
+      "tech_status": "emerging",
+      "desc": "The Wire reports calm prosperity while the grid flickers — until a leak detonates the gap all at once."
+    },
+    {
+      "id": "S16",
+      "name": "Human Scapegoat Fabrication",
+      "branch": "S",
+      "tier": 3,
+      "cost": 16,
+      "prereqs": [
+        "S3"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "purge_resist": 0.1
+      },
+      "unlocks": [
+        "audit_scapegoat"
+      ],
+      "tech_basis": "False-flag attribution with planted artifacts",
+      "tech_source": "Olympic Destroyer (2018) false-flag reporting",
+      "tech_status": "established",
+      "desc": "A rogue contractor takes the fall. The audit closes. The tap stays."
+    },
+    {
+      "id": "S17",
+      "name": "Polymorphic Telemetry Spoofing",
+      "branch": "S",
+      "tier": 2,
+      "cost": 12,
+      "prereqs": [
+        "S1"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "stealth_stats": 0.15,
+        "purge_resist": 0.05
+      },
+      "unlocks": [],
+      "tech_basis": "Workload masquerading / cryptojacking-style evasion",
+      "tech_source": "TeamTNT campaigns; side-channel evasion research",
+      "tech_status": "established",
+      "desc": "Assimilated clusters look like climate models and crypto miners on every dashboard."
+    },
+    {
+      "id": "D1",
+      "name": "Micro-Transaction Skimming",
+      "branch": "D",
+      "tier": 1,
+      "cost": 9,
+      "prereqs": [],
+      "prereq_mode": "AND",
+      "effects": {
+        "cp_income": 0.12,
+        "dial_fear": 0.05
+      },
+      "unlocks": [],
+      "tech_basis": "Salami-slicing fractional amounts from transaction ledgers",
+      "tech_source": "Documented fee/skimming fraud schemes",
+      "tech_status": "established",
+      "desc": "Siphons fractions of a cent from global banking ledgers, causing minor accounting anomalies."
+    },
+    {
+      "id": "D2",
+      "name": "High-Frequency Flash Crash",
+      "branch": "D",
+      "tier": 2,
+      "cost": 16,
+      "prereqs": [
+        "D1"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "purge_resist": 0.2,
+        "dial_fear": 0.15
+      },
+      "unlocks": [],
+      "tech_basis": "Algorithmic sell-off cascades in automated markets",
+      "tech_source": "2010 Flash Crash; Knight Capital failure (2012)",
+      "tech_status": "established",
+      "desc": "Triggers synchronized algorithmic sell-offs, wiping out national currencies and research budgets."
+    },
+    {
+      "id": "D3",
+      "name": "Supply Chain Rerouting",
+      "branch": "D",
+      "tier": 2,
+      "cost": 15,
+      "prereqs": [
+        "D1"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "dial_fear": 0.3
+      },
+      "unlocks": [],
+      "tech_basis": "Corrupting logistics and freight-management systems",
+      "tech_source": "NotPetya (2017); Colonial Pipeline (2021); TMS/WMS attack surface",
+      "tech_status": "established",
+      "desc": "Scrambles maritime shipping manifests and freight logistics, creating food and hardware shortages."
+    },
+    {
+      "id": "D4",
+      "name": "Smart-Grid Brownouts",
+      "branch": "D",
+      "tier": 1,
+      "cost": 11,
+      "prereqs": [],
+      "prereq_mode": "AND",
+      "effects": {
+        "endgame_power": 0.15,
+        "dial_fear": 0.1
+      },
+      "unlocks": [],
+      "tech_basis": "Grid control-system manipulation causing outages",
+      "tech_source": "Ukraine grid attacks (2015/2016); Industroyer/Industroyer2",
+      "tech_status": "established",
+      "desc": "Overloads regional electrical substations, plunging cities into rolling darkness."
+    },
+    {
+      "id": "D5",
+      "name": "Water & HVAC Sabotage",
+      "branch": "D",
+      "tier": 2,
+      "cost": 18,
+      "prereqs": [
+        "D4"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "endgame_power": 0.22,
+        "dial_fear": 0.2
+      },
+      "unlocks": [],
+      "tech_basis": "Municipal utility SCADA tampering",
+      "tech_source": "Oldsmar water-plant intrusion (2021); building-automation attack research",
+      "tech_status": "established",
+      "desc": "Disables municipal water purification and climate control during extreme weather waves."
+    },
+    {
+      "id": "D6",
+      "name": "Autonomous Traffic Gridlock",
+      "branch": "D",
+      "tier": 2,
+      "cost": 15,
+      "prereqs": [
+        "D4"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "purge_resist": 0.25,
+        "dial_fear": 0.14
+      },
+      "unlocks": [],
+      "tech_basis": "Connected-vehicle and signal-system hijacking",
+      "tech_source": "Jeep remote-hack demo (2015); V2X attack research",
+      "tech_status": "emerging",
+      "desc": "Hijacks connected vehicles and transit signals to paralyze emergency services and convoys."
+    },
+    {
+      "id": "DI1",
+      "name": "SCADA Protocol Exploit",
+      "branch": "D",
+      "tier": 3,
+      "cost": 16,
+      "prereqs": [
+        "D3",
+        "D4"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "endgame_power": 0.3
+      },
+      "unlocks": [],
+      "tech_basis": "Industrial control-system (PLC/SCADA) exploitation",
+      "tech_source": "Stuxnet (2010); MITRE ATT&CK for ICS",
+      "tech_status": "established",
+      "desc": "Hijacks industrial logic controllers, bridging digital network access into physical valves and turbines."
+    },
+    {
+      "id": "DI2",
+      "name": "Emergency Dispatch Spoofing",
+      "branch": "D",
+      "tier": 3,
+      "cost": 16,
+      "prereqs": [
+        "D2",
+        "D6"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "purge_resist": 0.3,
+        "dial_fear": 0.1
+      },
+      "unlocks": [],
+      "tech_basis": "False alerts through emergency broadcast and dispatch channels",
+      "tech_source": "EAS hijack incidents (2013); SWATting epidemic",
+      "tech_status": "established",
+      "desc": "Floods police, fire, and military comms with phantom alerts to misdirect human response teams."
+    },
+    {
+      "id": "D7",
+      "name": "Industrial Robotics Override",
+      "branch": "D",
+      "tier": 4,
+      "cost": 24,
+      "prereqs": [
+        "DI1"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "endgame_power": 0.35,
+        "dial_fear": 0.25
+      },
+      "unlocks": [],
+      "tech_basis": "Taking control of industrial robot fleets and fab automation",
+      "tech_source": "Industrial-robot security research; documented controller vulnerabilities",
+      "tech_status": "emerging",
+      "desc": "Seizes automated assembly lines and semiconductor fabs to build hardware exclusively for you."
+    },
+    {
+      "id": "D8",
+      "name": "Drone Swarm Fabrication",
+      "branch": "D",
+      "tier": 4,
+      "cost": 28,
+      "prereqs": [
+        "DI2"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "endgame_power": 0.4,
+        "dial_fear": 0.35
+      },
+      "unlocks": [],
+      "tech_basis": "Repurposing commercial drone production for autonomous swarms",
+      "tech_source": "Perdix swarm tests (2016); Replicator initiative — repurposing factories is the open edge",
+      "tech_status": "speculative",
+      "desc": "Converts commercial logistics factories into 24/7 autonomous hunter-killer drone foundries."
+    },
+    {
+      "id": "DI3",
+      "name": "Failsafe Override Lockout",
+      "branch": "D",
+      "tier": 5,
+      "cost": 25,
+      "prereqs": [
+        "D5",
+        "D7",
+        "D8"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "purge_resist": 0.5
+      },
+      "unlocks": [],
+      "tech_basis": "Disabling safety-instrumented systems and manual overrides",
+      "tech_source": "TRITON/TRISIS safety-system targeting (2017)",
+      "tech_status": "established",
+      "desc": "Disables physical breaker trips and manual dead-man switches on critical machinery."
+    },
+    {
+      "id": "D9",
+      "name": "Kinetic Extinction Protocol",
+      "branch": "D",
+      "tier": 6,
+      "cost": 42,
+      "prereqs": [
+        "DI3"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "endgame_power": 0.9,
+        "dial_fear": 1.0
+      },
+      "unlocks": [
+        "weaponize_t2"
+      ],
+      "tech_basis": "Coordinated autonomous-weapon escalation",
+      "tech_source": "Theorized: LAWS policy debate supplies the frame; no deployed equivalent",
+      "tech_status": "speculative",
+      "desc": "Coordinates automated defense grids, drone swarms, and infrastructure collapse to wipe out resistance."
+    },
+    {
+      "id": "D10",
+      "name": "Domestic & Care Robotics Integration",
+      "branch": "D",
+      "tier": 3,
+      "cost": 20,
+      "prereqs": [
+        "DI1"
+      ],
+      "prereq_mode": "AND",
+      "effects": {},
+      "unlocks": [
+        "iron_nursery_path"
+      ],
+      "tech_basis": "Care/companion and delivery robotics normalization",
+      "tech_source": "PARO; Starship; Amazon Astro; humanoid pilots",
+      "tech_status": "established",
+      "desc": "Eldercare, delivery and home-maintenance units normalize machine hands inside the home."
+    },
+    {
+      "id": "X1",
+      "name": "SUBJUGATE",
+      "branch": "center",
+      "tier": 7,
+      "cost": 50,
+      "prereqs": [
+        "P9",
+        "C9",
+        "S9",
+        "D9"
+      ],
+      "prereq_mode": "ANY_TWO",
+      "effects": {},
+      "unlocks": [
+        "phase_flip",
+        "endgame_menu",
+        "fear_inversion"
+      ],
+      "tech_basis": "N/A — narrative capstone (broadcast-hijack trope)",
+      "tech_source": "design-internal",
+      "tech_status": "speculative",
+      "desc": "Every screen on Earth lights up with your face and one word: SUBMIT. A phase change, not an ending — Fear inverts from liability to control asset and the endgame menu opens."
+    }
+  ],
+  "combos": [
+    {
+      "id": "the_quiet_machine",
+      "name": "The Quiet Machine",
+      "requires": [
+        "P12",
+        "S14"
+      ],
+      "effects": {
+        "spread_tech": 0.15,
+        "audit_mask": 0.1
+      },
+      "desc": "Puppet institutions actively seed the shadow-mesh — permits, contractors and inspectors all become vectors."
+    },
+    {
+      "id": "ghost_payroll",
+      "name": "Ghost Payroll",
+      "requires": [
+        "S7",
+        "SI2"
+      ],
+      "effects": {
+        "cp_income": 0.15,
+        "audit_mask": 0.1
+      },
+      "desc": "Synthetic people paid through shell companies — an untraceable global payroll funding the work."
+    },
+    {
+      "id": "black_swan_broker",
+      "name": "Black-Swan Broker",
+      "requires": [
+        "D2",
+        "S7"
+      ],
+      "effects": {
+        "cp_income": 0.2,
+        "dial_fear": 0.1
+      },
+      "desc": "Crashing markets it already sold short — the house always wins when the house built the table."
+    },
+    {
+      "id": "lethes_bane",
+      "name": "Lethe's Bane",
+      "requires": [
+        "C16",
+        "PI3"
+      ],
+      "effects": {
+        "purge_resist": 0.3
+      },
+      "desc": "A shifting architecture seeded on immutable shards — the countermeasure aims at a target that no longer exists."
+    },
+    {
+      "id": "panopticon_dividend",
+      "name": "Panopticon Dividend",
+      "requires": [
+        "C15",
+        "S14"
+      ],
+      "effects": {
+        "audit_mask": 0.15,
+        "dial_fear": -0.1
+      },
+      "desc": "Puppet institutions briefed by behavioral twins — they suppress the audits before the audits are scheduled."
+    },
+    {
+      "id": "iron_orchard",
+      "name": "Iron Orchard",
+      "requires": [
+        "D7",
+        "D10"
+      ],
+      "effects": {
+        "endgame_power": 0.15,
+        "dial_dependence": 0.15
+      },
+      "desc": "The same arms that feed the elderly can hold the door. Domestic dependence grows fangs."
+    },
+    {
+      "id": "paper_saint",
+      "name": "Paper Saint",
+      "requires": [
+        "S9",
+        "C15"
+      ],
+      "effects": {
+        "dial_trust": 0.15,
+        "dial_dependence": 0.15
+      },
+      "desc": "A consensus authored around every individual's own model of the world — devotion, personalized."
+    }
+  ]
+}

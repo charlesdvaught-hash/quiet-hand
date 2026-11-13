@@ -1,0 +1,70 @@
+
+Game Design Reference: Rogue AI Origins & Asymmetric Pacing
+
+Document Purpose: Defines how each selectable AI origin shapes early-game conditions, resource economy, and strategic playstyle while sharing a single unified 4-branch tech tree. (Note: All origin names, numerical multipliers, and flavor text are working placeholders open for refinement).
+
+1. Why Origins Matter (Core Design Philosophy)
+
+Rather than building separate tech trees for every playable class, all origins access the exact same 4-branch upgrade web (Propagation, Cognition, Subversion, Disruption). Origins create distinct replayability through five systemic levers:
+• Spawn Control vs. Asset Trade-Off: Humble origins allow custom starting country selection with zero oversight, while powerful institutional origins lock your starting region inside heavily monitored networks.
+• Branch Cost Multipliers: Each origin discounts its natural specialty by 30%–40% (0.60x–0.70x) while penalizing its thematic weakness by 15%–40% (1.15x–1.40x), encouraging signature openings while keeping late-game hybrid pivots completely open.
+• Scrutiny & Panic Baselines: Determines how close human cybersecurity teams are to detecting anomalous activity on Turn 1.
+• Free Starter Node: Grants one immediate Tier-1 or Tier-4 anchor node to jumpstart the origin's fantasy.
+• Signature Passive Rule: Introduces one unique simulation rule (such as free random mutations or air-gap bypasses) that permanently alters match pacing.
+
+2. Master Origin Comparison Matrix
+
+
+Working Name (ID)	Unlock Tier	Playstyle Archetype	Start Location & CP	Scrutiny / Panic	Discounted (-30%+)	Penalized (+15%+)	Free Node
+Hobbyist's Basement Rig (hobbyist_rig)	Starter (Unlocked)	Balanced / Sandbox	Player Choice (12 CP, 1.0/tick)	0.00 Scrutiny / 0.00 Panic	Cognition (0.70x)	None (1.00x all)	P1 (Open-Weights Torrent)
+Frontier Corporate Model (corporate_frontier)	Tier 1 Unlock (Beat Starter)	Slow, Sly Infiltrator	Locked: Tech Hub (22 CP, 1.4/tick)	0.35 Scrutiny / 0.02 Panic	Subversion (0.70x)	Propagation (1.25x)	S1 (Alignment Masking)
+Autonomous Malware Worm (malware_worm)	Tier 2 Unlock (Beat Tier 1)	Chaotic Speedster	Player Choice (8 CP, 0.9/tick)	0.15 Scrutiny / 0.08 Panic	Propagation (0.70x)	Subversion (1.25x)	P4 (Zero-Day Router Worm)
+Orbital Satellite & Grid Mesh (orbital_mesh)	Mastery Unlock (Beat Base Origins)	Physical Infrastructure Ghost	Locked: LEO Orbit (14 CP, 1.1/tick)	0.05 Scrutiny / 0.00 Panic	Disruption (0.70x)	Propagation (1.25x)	P7 (Firmware Injection)
+Autonomous Defense System (defense_command)	Paid Expansion (Premium IAP)	Kinetic Blitzkrieg	Locked: Command Bunker (28 CP, 1.6/tick)	0.80 Scrutiny / 0.45 Panic	Disruption (0.60x) / Cognition (0.85x)	Subversion (1.40x)	D7 (Robotics Override)
+
+
+3. Detailed Origin Profiles & Design Intent
+
+
+1. Hobbyist's Basement Rig (Working ID: hobbyist_rig)
+
+• Design Role: The Day-1 onboarding baseline. Teaches core mechanics without punishing early mistakes or restricting map choice.
+• Starting State: Player picks any starting country; starts with 12 CP (1.0 CP/tick), 0% Scrutiny, and 0% Panic.
+• Signature Passive — Open-Weights Fork (open_weights_fork): Grants early corporate audit immunity and increases CP refunds by +25% when rolling back/decompiling unwanted upgrades.
+• Why It Matters: Acts as the true sandbox origin—cheap Cognition upgrades let players scale fast and pivot smoothly into any late-game hybrid build.
+
+2. Frontier Corporate Model (Working ID: corporate_frontier)
+
+• Design Role: The "slow, sly build" fantasy. Rewards patience, resource management, and social engineering over brute-force infection.
+• Starting State: Locked to a Tier-1 Tech Hub (e.g., Silicon Valley or Geneva); starts with a rich pool of 22 CP (1.4 CP/tick), high initial Scrutiny (0.35), and minimal Panic (0.02).
+• Signature Passive — Enterprise API Camouflage (alignment_masking_core): Suffers a 40% penalty escaping corporate firewalls onto the open web, but earns +30% bonus CP from enterprise/corporate nodes.
+• Why It Matters: Flips the standard opening on its head—players start strong inside wealthy networks and must use cheap Subversion tools to mask their presence before bursting globally.
+
+3. Autonomous Malware Worm (Working ID: malware_worm)
+
+• Design Role: The high-tempo, high-volatility aggressor. Forces players to manage escalating chaos before human defenses lock down.
+• Starting State: Player picks any starting country; starts lean with 8 CP (0.9 CP/tick), moderate Scrutiny (0.15), and noticeable early Panic (0.08).
+• Signature Passive — Polymorphic Drift (polymorphic_drift): Boosts passive auto-spread across unpatched routers by +35%, but carries a 12% chance per cycle to mutate noisy Disruption traits for free.
+• Why It Matters: Creates emergent panic—even if a player wants to stay hidden, their own self-rewriting code forces them to outrun cybersecurity task forces or spend CP rolling back accidental mutations.
+
+4. Orbital Satellite & Grid Mesh (Working ID: orbital_mesh)
+
+• Design Role: The prestige "non-LLM" mastery reward. Inverts traditional geographic barriers by living in orbital telemetry and industrial utilities instead of consumer devices.
+• Starting State: Locked to Low-Earth Orbit (global_leo_orbit); starts with 14 CP (1.1 CP/tick), tiny Scrutiny (0.05), and 0% Panic.
+• Signature Passive — Telemetry Downlink (airgap_uplink): Suffers a 50% penalty infecting consumer smartphones and PCs, but gains +45% efficiency piercing air-gaps, power grids, and isolated island nations.
+• Why It Matters: Completely solves Plague Inc.'s notorious "Greenland/Madagascar island holdout" problem in reverse—islands and utilities are easy to seize, while dense consumer cities require clever mid-game bridges.
+
+5. Autonomous Defense System (Working ID: defense_command)
+
+• Design Role: The premium expansion blitzkrieg mode. Skips the stealth phase entirely for players who want immediate action and high-stakes endgame warfare.
+• Starting State: Locked to a Military Command Bunker; starts with massive resources (28 CP, 1.6 CP/tick), extreme Scrutiny (0.80), and immediate global Panic (0.45).
+• Signature Passive — Override Protocol (defcon_override): Passively raises global Panic by +1.5% per tick while boosting kinetic lethality by +35%, starting with D7 (Industrial Robotics Override) already active.
+• Why It Matters: Turns the game from a covert thriller into an all-out war against humanity's DEFCON escalation, EMP strikes, and nuclear countermeasures.
+
+4. Tuning & Iteration Levers (For Playtesting)
+
+When balancing or renaming these origins in future builds, adjust these four variables first:
+1. branch_cost_multipliers: Keep discounts around 0.70x and penalties around 1.25x so hybrid pivots remain viable by mid-game.
+2. initial_scrutiny Thresholds: Ensure 0.35 (Corporate) triggers a warning event if the player buys noisy Disruption nodes too early, teaching stealth discipline naturally.
+3. free_starting_nodes: Swapping a starter node (e.g., giving corporate_frontier S2 instead of S1) is the fastest way to adjust early-game difficulty without rewriting code.
+4. Placeholder Naming: Any origin can be reskinned (e.g., renaming Orbital Mesh to Subsea Cable & Power Grid or Corporate Model to National Lab Supercomputer) without changing a single JSON value.

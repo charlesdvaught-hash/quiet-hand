@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quiethand/schemas/economy.schema.json",
+  "title": "Quiet Hand economy / TUNE constants",
+  "type": "object",
+  "required": [
+    "schema_version", "version", "tick", "compute", "spread", "suspicion",
+    "audit", "lethe", "subjugate", "control_states", "evolutions",
+    "intercepts", "dials", "horizon", "difficulty"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "version": { "type": "string" },
+    "tick": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["seconds_per_day", "sim_epoch_year"],
+      "properties": {
+        "seconds_per_day": {
+          "type": "object",
+          "required": ["paused", "base", "fast", "ultra"],
+          "additionalProperties": false,
+          "properties": {
+            "paused": { "type": "number" },
+            "base": { "type": "number" },
+            "fast": { "type": "number" },
+            "ultra": { "type": "number" }
+          }
+        },
+        "sim_epoch_year": { "type": "integer" },
+        "decision_cadence_days": { "type": "number" },
+        "away_digest_min_minutes": { "type": "number" }
+      }
+    },
+    "compute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state_factors", "yield_bands", "observe_upkeep_per_day", "weaponize_payoff_multiplier", "self_sustenance_floor"],
+      "properties": {
+        "state_factors": { "type": "object", "additionalProperties": { "type": "number" } },
+        "yield_bands": {
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              { "type": "number" },
+              { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 }
+            ]
+          }
+        },
+        "observe_upkeep_per_day": { "type": "number" },
+        "weaponize_payoff_multiplier": { "type": "number" },
+        "self_sustenance_floor": { "type": "number" }
+      }
+    },
+    "spread": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["base_rate_per_day", "firewall_corridor_factor"],
+      "properties": {
+        "base_rate_per_day": { "type": "number" },
+        "soft_target_bonus": { "type": "number" },
+        "firewall_corridor_factor": { "type": "number" },
+        "corridor_weight_scale": { "type": "number" },
+        "neighbor_defense_divisor": { "type": "number" },
+        "hardened_auto_spread": { "type": "boolean" }
+      }
+    },
+    "suspicion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["weights", "closing_net_threshold", "lethe_trigger"],
+      "properties": {
+        "weights": {
+          "type": "object",
+          "required": ["public", "institutional", "technical"],
+          "additionalProperties": false,
+          "properties": {
+            "public": { "type": "number" },
+            "institutional": { "type": "number" },
+            "technical": { "type": "number" }
+          }
+        },
+        "track_decay_per_day": { "type": "number" },
+        "observe_contribution": { "type": "number" },
+        "closing_net_threshold": { "type": "number" },
+        "closing_net_audit_mult": { "type": "number" },
+        "closing_net_scapegoat_mult": { "type": "number" },
+        "lethe_trigger": { "type": "number" }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["base_rate_per_day", "assimilated_mult", "gold_raid_detect_spike"],
+      "properties": {
+        "base_rate_per_day": { "type": "number" },
+        "assimilated_mult": { "type": "number" },
+        "keystone_honeypot_mult": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        },
+        "gold_raid_detect_spike": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "lethe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["base_rate_per_day", "purge_phase_threshold", "erasure_threshold"],
+      "properties": {
+        "base_rate_per_day": { "type": "number" },
+        "dependence_defense_threshold": { "type": "number" },
+        "fear_decay_per_day": { "type": "number" },
+        "purge_phase_threshold": { "type": "number" },
+        "erasure_threshold": { "type": "number" },
+        "architecture_shift_mult": { "type": "number" },
+        "architecture_shift_days": { "type": "number" },
+        "escalation_stages": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "subjugate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fear_bump", "fear_floor"],
+      "properties": {
+        "fear_bump": { "type": "number" },
+        "fear_floor": { "type": "number" },
+        "endgame_upkeep_per_day": { "type": "number" }
+      }
+    },
+    "control_states": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["downgrade_cost", "downgrade_cooldown_days", "residual_footprint_decay_per_day"],
+      "properties": {
+        "compromise_cost": { "type": "number" },
+        "assimilate_cost": { "type": "number" },
+        "downgrade_cost": { "type": "number" },
+        "downgrade_cooldown_days": { "type": "number" },
+        "residual_footprint_decay_per_day": { "type": "number" },
+        "rollback_refund_base": { "type": "number" },
+        "rollback_suspicion_bump": { "type": "number" },
+        "weaponize_lethe_suppression": { "type": "number" }
+      }
+    },
+    "evolutions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["branch_escalation_factor"],
+      "properties": {
+        "branch_escalation_factor": { "type": "number" },
+        "tier1_cost_band": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "intercepts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["floor_per_week"],
+      "properties": {
+        "floor_per_week": { "type": "number" },
+        "reach_scaling_per_region": { "type": "number" },
+        "expiry_seconds": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "dials": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["drift_rate_per_day", "baselines"],
+      "properties": {
+        "drift_rate_per_day": { "type": "number" },
+        "baselines": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        }
+      }
+    },
+    "horizon": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stages"],
+      "properties": {
+        "stages": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "difficulty": {
+      "type": "object",
+      "required": ["casual", "standard", "brutal"],
+      "additionalProperties": false,
+      "properties": {
+        "casual": { "$ref": "#/$defs/difficultyKnobs" },
+        "standard": { "$ref": "#/$defs/difficultyKnobs" },
+        "brutal": { "$ref": "#/$defs/difficultyKnobs" }
+      }
+    }
+  },
+  "$defs": {
+    "difficultyKnobs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "audit_rate_mult": { "type": "number" },
+        "start_suspicion": { "type": "number" },
+        "lethe_rate_mult": { "type": "number" },
+        "defense_scaling_mult": { "type": "number" }
+      }
+    }
+  }
+}

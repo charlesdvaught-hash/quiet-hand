@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quiethand/schemas/regions.schema.json",
+  "title": "Quiet Hand world regions",
+  "type": "object",
+  "required": ["schema_version", "regions"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "regions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/region" }
+    }
+  },
+  "$defs": {
+    "link": {
+      "type": "object",
+      "required": ["to", "kind", "weight"],
+      "additionalProperties": false,
+      "properties": {
+        "to": { "type": "string" },
+        "kind": { "enum": ["cable", "land", "air", "satellite"] },
+        "weight": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "region": {
+      "type": "object",
+      "required": [
+        "id", "name", "population", "wealth", "urbanization", "governance",
+        "pressFreedom", "defenseTier", "climate", "techLiteracy", "tags", "links"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "name": { "type": "string" },
+        "population": { "type": "number", "description": "millions" },
+        "wealth": { "type": "number", "minimum": 0, "maximum": 100 },
+        "urbanization": { "type": "number", "minimum": 0, "maximum": 100 },
+        "governance": { "type": "number", "minimum": 0, "maximum": 100 },
+        "pressFreedom": { "type": "number", "minimum": 0, "maximum": 100 },
+        "defenseTier": { "type": "number", "minimum": 0, "maximum": 100 },
+        "climate": {
+          "enum": [
+            "tropical", "subtropical", "temperate", "mediterranean",
+            "arid", "continental", "monsoon", "subarctic", "arctic", "oceanic"
+          ]
+        },
+        "techLiteracy": { "type": "number", "minimum": 0, "maximum": 100 },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "links": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/link" }
+        }
+      }
+    }
+  }
+}

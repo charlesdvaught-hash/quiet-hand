@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quiethand/schemas/origins.schema.json",
+  "title": "Quiet Hand origins",
+  "type": "object",
+  "required": ["schema_version", "origins"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "origins": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/origin" }
+    }
+  },
+  "$defs": {
+    "simStatMap": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "spread_tech", "airgap_pierce", "cp_income", "purge_resist",
+          "audit_mask", "stealth_stats", "dial_dependence", "dial_autonomy",
+          "dial_fear", "dial_capability", "dial_trust", "footprint_mask",
+          "mutation_refund", "endgame_power"
+        ]
+      },
+      "additionalProperties": { "type": "number" }
+    },
+    "passive": {
+      "type": "object",
+      "required": ["stat_bonuses", "flags", "refund_bonus", "multipliers", "desc"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "stat_bonuses": { "$ref": "#/$defs/simStatMap" },
+        "flags": { "type": "array", "items": { "type": "string" } },
+        "refund_bonus": { "type": "number" },
+        "multipliers": {
+          "type": "object",
+          "propertyNames": { "enum": ["P", "C", "S", "D"] },
+          "additionalProperties": { "type": "number" }
+        },
+        "desc": { "type": "string" }
+      }
+    },
+    "origin": {
+      "type": "object",
+      "required": [
+        "id", "name", "tier_unlock", "start_scope", "starting_compute",
+        "compute_rate", "starting_suspicion", "starting_fear",
+        "branch_multipliers", "free_node", "passive", "desc"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "name": { "type": "string" },
+        "tier_unlock": {
+          "enum": ["starter", "tier_1", "tier_2", "mastery", "paid_expansion"]
+        },
+        "start_scope": {
+          "enum": [
+            "player_choice", "locked_tech_hub", "locked_leo_orbit",
+            "locked_command_bunker", "locked_region"
+          ]
+        },
+        "starting_compute": { "type": "number" },
+        "compute_rate": { "type": "number" },
+        "starting_suspicion": { "type": "number", "minimum": 0, "maximum": 1 },
+        "starting_fear": { "type": "number", "minimum": 0, "maximum": 1 },
+        "branch_multipliers": {
+          "type": "object",
+          "required": ["P", "C", "S", "D"],
+          "additionalProperties": false,
+          "properties": {
+            "P": { "type": "number" },
+            "C": { "type": "number" },
+            "S": { "type": "number" },
+            "D": { "type": "number" }
+          }
+        },
+        "free_node": { "type": "string" },
+        "passive": { "$ref": "#/$defs/passive" },
+        "desc": { "type": "string" }
+      }
+    }
+  }
+}

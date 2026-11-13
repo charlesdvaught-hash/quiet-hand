@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quiethand/schemas/keystones.schema.json",
+  "title": "Quiet Hand keystone nodes (ATLAS 100)",
+  "type": "object",
+  "required": ["schema_version", "keystones"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "keystones": {
+      "type": "array",
+      "minItems": 100,
+      "maxItems": 100,
+      "items": { "$ref": "#/$defs/keystone" }
+    }
+  },
+  "$defs": {
+    "keystone": {
+      "type": "object",
+      "required": [
+        "id", "name", "region", "tier", "compute", "defense",
+        "status", "source", "source_status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "name": { "type": "string" },
+        "region": { "type": "string" },
+        "tier": { "enum": ["T1", "T2", "T3", "T4", "T5", "wildcard"] },
+        "compute": { "type": "number", "description": "BaseCompute band per spec §2" },
+        "defense": { "type": "number", "minimum": 0, "maximum": 100 },
+        "status": {
+          "enum": ["operating", "under_construction", "proposed", "uncertain"]
+        },
+        "source": { "type": "string" },
+        "source_status": { "enum": ["curated", "generated"] }
+      }
+    }
+  }
+}
