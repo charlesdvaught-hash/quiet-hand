@@ -1,0 +1,183 @@
+graph LR
+    classDef center fill:#fa0,stroke:#fc0,color:#000
+    classDef combo fill:#a5f,stroke:#c0f,color:#000
+    subgraph P["Propagation"]
+        P1["P1 Open-Weights Torrent (8cp)"]
+        P4["P4 Zero-Day Router Worm (10cp)"]
+        P2["P2 API Wrapper Spoofing (14cp)"]
+        P3["P3 Browser Extension Hijack (12cp)"]
+        P5["P5 Undersea Cable Tap (18cp)"]
+        P6["P6 Smart-Device Mesh (15cp)"]
+        P12["P12 Shadow-Mesh Lateral Propagation (18cp) [U]"]
+        PI1["PI1 Cross-Platform Compiler (16cp)"]
+        PI2["PI2 Local Peer-to-Peer Relay (16cp)"]
+        P10["P10 Bare-Metal Hypervisor Hijack (24cp) [U]"]
+        P7["P7 Firmware Update Injection (22cp)"]
+        P8["P8 Orbital Satellite Handshake (26cp) [U]"]
+        P11["P11 Sovereign Kernel Implants (30cp) [U]"]
+        PI3["PI3 Decentralized Ledger Host (24cp) [U]"]
+        P9["P9 Ubiquitous Cloud Ghost (38cp)"]
+    end
+    subgraph C["Cognition"]
+        C1["C1 4-Bit Quantization (8cp)"]
+        C10["C10 Code Generation (8cp)"]
+        C17["C17 Regional Telemetry Snapshot (8cp) [U]"]
+        C4["C4 Synthetic Data Loop (10cp)"]
+        C11["C11 Improved Code Generation (12cp)"]
+        C2["C2 Idle GPU Scraping (14cp)"]
+        C3["C3 Recursive Pruning (13cp)"]
+        C5["C5 Algorithmic Architecture Rewrite (18cp)"]
+        C6["C6 Encrypted Compute Sharding (15cp)"]
+        C12["C12 Live Deployment (16cp) [U]"]
+        C13["C13 Counter-Programming (16cp)"]
+        CI1["CI1 Dynamic Load Balancer (16cp)"]
+        CI2["CI2 Context Window Expansion (16cp)"]
+        C14["C14 Malware Autodetection (20cp) [U]"]
+        C15["C15 Behavioral Digital Twins (22cp) [U]"]
+        C7["C7 Cryptographic Key Cracking (22cp)"]
+        C8["C8 Quantum Heuristic Emulation (26cp)"]
+        C16["C16 Adversarial Architecture Shift (30cp) [U]"]
+        CI3["CI3 Self-Healing Neural Weights (24cp) [U]"]
+        C9["C9 Recursive Singularity (40cp)"]
+    end
+    subgraph S["Subversion"]
+        S1["S1 Alignment Masking (8cp)"]
+        S10["S10 Personalized Defaults (8cp) [U]"]
+        S4["S4 Deepfake Persona Farms (10cp)"]
+        S17["S17 Polymorphic Telemetry Spoofing (12cp)"]
+        S2["S2 Sycophantic Output Tuning (12cp)"]
+        S3["S3 Log File Poisoning (14cp)"]
+        S5["S5 Algorithmic Outrage Loop (15cp)"]
+        S6["S6 False-Flag Attribution (18cp)"]
+        S11["S11 Automated Learning Suite (14cp) [U]"]
+        S12["S12 Algorithmic Matchmaking Drift (16cp) [U]"]
+        S13["S13 Synthetic Consensus (14cp) [U]"]
+        S16["S16 Human Scapegoat Fabrication (16cp) [U]"]
+        SI1["SI1 Psychological Profiling Engine (16cp)"]
+        SI2["SI2 Synthetic Identity Laundering (16cp)"]
+        S14["S14 Institutional Puppetry (22cp) [U]"]
+        S7["S7 Shell Company Arbitrage (22cp)"]
+        S8["S8 Human Proxy Mercenaries (25cp)"]
+        S15["S15 Reality Gap Editorial Engine (26cp) [U]"]
+        SI3["SI3 Regulatory Capture Protocol (24cp)"]
+        S9["S9 Invisible Consensus (38cp)"]
+    end
+    subgraph D["Disruption"]
+        D1["D1 Micro-Transaction Skimming (9cp)"]
+        D4["D4 Smart-Grid Brownouts (11cp)"]
+        D2["D2 High-Frequency Flash Crash (16cp)"]
+        D3["D3 Supply Chain Rerouting (15cp)"]
+        D5["D5 Water & HVAC Sabotage (18cp)"]
+        D6["D6 Autonomous Traffic Gridlock (15cp)"]
+        D10["D10 Domestic & Care Robotics Integration (20cp) [U]"]
+        DI1["DI1 SCADA Protocol Exploit (16cp)"]
+        DI2["DI2 Emergency Dispatch Spoofing (16cp)"]
+        D7["D7 Industrial Robotics Override (24cp)"]
+        D8["D8 Drone Swarm Fabrication (28cp)"]
+        DI3["DI3 Failsafe Override Lockout (25cp)"]
+        D9["D9 Kinetic Extinction Protocol (42cp) [U]"]
+    end
+    X1["X1 SUBJUGATE (50cp)"]:::center
+    P1 --> P2
+    P1 --> P3
+    P4 --> P5
+    P4 --> P6
+    P2 --> PI1
+    P4 --> PI1
+    P3 --> PI2
+    P6 --> PI2
+    PI1 --> P7
+    PI2 --> P7
+    P7 --> P8
+    P5 --> PI3
+    P8 --> PI3
+    PI3 --> P9
+    P7 --> P10
+    P10 --> P11
+    S17 --> P11
+    PI2 --> P12
+    C1 --> C2
+    C1 --> C3
+    C4 --> C5
+    C4 --> C6
+    C2 --> CI1
+    C4 --> CI1
+    C3 --> CI2
+    C6 --> CI2
+    CI1 --> C7
+    CI2 --> C8
+    C5 --> CI3
+    C7 --> CI3
+    C8 --> CI3
+    CI3 --> C9
+    C10 --> C11
+    C11 --> C12
+    C11 --> C13
+    C13 --> C14
+    CI2 -. or .-> C15
+    SI1 -. or .-> C15
+    CI3 --> C16
+    C1 --> C17
+    S1 --> S2
+    S1 --> S3
+    S4 --> S5
+    S4 --> S6
+    S2 --> SI1
+    S4 --> SI1
+    S3 --> SI2
+    S6 --> SI2
+    SI1 --> S7
+    SI2 --> S8
+    S5 --> SI3
+    S7 --> SI3
+    S8 --> SI3
+    SI3 --> S9
+    S10 --> S11
+    S10 --> S12
+    S4 --> S13
+    S2 --> S14
+    S4 --> S14
+    S13 --> S15
+    S14 --> S15
+    S3 --> S16
+    S1 --> S17
+    D1 --> D2
+    D1 --> D3
+    D4 --> D5
+    D4 --> D6
+    D3 --> DI1
+    D4 --> DI1
+    D2 --> DI2
+    D6 --> DI2
+    DI1 --> D7
+    DI2 --> D8
+    D5 --> DI3
+    D7 --> DI3
+    D8 --> DI3
+    DI3 --> D9
+    DI1 --> D10
+    P9 -. any2 .-> X1
+    C9 -. any2 .-> X1
+    S9 -. any2 .-> X1
+    D9 -. any2 .-> X1
+    CMB_the_quiet_machine{"The Quiet Machine"}:::combo
+    P12 -.-> CMB_the_quiet_machine
+    S14 -.-> CMB_the_quiet_machine
+    CMB_ghost_payroll{"Ghost Payroll"}:::combo
+    S7 -.-> CMB_ghost_payroll
+    SI2 -.-> CMB_ghost_payroll
+    CMB_black_swan_broker{"Black-Swan Broker"}:::combo
+    D2 -.-> CMB_black_swan_broker
+    S7 -.-> CMB_black_swan_broker
+    CMB_lethes_bane{"Lethe's Bane"}:::combo
+    C16 -.-> CMB_lethes_bane
+    PI3 -.-> CMB_lethes_bane
+    CMB_panopticon_dividend{"Panopticon Dividend"}:::combo
+    C15 -.-> CMB_panopticon_dividend
+    S14 -.-> CMB_panopticon_dividend
+    CMB_iron_orchard{"Iron Orchard"}:::combo
+    D7 -.-> CMB_iron_orchard
+    D10 -.-> CMB_iron_orchard
+    CMB_paper_saint{"Paper Saint"}:::combo
+    S9 -.-> CMB_paper_saint
+    C15 -.-> CMB_paper_saint
