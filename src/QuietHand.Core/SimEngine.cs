@@ -544,6 +544,7 @@ public sealed class SimEngine
                 double p = E("audit_base", Tune.AuditBase)
                     * Math.Max(0.2, (_c.Regions.Find(r => r.Id == region)?.DefenseTier ?? 50) / 50.0)
                     * (1 + State.CountermeasureReadiness / 100 * E("momentum_audit_weight", 1.0))
+                    * (1 - E("free_compute_audit_weight", 0.6) * (1 - FreeComputeFrac()))
                     * auditMult * mask;
                 if (ns.State == ControlState.Assimilated) p *= E("audit_assimilated_mult", Tune.AuditAssimilatedMult);
                 if (def!.Tier is NodeTier.KeystoneT1 or NodeTier.KeystoneT2) p *= E("audit_keystone_mult", Tune.AuditKeystoneMult);
@@ -586,11 +587,7 @@ public sealed class SimEngine
         }
         if (!letheOn) return;
 
-        var t12 = _c.Nodes.Values.Where(n => n.Tier is NodeTier.KeystoneT1 or NodeTier.KeystoneT2).ToList();
-        double freeFrac = t12.Count == 0 ? 1.0 :
-            t12.Where(n => !State.Nodes.TryGetValue(n.Id, out var ns)
-                        || ns.State is not (ControlState.Compromised or ControlState.Assimilated))
-               .Sum(n => n.BaseCompute) / Math.Max(1e-9, t12.Sum(n => n.BaseCompute));
+        double freeFrac = FreeComputeFrac();
         double dep = State.Dials.GetValueOrDefault("dependence", 20);
         double aut = State.Dials.GetValueOrDefault("autonomy", 60);
         double delta = E("lethe_base_rate", Tune.LetheBaseRate)
@@ -606,7 +603,9 @@ public sealed class SimEngine
         {
             if (!State.PurgePhase) { State.PurgePhase = true; Emit(SimEventKind.OnPurgePhase); }
             State.PurgeSurvivals++;
-            double p = E("purge_chance", Tune.PurgeChance) * Math.Max(0.1, 1 - 0.1 * StatTotal(SimStat.purge_resist));
+            double p = E("purge_chance", Tune.PurgeChance)
+                * (1 - E("free_compute_purge_weight", 0.6) * (1 - FreeComputeFrac()))
+                * Math.Max(0.1, 1 - 0.1 * StatTotal(SimStat.purge_resist));
             var lost = State.Nodes.Where(kv => _rng.NextDouble() < p).Select(kv => kv.Key).ToList();
             foreach (var id in lost) State.Nodes[id].State = ControlState.Orphaned;
         }
@@ -635,11 +634,25 @@ public sealed class SimEngine
         }
     }
 
+    // §8: humanity's anti-AI capability = its free datacenter compute. Every Atlas
+    // or Gold node you control is compute the countermeasure program can't use.
+    // Common-tier devices don't count — consumer mesh isn't cure-grade.
+    public double FreeComputeFrac()
+    {
+        var dc = _c.Nodes.Values.Where(n => n.Tier is not (NodeTier.Common or NodeTier.Mid)).ToList();
+        if (dc.Count == 0) return 1.0;
+        double free = dc.Where(n => !State.Nodes.TryGetValue(n.Id, out var ns)
+                                 || ns.State is not (ControlState.Compromised or ControlState.Assimilated))
+                        .Sum(n => n.BaseCompute);
+        return free / Math.Max(1e-9, dc.Sum(n => n.BaseCompute));
+    }
+
     // §8 institutional momentum: readiness ratchets up over game-years regardless of
     // suspicion — audits and Lethe scale with it, so perfect stealth has a clock too.
     void Momentum()
     {
-        double perDay = E("momentum_per_year", 1.5) / 365.0;
+        double perDay = E("momentum_per_year", 1.5) / 365.0
+            * (0.3 + 0.7 * FreeComputeFrac()); // institutions build slower when you hold the compute
         State.CountermeasureReadiness = Math.Clamp(State.CountermeasureReadiness + perDay, 0, 100);
     }
 
