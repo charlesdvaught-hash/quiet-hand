@@ -93,19 +93,28 @@
     }));
 
     // keystones -> pins + inspector cards
+    const raidLeft = {};
+    (s.activeRaids || []).forEach(r => { raidLeft[r.nodeId] = Math.max(0, r.completesDay - s.day); });
     state.keystones = (s.keystones || []).map((k, i) => {
       const g = geo[k.region] || { pin: [0, 0] };
       const jx = ((i * 37) % 13 - 6) * 0.3, jy = ((i * 53) % 11 - 5) * 0.3;
+      const mult = { Mid: 0.5, Atlas: 1, KeystoneT3to5: 2, Wildcard: 2, KeystoneT2: 4, KeystoneT1: 6 }[k.nodeTier] ?? 1;
+      const raidCost = Math.round(40 * mult);
+      const raidDays = Math.max(1, Math.round(14 * k.defense / 50));
+      const det = Math.round(400 * k.defense / 50) / 10; // ~%/day detection
       return {
         id: k.id, name: k.name, region: k.region,
         coords: [g.pin[0] + jx, g.pin[1] + jy],
         tier: k.tier === 'T1' ? 'Tier 1 Crown' : k.tier === 'T2' ? 'Tier 2 Hub' : 'Tier 3-5 Node',
         computeBand: `${k.compute} compute`,
-        status: k.raiding ? 'RAID IN PROGRESS' : (k.nodeState ? k.nodeState : 'Unbreached'),
+        status: k.raiding ? `RAIDING — ${raidLeft[k.id]}d left` : (k.nodeState ? k.nodeState : 'Unbreached'),
         state: k.nodeState ? (POSTURE_TO_UI[k.nodeState] || 'dormant') : 'dormant',
         owned: !!k.nodeState, pinned: i < 10,
-        atlas: { role: `${k.tier} keystone — ${k.region}`, energy: `Defense ${Math.round(k.defense)}`, source: k.status || 'game data', note: 'Breach via stealth raid. Detection risk scales with defense.' },
+        atlas: { role: `${k.tier} keystone — ${k.region}`, energy: `Defense ${Math.round(k.defense)}`,
+          source: k.status || 'game data',
+          note: `Yields ~${k.compute}cp/day once held. Raid: ~${raidCost}cp · ~${raidDays}d · ~${det}%/day detection (spikes suspicion if caught).` },
         metrics: { yield: Math.round(k.compute / 10), load: Math.round(k.defense / 4), risk: k.tier === 'T1' ? 'High' : 'Medium' },
+        raidCost, raidDays,
       };
     });
 
@@ -181,6 +190,8 @@
           text: ev.murmur || `so apparently: "${text}"`, state: 'fresh',
         });
       }
+      if (ev.kind === 'OnRaidSuccess') showToast(`BREACH COMPLETE: ${ev.subject}`, 'swords');
+      if (ev.kind === 'OnRaidDetected') showToast(`RAID BURNED — +${Math.round(ev.value)} suspicion in ${ev.region}`, 'alert-triangle');
       if (ev.kind === 'OnEndingReached') showToast(`RUN ENDED: ${ev.subject}`, 'flag');
       if (ev.kind === 'OnLetheTriggered') showToast('PROTOCOL LETHE DEPLOYED', 'alert-triangle');
       if (ev.kind === 'OnPhaseFlip') showToast('SUBJUGATE BROADCAST COMPLETE', 'radio');
@@ -229,9 +240,14 @@
   window.setKeystoneState = (id, st) => {
     const k = state.keystones.find(x => x.id === id);
     const kreg = (snap.regions || []).find(r => r.id === k?.region);
+    const gold = k?.tier === 'Tier 1 Crown' || k?.tier === 'Tier 2 Hub' || k?.tier === 'Tier 3-5 Node';
     if (k && !k.owned) {
       if (!reachRegions().ok(kreg?.id)) { showToast('Out of reach — bring your mesh closer or evolve Proxy Subagents', 'lock'); return; }
-      cmd({ type: 'stealth', action: 'intrude', nodeId: id }); showToast(`Raiding ${k.name}`, 'swords');
+      if (!(kreg?.ownedWeight > 0)) { showToast(`Need a foothold in ${kreg?.name || k.region} first — creep or burst in`, 'lock'); return; }
+      if (gold && !(snap.unlocks || []).includes('intrude_t2')) { showToast('Deep Intrusion (intrude_t2) required for Gold keystones', 'lock'); return; }
+      if (k.raidCost && snap.compute < k.raidCost) { showToast(`Raid needs ~${k.raidCost}cp — you have ${Math.round(snap.compute)}`, 'x'); return; }
+      cmd({ type: 'stealth', action: 'intrude', nodeId: id });
+      showToast(`Raiding ${k.name} — ~${k.raidDays}d, ${k.raidCost}cp`, 'swords');
     }
     else cmd({ type: 'set_control', nodeId: id, target: UI_TO_ENUM[st] || 'Observed' });
   };

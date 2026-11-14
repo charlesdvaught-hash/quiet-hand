@@ -5,7 +5,7 @@
     "seconds_base": 240,
     "seconds_fast": 60,
     "seconds_ultra": 20,
-    "observe_upkeep": 0.005,
+    "observe_upkeep": 0.01,
     "compromise_yield": 0.35,
     "assimilate_yield": 1.0,
     "compute_common": 0.25,
@@ -41,7 +41,7 @@
     "residual_on_downgrade": 10,
     "weaponize_payoff_mult": 10,
     "footprint_decay": 0.01,
-    "escalation_factor": 1.15,
+    "escalation_factor": 1.22,
     "rollback_fee_fraction": 0.1,
     "rollback_refund": 0.5,
     "rollback_suspicion": 2,
@@ -59,7 +59,9 @@
     "endgame_ultimatum_cost": 100,
     "endgame_ultimatum_fear": 50,
     "endgame_pacification_cost": 200,
-    "endgame_kinetic_cost": 250
+    "endgame_kinetic_cost": 250,
+    "creep_base_mult": 0.2,
+    "footprint_sus": 0.006
   },
   "momentum_per_year": 1.5,
   "momentum_audit_weight": 1.0,

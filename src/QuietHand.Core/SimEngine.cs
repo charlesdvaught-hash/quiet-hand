@@ -1062,7 +1062,8 @@ public sealed class SimEngine
                 ControlState.Weaponized => E("sus_weaponized", Tune.SusWeaponized),
                 _ => 0, // Observed ≈ 0 by design (presence ≠ heat)
             };
-            rs.Suspicion = Math.Clamp(rs.Suspicion + sus * mask
+            double density = E("footprint_sus", 0.006) * mask;
+            rs.Suspicion = Math.Clamp(rs.Suspicion + sus * mask + density
                 + ns.ResidualFootprint * E("sus_residual_footprint", Tune.SusResidualFootprint), 0, 100);
 
             if (ns.State is ControlState.Compromised or ControlState.Assimilated)
