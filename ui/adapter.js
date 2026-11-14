@@ -496,103 +496,127 @@
   renderTerritory();
 })();
 
-  // --- evolution tree (replaces the flat card grid) --------------------------
-  const EVO_COLS = { P: 0, C: 1, S: 2, D: 3 };
-  const COLW = 196, ROWH = 92, HEADH = 40;
+  // --- evolution web (radial, fog-of-war) ------------------------------------
+  // X1 sits at the center; each branch owns a quadrant wedge; tier = distance
+  // from center. Only owned + eligible nodes are lit — deeper nodes render as
+  // empty sockets so the web's shape is visible and fills in as you buy.
+  const WEB = { P: -135, C: -45, S: 45, D: 135 };   // wedge centers (deg)
+  const WEBC = { P: '#38bdf8', C: '#818cf8', S: '#fbbf24', D: '#f87171', center: '#f0abfc' };
+  const WEB_LABEL = { P: 'PROPAGATION', C: 'COGNITION', S: 'SUBVERSION', D: 'DISRUPTION' };
+  const TIER_R = t => 124 + (t - 1) * 66;            // tier ring radius (px)
+  const WEDGE = 76;                                  // usable wedge arc (deg)
 
-  function evoSortKey(e) {
-    const m = /(\d+)$/.exec(e.id);
-    return [e.tier || 9, m ? +m[1] : 999, e.id];
+  function evoInitials(name) {
+    const w = name.split(/[\s-]+/).filter(x => x && !/^(the|a|an|of|and|in|for|is|as|to)$/i.test(x));
+    return (w.length > 1 ? w[0][0] + w[1][0] : w[0].slice(0, 2)).toUpperCase();
   }
 
   window.renderEvoTree = function () {
     const body = document.getElementById('modal-body');
     const title = document.getElementById('modal-title');
-    const icon = document.getElementById('modal-icon');
     const note = document.getElementById('modal-footer-note');
-    if (icon) icon.setAttribute('data-lucide', 'git-branch');
     if (title) title.textContent = 'EVOLUTION ARCHITECTURE';
-    if (note) note.textContent = 'One deployment per node. Locked nodes show their prerequisites.';
+    if (note) note.textContent = 'The web fills in as you deploy. Empty sockets are paths not yet revealed.';
 
     const evs = (window._qh.snap.evolutions || []).slice();
-    const pos = {};            // id -> {x,y,w,h}
-    const rows = {};
-    // lay each branch top-down by (tier, id)
+    const byId = {}; evs.forEach(e => byId[e.id] = e);
+    const CX = 460, CY = 400, SZ = 920;
+    const phi = {};   // id -> angle (rad)
+
+    // angular placement: each tier ordered by mean parent angle, spread across the wedge
     for (const b of ['P', 'C', 'S', 'D']) {
-      const col = evs.filter(e => e.branch === b).sort((a, z) => {
-        const ka = evoSortKey(a), kz = evoSortKey(z);
-        return ka[0] - kz[0] || ka[1] - kz[1] || (ka[2] < kz[2] ? -1 : 1);
-      });
-      col.forEach((e, i) => {
-        pos[e.id] = { x: EVO_COLS[b] * COLW + 8, y: HEADH + i * ROWH, w: COLW - 16, h: ROWH - 14, node: e };
-        rows[b] = i + 1;
-      });
+      const base = WEB[b] * Math.PI / 180;
+      const tiers = [...new Set(evs.filter(e => e.branch === b).map(e => e.tier || 1))].sort((x, y) => x - y);
+      for (const t of tiers) {
+        const g = evs.filter(e => e.branch === b && (e.tier || 1) === t);
+        const key = e => {
+          const ps = (e.prereqs || []).filter(p => byId[p] && byId[p].branch === b && phi[p] != null);
+          return ps.length ? ps.reduce((s, p) => s + phi[p], 0) / ps.length : base;
+        };
+        g.slice().sort((x, y) => key(x) - key(y)).forEach((e, i) => {
+          const spread = Math.min(WEDGE, 30 * g.length) * Math.PI / 180;
+          phi[e.id] = base + (g.length > 1 ? (i / (g.length - 1) - .5) * spread : 0);
+        });
+      }
     }
-    const maxRows = Math.max(0, ...Object.values(rows));
-    const center = evs.find(e => e.branch === 'center');
-    let H = HEADH + maxRows * ROWH + 20;
-    if (center) {
-      pos[center.id] = { x: COLW * 1.5, y: HEADH + maxRows * ROWH + 26, w: COLW, h: ROWH - 10, node: center };
-      H += ROWH + 30;
+    const pos = {};
+    for (const e of evs) {
+      if (e.branch === 'center') { pos[e.id] = { x: CX, y: CY, e }; continue; }
+      const r = TIER_R(e.tier || 1);
+      pos[e.id] = { x: CX + r * Math.cos(phi[e.id]), y: CY + r * Math.sin(phi[e.id]), e };
     }
-    const W = COLW * 4;
 
-    const colHead = (b, label, color) => `
-      <div style="position:absolute;left:${EVO_COLS[b] * COLW + 8}px;top:0;width:${COLW - 16}px;
-        font-size:10px;font-weight:800;letter-spacing:.08em;color:${color};text-align:center;
-        border-bottom:1px solid ${color}55;padding-bottom:6px">${label}</div>`;
-
-    const cardHtml = p => {
-      const e = p.node;
-      const st = e.owned ? 'owned' : e.canBuy ? 'open' : 'locked';
-      const bc = st === 'owned' ? 'var(--accent-emerald,#34d399)'
-        : st === 'open' ? 'var(--accent-observe,#38bdf8)' : 'var(--glass-border,#334155)';
-      return `<div class="evo-node evo-${st}" data-ev="${e.id}"
-        style="position:absolute;left:${p.x}px;top:${p.y}px;width:${p.w}px;height:${p.h}px;
-          border:1px solid ${bc};border-radius:8px;padding:6px 8px;cursor:pointer;
-          background:var(--glass-bg,rgba(15,23,42,.75));opacity:${st === 'locked' ? .45 : 1};
-          box-shadow:${st === 'owned' ? '0 0 10px #34d39933' : 'none'}">
-        <div style="display:flex;justify-content:space-between;align-items:baseline">
-          <span class="mono" style="font-size:9px;font-weight:800;opacity:.7">${e.id}</span>
-          <span class="mono" style="font-size:9px;font-weight:800;color:${st === 'owned' ? 'var(--accent-emerald,#34d399)' : 'var(--text-secondary,#94a3b8)'}">
-            ${e.owned ? '✓' : e.cost + 'cp'}</span>
-        </div>
-        <div style="font-size:11px;font-weight:700;line-height:1.15;margin-top:2px">${e.name}</div>
-        <div style="font-size:9px;color:var(--text-muted,#64748b);margin-top:2px">TIER ${e.tier}${st === 'locked' ? ' · ' + (e.prereqs || []).join('+') : ''}</div>
-      </div>`;
-    };
-
-    // svg dependency lines (behind cards)
+    // socket = prereqs not all owned and node not owned (empty space)
+    const lit = e => e.owned || e.canBuy;
     let lines = '';
-    const ctr = p => ({ x: p.x + p.w / 2, y: p.y, yb: p.y + p.h });
     for (const id in pos) {
-      const e = pos[id].node;
+      const e = pos[id].e;
       for (const pq of e.prereqs || []) {
         const a = pos[pq]; if (!a) continue;
-        const A = ctr(a), B = ctr(pos[id]);
-        const both = e.owned && pos[pq].node.owned;
-        lines += `<path d="M ${A.x} ${A.yb} C ${A.x} ${A.yb + 22}, ${B.x} ${B.y - 22}, ${B.x} ${B.y}"
-          fill="none" stroke="${both ? '#34d399' : '#38bdf855'}" stroke-width="${both ? 2 : 1}"
-          stroke-dasharray="${e.owned || e.canBuy ? 'none' : '4 4'}"/>`;
+        const A = pos[pq], B = pos[id], col = WEBC[e.branch] || '#94a3b8';
+        const both = e.owned && byId[pq].owned;
+        const charging = byId[pq].owned && e.canBuy && !e.owned;
+        if (!byId[pq].owned && !e.owned && !(byId[pq].canBuy && e.canBuy)) {
+          lines += `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="#475569" stroke-opacity=".14" stroke-width="1" stroke-dasharray="2 6"/>`;
+          continue;
+        }
+        lines += `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}"
+          stroke="${both ? col : charging ? col : '#475569'}"
+          stroke-opacity="${both ? .85 : charging ? .7 : .3}"
+          stroke-width="${both ? 2 : 1.2}"
+          stroke-dasharray="${both ? 'none' : '4 4'}"/>`;
       }
     }
 
+    const nodeHtml = p => {
+      const e = p.e, col = WEBC[e.branch] || '#94a3b8';
+      const cx = `left:${p.x - 18}px;top:${p.y - 18}px`;
+      if (!lit(e)) {
+        // empty socket — shape of the web without the reveal
+        const sz = e.branch === 'center' ? 44 : 12;
+        return `<div class="evo-node" style="position:absolute;left:${p.x - sz / 2}px;top:${p.y - sz / 2}px;
+          width:${sz}px;height:${sz}px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+          font-family:monospace;font-size:10px;font-weight:800;color:${col}66;
+          border:1px ${e.branch === 'center' ? 'solid' : 'dashed'} ${col}55;opacity:.5">${e.branch === 'center' ? 'X1' : ''}</div>`;
+      }
+      const owned = e.owned;
+      const sz = e.branch === 'center' ? 56 : 38;
+      return `<div class="evo-node ${!owned ? 'evo-open' : ''}" data-ev="${e.id}" title="${e.name} — ${e.cost}cp"
+          style="position:absolute;
+          left:${p.x - sz / 2}px;top:${p.y - sz / 2}px;width:${sz}px;height:${sz}px;
+          border-radius:50%;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;
+          border:2px solid ${col};background:${owned ? col + 'cc' : 'rgba(10,15,29,.92)'};
+          color:${owned ? '#0a0f1d' : col};font-family:monospace;font-size:${e.branch === 'center' ? 13 : 11}px;font-weight:800;
+          box-shadow:0 0 ${owned ? 14 : 9}px ${col}66">
+          ${e.branch === 'center' ? 'X1' : owned ? '✓' : evoInitials(e.name)}
+        </div>
+        ${e.branch === 'center' ? `<div style="position:absolute;left:${p.x - 60}px;top:${p.y + sz / 2 + 4}px;width:120px;text-align:center;
+          font-size:9px;font-weight:800;letter-spacing:.08em;color:${col};pointer-events:none">${e.name}</div>` : ''}`;
+    };
+
+    // wedge labels on the outer rim
+    const rim = ['P', 'C', 'S', 'D'].map(b => {
+      const a2 = WEB[b] * Math.PI / 180, r = TIER_R(5) + 44;
+      return `<div style="position:absolute;left:${CX + r * Math.cos(a2) - 70}px;top:${CY + r * Math.sin(a2) - 9}px;width:140px;
+        text-align:center;font-size:10px;font-weight:800;letter-spacing:.1em;color:${WEBC[b]}">${WEB_LABEL[b]}</div>`;
+    }).join('');
+
     body.innerHTML = `
       <div id="evo-detail" style="margin-bottom:8px"></div>
-      <div style="overflow:auto;max-height:70vh;border:1px solid var(--glass-border);border-radius:10px;background:#0a0f1d">
-        <div style="position:relative;width:${W}px;height:${H}px">
-          <svg width="${W}" height="${H}" style="position:absolute;left:0;top:0">${lines}</svg>
-          ${colHead('P', 'PROPAGATION', '#38bdf8')}
-          ${colHead('C', 'COGNITION', '#818cf8')}
-          ${colHead('S', 'SUBVERSION', '#fbbf24')}
-          ${colHead('D', 'DISRUPTION', '#f87171')}
-          ${Object.values(pos).map(cardHtml).join('')}
+      <div style="overflow:auto;max-height:72vh;border:1px solid var(--glass-border);border-radius:10px;background:#0a0f1d">
+        <div style="position:relative;width:${SZ}px;height:${SZ - 60}px">
+          <svg width="${SZ}" height="${SZ - 60}" style="position:absolute;left:0;top:0">${lines}</svg>
+          ${rim}
+          ${Object.values(pos).map(nodeHtml).join('')}
         </div>
       </div>`;
 
-    body.querySelectorAll('.evo-node').forEach(el => {
+    body.querySelectorAll('.evo-node[data-ev]').forEach(el => {
       el.onclick = () => showEvoDetail(el.dataset.ev);
     });
+    // center the scrollable web on X1
+    const sc = body.querySelector('div[style*="overflow:auto"]');
+    if (sc) { sc.scrollLeft = (sc.scrollWidth - sc.clientWidth) / 2; sc.scrollTop = (sc.scrollHeight - sc.clientHeight) / 2; }
     lucide.createIcons();
   };
 
@@ -627,8 +651,10 @@
   // route the evolve modal through the tree renderer
   const _openModal0 = window.openModal;
   window.openModal = function (type) {
+    const win = document.getElementById('modal-window');
     if (type === 'evolve') {
+      win?.classList.add('wide');
       document.getElementById('modal-backdrop')?.classList.add('open');
       renderEvoTree();
-    } else _openModal0(type);
+    } else { win?.classList.remove('wide'); _openModal0(type); }
   };
