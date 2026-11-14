@@ -50,7 +50,7 @@ public sealed class SimEngine
         public const double ReemergenceSuspicion = 2;
     }
 
-    static readonly int[] ReachThresholds = { 1, 3, 8, 20, 50, 120 }; // owned nodes → stage 0..5
+    static readonly int[] ReachThresholds = { 1, 12, 40, 120, 280, 480 }; // owned nodes → stage 0..5 (block → global)
     static readonly string[] InterceptKinds = { "data_packet", "misconfig_server", "admin_credential", "whistleblower" };
     static readonly JsonSerializerOptions SerOpts = new() { WriteIndented = false };
 

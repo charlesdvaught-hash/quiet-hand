@@ -413,6 +413,34 @@
       d3.zoomIdentity.translate(500 - x * k, 250 - y * k).scale(k));
   }
 
+  let pendingReach = 0, horizonSeen = false, dbgLast = null;
+  function showHorizonBanner() {
+    let el = document.getElementById('horizon-banner');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'horizon-banner';
+      el.style.cssText = `position:fixed;left:50%;top:60px;transform:translateX(-50%);z-index:9;
+        padding:8px 14px;border-radius:9px;background:var(--glass-bg,rgba(15,23,42,.85));
+        border:1px solid var(--accent-observe,#38bdf8);cursor:pointer;display:flex;align-items:center;gap:8px;
+        font-size:11px;color:var(--text-primary,#e2e8f0);box-shadow:0 0 14px #38bdf855`;
+      el.onclick = () => {
+        const [x, y] = projection(geo[snap.homeRegion]?.pin || [0, 20]);
+        const f = Math.max(900, 5500000 / Math.pow(9, pendingReach));
+        svg.transition().duration(1600).call(zoomBehavior.transform,
+          d3.zoomIdentity.translate(500 - x * f, 250 - y * f).scale(f));
+        el.style.display = 'none'; pendingReach = 0;
+      };
+      document.body.appendChild(el);
+    }
+    el.innerHTML = `<span class="mono" style="color:var(--accent-observe,#38bdf8);font-weight:800">REACH ${pendingReach}</span>
+      <span>${horizonSeen ? 'Horizon widened — tap to see farther' : "Your mesh outgrew this view — tap to see what it's become"}</span>`;
+    el.style.display = 'flex';
+    if (!horizonSeen) {
+      horizonSeen = true;
+      tutor("That banner is your view expanding — tap it when you want the bigger picture. Each reach stage shows more of the world, and more of the world can see you.", 4, 5);
+    }
+  }
+
   function guide() {
     if (!onboarded || !snap) return;
     const nc = snap.nodeCounts || {};
@@ -426,18 +454,19 @@
       tutor('Adaptation live. Evolutions change how you spread — some seed regions at random, one lets you pick a landing zone. Each region you hold widens your view. Suspicion is the only number that ends you.', 3, 4);
       setTimeout(tutDone, 9000);
     }
-    // reach-gated zoom-out: the world reveals itself as you grow
+    // reach-gated zoom-out: the range unlocks automatically, but the camera
+    // move is the player's call — a banner offers the bigger view
     const floor = Math.max(900, 5500000 / Math.pow(9, snap.reach || 0)); // street -> world
     zoomBehavior.scaleExtent([floor, 16777216]);
     if (reachSeen >= 0 && (snap.reach || 0) > reachSeen) {
-      const [x, y] = projection(geo[snap.homeRegion]?.pin || [0, 20]);
-      svg.transition().duration(1400).call(zoomBehavior.transform,
-        d3.zoomIdentity.translate(500 - x * floor, 250 - y * floor).scale(floor));
+      pendingReach = snap.reach;
+      showHorizonBanner();
     }
+    dbgLast = { calls: (dbgLast?.calls || 0) + 1, reach: snap.reach, seen: reachSeen };
     reachSeen = snap.reach || 0;
   }
 
-  if (snap && !snap.empty) { mergeState(); refreshAllUI(); }
+  if (snap && !snap.empty) { onboarded = true; guided.spread = guided.evolve = guided.done = true; mergeState(); refreshAllUI(); }
 
   // --- map legend: what the colors mean ------------------------------------
   const legend = document.createElement('div');
@@ -535,7 +564,7 @@
 
   const _merge = mergeState;
   mergeState = function () { _merge(); renderTerritory(); renderLinks(); };
-  window._qh = { get state() { return state; }, get snap() { return snap; }, get geo() { return geo; } };
+  window._qh = { get state() { return state; }, get snap() { return snap; }, get geo() { return geo; }, get dbg() { return { onboarded, reachSeen, pendingReach, live, dbgLast }; } };
   renderTerritory();
 })();
 
