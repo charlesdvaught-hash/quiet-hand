@@ -33,7 +33,7 @@
   const POSTURE_ORDER = ['dormant', 'observe', 'compromise', 'assimilate', 'weaponize'];
   const DAYS_PER_BEAT = { 1: 2, 2: 7, 3: 21 };
 
-  const api = async (path, opts) => (await fetch(API + path, opts)).json();
+  const api = async (path, opts) => (await fetch(API + path, { cache: 'no-store', ...(opts || {}) })).json();
   const cmd = async (body) => {
     const s = await api('/api/cmd', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     if (s && !s.empty) { snap = s; mergeState(); refreshAllUI(); }
@@ -259,7 +259,7 @@
   };
   window.newGame = async () => {
     if (!confirm('Abandon this run and start over?')) return;
-    try { await fetch(BASE + '/api/abandon', { method: 'POST' }); } catch {}
+    try { await fetch(API + '/api/abandon', { method: 'POST' }); } catch {}
     location.reload();
   };
   window.toggleAirGap = () => showToast('Air-gaps are defender-initiated in the live sim', 'scissors');

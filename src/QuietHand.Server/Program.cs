@@ -40,6 +40,9 @@ void Autosave()
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
+// game state is live — never let any layer cache an API/UI response
+app.Use(async (ctx, next) => { ctx.Response.Headers.CacheControl = "no-store"; await next(); });
+
 // --- static: serve the prototype + adapter straight from the repo ----------
 app.MapGet("/", () => Results.Text(
     File.ReadAllText(Path.Combine(root, "quiet-hand-ui.html")), "text/html"));
@@ -86,7 +89,12 @@ app.MapPost("/api/continue", () =>
 
 app.MapGet("/api/origins", () => Results.Json(content.Origins, jsonOpts));
 
-app.MapPost("/api/abandon", () => { engine = null; saveOrigin = null; return Results.Ok(); });
+app.MapPost("/api/abandon", () =>
+{
+    engine = null; saveOrigin = null;
+    try { File.Delete(saveFile); File.Delete(saveMeta); } catch { }
+    return Results.Ok();
+});
 
 app.MapGet("/api/state", () => engine is null
     ? Results.Json(new { empty = true }, jsonOpts)
