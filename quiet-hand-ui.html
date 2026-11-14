@@ -976,6 +976,13 @@
       animation: evoRing 1.6s ease-in-out infinite;
       pointer-events: none;
     }
+    .evo-key {
+      position: absolute; top: -5px; right: -5px;
+      width: 13px; height: 13px; border-radius: 3px;
+      background: #0a0f1d; border: 1.5px solid currentColor;
+      font-size: 8px; line-height: 10px; text-align: center;
+      transform: rotate(45deg); pointer-events: none;
+    }
     @keyframes evoRing {
       0%, 100% { transform: scale(1); opacity: .55; }
       50% { transform: scale(1.18); opacity: .15; }
@@ -1237,8 +1244,12 @@
         <button class="nav-btn" onclick="openModal('world')">
           <i data-lucide="globe"></i> WORLD
         </button>
-        <button class="nav-btn primary-glow" onclick="openModal('evolve')">
+        <button class="nav-btn primary-glow" onclick="openModal('evolve')" style="position:relative">
           <i data-lucide="git-branch"></i> EVOLVE
+          <span id="evo-ready-badge" class="mono" style="display:none;position:absolute;top:-6px;right:-6px;
+            min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--accent-observe,#38bdf8);
+            color:#0a0f1d;font-size:10px;font-weight:800;line-height:18px;text-align:center;
+            box-shadow:0 0 8px #38bdf888">0</span>
         </button>
       </div>
 

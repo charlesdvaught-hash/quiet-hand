@@ -589,6 +589,7 @@
           color:${owned ? '#0a0f1d' : col};font-family:monospace;font-size:${e.branch === 'center' ? 13 : 11}px;font-weight:800;
           box-shadow:0 0 ${owned ? 14 : 9}px ${col}66">
           ${e.branch === 'center' ? 'X1' : owned ? '✓' : evoInitials(e.name)}
+          ${!owned && (e.unlocksList || []).length ? '<span class="evo-key"></span>' : ''}
         </div>
         ${e.branch === 'center' ? `<div style="position:absolute;left:${p.x - 60}px;top:${p.y + sz / 2 + 4}px;width:120px;text-align:center;
           font-size:9px;font-weight:800;letter-spacing:.08em;color:${col};pointer-events:none">${e.name}</div>` : ''}`;
@@ -647,6 +648,16 @@
         </div>
       </div>`;
   }
+
+  // ready-count badge on the EVOLVE button — know a power is available
+  // without opening the web (the Doom Eternal pacing lesson)
+  const _refreshAllUI0 = window.refreshAllUI;
+  window.refreshAllUI = function () {
+    _refreshAllUI0();
+    const ready = (window._qh?.snap?.evolutions || []).filter(e => e.canBuy && !e.owned).length;
+    const badge = document.getElementById('evo-ready-badge');
+    if (badge) { badge.textContent = ready; badge.style.display = ready ? '' : 'none'; }
+  };
 
   // route the evolve modal through the tree renderer
   const _openModal0 = window.openModal;
