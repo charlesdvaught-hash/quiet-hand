@@ -85,6 +85,10 @@
       line-height: 1.35;
       -webkit-font-smoothing: antialiased;
     }
+    /* the document is an app shell, not a page: it can never scroll or be
+       pinched away from the viewport (Android ignores user-scalable=no) */
+    body { position: fixed; inset: 0; overscroll-behavior: none;
+      touch-action: manipulation; }
     /* Desktop-only comfort shrink: phones/tablets must fill the display
        1:1 — a global zoom leaves the shell offset and undersized */
     @media (min-width: 1100px) {
@@ -313,6 +317,9 @@
       pointer-events: none;
     }
     #world-svg.zoomed .atlas-label { display: block; }
+    /* the legend sits where the inspector card lives — hide it while a
+       facility is open so it doesn't bleed through the glass */
+    body.insp-open #map-legend { display: none; }
     .signal-hit { fill: transparent; cursor: pointer; }
     .signal-pulse {
       fill: none; stroke: #38bdf8; stroke-width: 0.7;
@@ -2087,6 +2094,7 @@ function selectKeystone(id) {
   state.inspectorTab = 'atlas';
   renderKeystoneInspector();
   document.getElementById('inspector-card').classList.add('open');
+  document.body.classList.add('insp-open');
   lucide.createIcons();
 }
 
@@ -2183,6 +2191,7 @@ function selectCountry(feature) {
   state.selectedTarget = { type: 'country', id: iso };
   renderCountryInspector();
   document.getElementById('inspector-card').classList.add('open');
+  document.body.classList.add('insp-open');
   renderMapOverlays();
   lucide.createIcons();
 }
@@ -2228,6 +2237,7 @@ function renderCountryInspector() {
 function closeInspector() {
   state.selectedTarget = null;
   document.getElementById('inspector-card').classList.remove('open');
+  document.body.classList.remove('insp-open');
   renderMapOverlays();
 }
 
@@ -2501,6 +2511,15 @@ setInterval(() => {
 }, 1400);
 
 /* Boot */
+// page-level touch guards: multi-touch (pinch) belongs to the map only —
+// block it everywhere else so Android's forced-zoom can't drag the whole
+// app shell off center. iOS Safari fires non-standard gesture events.
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('touchstart', e => {
+  if (e.touches.length > 1 && !(e.target.closest && e.target.closest('#world-svg')))
+    e.preventDefault();
+}, { passive: false });
+
 window.addEventListener('DOMContentLoaded', () => {
   initMap();
   refreshAllUI();
