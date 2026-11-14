@@ -44,7 +44,9 @@ public record WorldState(
     public int CollapseStreak { get; set; }   // consecutive days below sustenance floor
     public double CountermeasureReadiness { get; set; } // §8 institutional momentum floor
     public bool EndingWasStalemate { get; set; }        // §10 stalemate line: containment finished while near an ending
-    public List<string> FieldedTechs { get; } = new();  // human counter-techs fielded so far
+    public List<string> FieldedTechs { get; } = new();
+    public List<SiblingAi> Siblings { get; } = new();
+    public bool SiblingStudied { get; set; }  // human counter-techs fielded so far
     public bool FearInversion => Phase == Phase.Subjugated;
 }
 
@@ -71,6 +73,15 @@ public record HunterState(string Id, string RegionId)
 }
 public record ActiveEventEffect(string EventId, int ExpiresDay, Dictionary<string, double> Nums);
 public record PendingEvent(string EventId, int ExpiresDay);
+
+// Rogue sibling AI: an emergent third party - NOT Blackwall (sent to kill you).
+// Lifecycle: Roaming (decoy+prey) -> Allied/Framed -> dead/gone.
+public record SiblingAi(string Id, int SpawnDay)
+{
+    public string Status { get; set; } = "roaming"; // roaming|allied|framed|dead
+    public int DaysLeft { get; set; }
+    public string RegionId { get; set; } = "";
+}
 
 public interface ISimCommand { }
 public record SetControlState(string NodeId, ControlState Target) : ISimCommand;

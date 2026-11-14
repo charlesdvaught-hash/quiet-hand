@@ -27,7 +27,7 @@ Fear/Dependence/Autonomy/Trust/Capability (hidden dials, read via fiction tells)
 · Control states: Observed→Compromised→Assimilated→Weaponized→AirGapped/Orphaned
 · Tiers: Common (spread-only canvas, no verbs) / Mid / Atlas (farms: verbs+kompromat)
 / KeystoneT1·T2·T3to5·Wildcard (Gold 100: raids + crown perks)
-· Lethe = containment program at suspicion 100 · Blackwall = mandated hunter AIs
+· Lethe = containment program at suspicion 100 · Blackwall = mandated hunter AIs · Siblings = emergent third-party rogue AIs (roaming decoy/prey; study/lure/frame/feed verbs)
 · SUBJUGATE (X1) = phase flip, NOT an ending · branches: P/C/S/D.
 
 ## Evolution-node authoring contract (evolutions.json)

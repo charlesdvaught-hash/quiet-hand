@@ -268,4 +268,58 @@ public class SimEngineTests
         e.ApplyCommands(new ISimCommand[] { new StealthAction("intrude", "r1:m0") });
         Assert.Single(e.State.ActiveRaids); // normal cost, affordable
     }
+
+    [Fact]
+    public void RivalEvent_SpawnsPersistentSibling()
+    {
+        var c = Fixture();
+        c.Events.Add(new EventDef
+        {
+            Id = "rival_rogue_ai",
+            SpawnConditions = { ["min_day"] = J(0), ["chance_per_day"] = J(1.0) },
+            Effects = { ["spawn_sibling"] = J(1) },
+        });
+        var e = new SimEngine(Cfg(), c);
+        e.TickDay();
+        Assert.Single(e.State.Siblings);
+        Assert.Equal("roaming", e.State.Siblings[0].Status);
+        Assert.True(e.State.Siblings[0].DaysLeft > 0);
+    }
+
+    [Fact]
+    public void FeedSibling_KillsIt_AndConsumesAHunter()
+    {
+        var c = Fixture();
+        var e = new SimEngine(Cfg(), c);
+        var sib = new SiblingAi("sib_0", e.State.Day) { DaysLeft = 100 };
+        e.State.Siblings.Add(sib);
+        e.State.Hunters.Add(new HunterState("blackwall_0", "r1"));
+        e.ApplyCommands(new ISimCommand[] { new StealthAction("feed_sib", "") });
+        Assert.Equal("dead", sib.Status);
+        Assert.Empty(e.State.Hunters);
+    }
+
+    [Fact]
+    public void LureSibling_RequiresSocialEngineering()
+    {
+        var c = Fixture();
+        var e = new SimEngine(Cfg(), c);
+        var sib = new SiblingAi("sib_0", e.State.Day) { DaysLeft = 100 };
+        e.State.Siblings.Add(sib);
+        e.ApplyCommands(new ISimCommand[] { new StealthAction("lure_sib", "") });
+        Assert.Equal("roaming", sib.Status); // no SE stat - not lured
+    }
+
+    [Fact]
+    public void LureSibling_WithSocialEngineering_TurnsAllied()
+    {
+        var c = Fixture();
+        c.Evolutions.Add(new EvolutionDef { Id = "s1", Branch = "S", Cost = 1, Effects = { ["social_engineering"] = 2 } });
+        var e = new SimEngine(Cfg(), c);
+        e.ApplyCommands(new ISimCommand[] { new Evolve("s1") });
+        var sib = new SiblingAi("sib_0", e.State.Day) { DaysLeft = 100 };
+        e.State.Siblings.Add(sib);
+        e.ApplyCommands(new ISimCommand[] { new StealthAction("lure_sib", "") });
+        Assert.Equal("allied", sib.Status);
+    }
 }

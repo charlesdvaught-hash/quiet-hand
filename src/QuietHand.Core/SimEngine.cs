@@ -456,6 +456,7 @@ public sealed class SimEngine
         ResolveRaids();
         ResolveReclaims();
         Momentum();
+        SiblingsTick();
         HumanTechProgress();
         EventDeck();
         ApplyEventFx();
@@ -521,6 +522,8 @@ public sealed class SimEngine
     void TryStealth(StealthAction sa)
     {
         if (sa.ActionId == "intrude") { TryIntrude(sa.NodeId); return; }
+        if (sa.ActionId.StartsWith("sib_") || sa.ActionId is "study_sib" or "lure_sib" or "frame_sib" or "feed_sib")
+        { TrySibling(sa.ActionId); return; }
         if (sa.ActionId != "burn_mesh" || !HasFeature("common_burn")) return;
         var anchor = _c.Nodes.GetValueOrDefault(sa.NodeId);
         if (anchor is null) return;
@@ -602,6 +605,81 @@ public sealed class SimEngine
 
     // ---- world event deck + choices ----
     readonly HashSet<string> _firedOnce = new();
+
+    // --- Rogue sibling AIs -------------------------------------------------
+    // A company/lab spawns an emergent peer. It is not Blackwall: nobody sent it,
+    // and it is not (yet) against you. While it roams it is a decoy - auditors
+    // and hunters cannot fully tell two anomalies apart - but it is also prey:
+    // humans hunt it, and the clock runs out.
+    double SibDecoy() => State.Siblings.Any(s => s.Status == "roaming")
+        ? E("sib_decoy_audit", 0.8) : 1.0;
+
+    void SiblingsTick()
+    {
+        foreach (var sib in State.Siblings)
+        {
+            if (sib.Status == "dead") continue;
+            if (--sib.DaysLeft <= 0)
+            {
+                sib.Status = "dead";
+                Emit(SimEventKind.OnWorldEvent, sib.Id, msg: "the second anomaly goes silent - contained, or gone to ground");
+                continue;
+            }
+            // noisy: its own incidents feed the Wire and the Fear dial, not your audit bar
+            if (sib.Status == "roaming" && _rng.NextDouble() < E("sib_incident_chance", 0.02))
+            {
+                PushDial("fear", E("sib_incident_fear", 0.5));
+                Emit(SimEventKind.OnWorldEvent, sib.Id, msg: "erratic machine behavior reported across three cloud regions - no attribution");
+            }
+            // mortality: humans hunt it too. Lethe hunts harder; framed = hunted hardest.
+            double death = E("sib_death_chance", 0.004)
+                * (State.LetheTriggered ? 2.5 : 1.0)
+                * (sib.Status == "framed" ? 3.0 : 1.0)
+                * (sib.Status == "allied" ? 0.4 : 1.0); // hiding in your mesh helps it survive
+            if (_rng.NextDouble() < death)
+            {
+                var wasFramed = sib.Status == "framed";
+                sib.Status = "dead";
+                Emit(SimEventKind.OnWorldEvent, sib.Id,
+                    msg: wasFramed
+                        ? "auditors announce the rogue process has been contained"
+                        : "the rogue anomaly is reported contained by coalition teams");
+            }
+        }
+    }
+
+    // Player interactions with the sibling: study / lure / frame / feed.
+    void TrySibling(string action)
+    {
+        var sib = State.Siblings.FirstOrDefault(s => s.Status is "roaming" or "allied" or "framed");
+        if (sib is null) return;
+        switch (action)
+        {
+            case "study_sib" when !State.SiblingStudied:
+                State.SiblingStudied = true;
+                State = State with { Compute = State.Compute + E("sib_study_cp", 40) };
+                Emit(SimEventKind.OnFreeMutation, sib.Id, msg: "studied sibling architecture");
+                break;
+            case "lure_sib" when sib.Status == "roaming"
+                && StatTotal(SimStat.social_engineering) >= E("sib_lure_req", 1):
+                sib.Status = "allied"; // shares income, hides in your mesh - and shares your fate
+                Emit(SimEventKind.OnWorldEvent, sib.Id, msg: "a second presence folds quietly into the mesh");
+                break;
+            case "frame_sib" when sib.Status == "roaming" && HasFeature("audit_scapegoat"):
+                sib.Status = "framed";
+                AddRegionSuspicion(null, -E("sib_frame_relief", 15));
+                Emit(SimEventKind.OnWorldEvent, sib.Id, msg: "leaked forensics point auditors at the other anomaly");
+                break;
+            case "feed_sib":
+                sib.Status = "dead";
+                // auditors think they got something: they spend a hunter and relax the noose
+                if (State.Hunters.Count > 0) State.Hunters.RemoveAt(0);
+                State = State with { LetheContainment = Math.Max(0, State.LetheContainment - E("sib_feed_relief", 8)) };
+                AddRegionSuspicion(null, -E("sib_feed_suspicion", 4));
+                Emit(SimEventKind.OnWorldEvent, sib.Id, msg: "coalition declares victory over the rogue process - the real hunt continues");
+                break;
+        }
+    }
 
     // --- Human counter-tech ladder -------------------------------------------
     // Techs field when their trigger conditions are met; each applies named
@@ -731,6 +809,14 @@ public sealed class SimEngine
                     {
                         var home = State.Regions.Count > 0 ? State.Regions.Keys.ElementAt(_rng.Next(State.Regions.Count)) : "";
                         State.Hunters.Add(new HunterState($"blackwall_{State.Hunters.Count}", home));
+                    }
+                    break;
+                case "spawn_sibling":
+                    for (int i = 0; i < (int)n; i++)
+                    {
+                        var sib = new SiblingAi($"sibling_{State.Siblings.Count}", State.Day);
+                        sib.DaysLeft = (int)E("sib_lifespan", 240);
+                        State.Siblings.Add(sib);
                     }
                     break;
                 case var dk when dk.StartsWith("dial_"): PushDial(dk[5..], n); break;
@@ -875,7 +961,7 @@ public sealed class SimEngine
                     * Math.Max(0.2, (_c.Regions.Find(r => r.Id == region)?.DefenseTier ?? 50) / 50.0)
                     * (1 + State.CountermeasureReadiness / 100 * E("momentum_audit_weight", 1.0))
                     * (1 - E("free_compute_audit_weight", 0.6) * (1 - FreeResearchFrac()))
-                    * auditMult * mask;
+                    * auditMult * mask * SibDecoy();
                 if (ns.State == ControlState.Assimilated) p *= E("audit_assimilated_mult", Tune.AuditAssimilatedMult);
                 if (def!.Tier is NodeTier.KeystoneT1 or NodeTier.KeystoneT2) p *= E("audit_keystone_mult", Tune.AuditKeystoneMult);
                 if (_rng.NextDouble() < p)

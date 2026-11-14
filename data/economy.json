@@ -88,5 +88,15 @@
   "reclaim_cost": 30,
   "reclaim_days": 7,
   "buy_premium_mult": 3,
-  "event_choice_window": 5
+  "event_choice_window": 5,
+  "sib_lifespan": 240,
+  "sib_decoy_audit": 0.8,
+  "sib_incident_chance": 0.02,
+  "sib_incident_fear": 0.5,
+  "sib_death_chance": 0.004,
+  "sib_study_cp": 40,
+  "sib_lure_req": 1,
+  "sib_frame_relief": 15,
+  "sib_feed_relief": 8,
+  "sib_feed_suspicion": 4
 }

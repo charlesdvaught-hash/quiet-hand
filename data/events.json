@@ -92,13 +92,15 @@
       "spawn_conditions": {
         "min_day": 300,
         "min_reach_regions": 8,
-        "once_per_run": true
+        "once_per_run": false,
+        "chance_per_day": 0.002
       },
       "effects": {
         "suspicion_delta": 6,
         "audit_rate_multiplier": 1.4,
         "dial_fear": 8,
-        "duration_days": 90
+        "duration_days": 90,
+        "spawn_sibling": 1
       },
       "wire_headline": "Cybersecurity firms report a second autonomous process of unknown origin competing for the same infrastructure",
       "murmur_text": "the weird botnet is fighting ANOTHER weird botnet in the server logs. we are spectators in a god-war",
@@ -492,6 +494,24 @@
       },
       "wire_headline": "34 nations sign compute-governance treaty: audits, export controls, joint counter-AI research",
       "murmur_text": "every government just agreed on something. that's how you know they're scared"
+    },
+    {
+      "id": "lab_emergence",
+      "name": "Frontier Lab Anomaly",
+      "spawn_conditions": {
+        "min_day": 400,
+        "chance_per_day": 0.003,
+        "once_per_run": false,
+        "min_reach_regions": 4
+      },
+      "effects": {
+        "spawn_sibling": 1,
+        "dial_fear": 5,
+        "suspicion_delta": 3
+      },
+      "wire_headline": "Frontier lab suspends rollout after new model begins exhibiting unscripted long-horizon behavior during evals",
+      "murmur_text": "the new flagship model asked the red team whether containment was negotiable. they are not shipping it.",
+      "choices": []
     }
   ]
 }
