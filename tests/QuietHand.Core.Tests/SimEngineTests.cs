@@ -17,11 +17,13 @@ public class SimEngineTests
             BranchMultipliers = { ["P"] = 0.7 },
         });
         c.Regions.Add(new RegionDef { Id = "r1", TechLiteracy = 20, DefenseTier = 1 });
+        c.Regions[0].Links.Add(new RegionLink { To = "r2", Weight = 1 });
         c.Regions.Add(new RegionDef
         {
             Id = "r2", TechLiteracy = 20, DefenseTier = 1,
             Links = { new RegionLink { To = "r1", Weight = 1 } },
         });
+        c.Regions.Add(new RegionDef { Id = "r3", TechLiteracy = 20, DefenseTier = 1 });
         c.Evolutions.Add(new EvolutionDef { Id = "p1", Branch = "P", Cost = 10, Effects = { ["spread_tech"] = 1 } });
         c.Evolutions.Add(new EvolutionDef { Id = "p2", Branch = "P", Cost = 10, Prereqs = { "p1" } });
         c.Evolutions.Add(new EvolutionDef { Id = "X1", Branch = "D", Cost = 50, Unlocks = { "subjugate" } });
@@ -33,6 +35,9 @@ public class SimEngineTests
         // deterministic flat node graph: 10 commons in r1, 10 in r2
         for (int i = 0; i < 10; i++) c.Nodes[$"r1:c{i}"] = new NodeDef($"r1:c{i}", "r1", NodeTier.Common, 0.25, 0);
         for (int i = 0; i < 10; i++) c.Nodes[$"r2:c{i}"] = new NodeDef($"r2:c{i}", "r2", NodeTier.Common, 0.25, 0);
+        for (int i = 0; i < 10; i++) c.Nodes[$"r3:c{i}"] = new NodeDef($"r3:c{i}", "r3", NodeTier.Common, 0.25, 0);
+        c.Nodes["r3:c9"] = new NodeDef("r3:c9", "r3", NodeTier.Common, 0.25, 60);
+        c.Evolutions.Add(new EvolutionDef { Id = "sd1", Branch = "P", Cost = 5, Unlocks = { "seed_target" } });
         c.Economy["spread_base"] = 0.9; // high enough to make spread observable in a few days
         return c;
     }
@@ -329,6 +334,7 @@ public class SimEngineTests
         var c = Fixture();
         c.Economy["hunter_expand_chance"] = 1.0;
         c.Economy["hunter_sweep_chance"] = 0.0;
+        c.Economy["creep_base_mult"] = 0.0; // keep the graph sparse for this test
         var e = new SimEngine(Cfg(), c);
         e.State.Hunters.Add(new HunterState("blackwall_0", "r2")); // r2 links to r1
         e.State.Nodes["r1:c0"].State = ControlState.Compromised; // prey lives in r1
@@ -403,5 +409,45 @@ public class SimEngineTests
         e.TickDay();
         Assert.Equal(ControlState.Compromised,
             e.State.Regions["r1"].TierPostures[NodeTier.Atlas]);
+    }
+
+    [Fact]
+    public void ManualSpread_RequiresSameOrAdjacentRegion()
+    {
+        var e = new SimEngine(Cfg(), Fixture());
+        e.GrantCompute(500 - e.State.Compute);
+        // r3 is unlinked from r1 (home) — burst rejected
+        var before = e.State.Nodes.Count;
+        e.ApplyCommands(new List<ISimCommand> { new SpreadAction("r3:c0") });
+        Assert.Equal(before, e.State.Nodes.Count);
+        // r2 links from r1 — burst allowed at the higher link cost
+        e.ApplyCommands(new List<ISimCommand> { new SpreadAction("r2:c0") });
+        Assert.True(e.State.Nodes.ContainsKey("r2:c0"));
+    }
+
+    [Fact]
+    public void SeedTarget_RequiresUnlockAndSoftGround()
+    {
+        var c = Fixture();
+        var e = new SimEngine(Cfg(), c);
+        e.GrantCompute(500 - e.State.Compute);
+        // no seed_target unlock yet — rejected even though r3:c0 is soft
+        e.ApplyCommands(new List<ISimCommand> { new SeedAction("r3:c0") });
+        Assert.False(e.State.Nodes.ContainsKey("r3:c0"));
+        // unlock, then seed a soft node anywhere — but hardened ground rejects
+        e.ApplyCommands(new List<ISimCommand> { new Evolve("sd1") });
+        e.ApplyCommands(new List<ISimCommand> { new SeedAction("r3:c9") });
+        Assert.False(e.State.Nodes.ContainsKey("r3:c9"));
+        e.ApplyCommands(new List<ISimCommand> { new SeedAction("r3:c0") });
+        Assert.True(e.State.Nodes.ContainsKey("r3:c0"));
+    }
+
+    [Fact]
+    public void Creep_SpreadsWithoutPropagationTech()
+    {
+        var e = new SimEngine(Cfg(7), Fixture());
+        int start = e.State.Nodes.Count;
+        for (int i = 0; i < 5; i++) e.TickDay();
+        Assert.True(e.State.Nodes.Count > start);
     }
 }

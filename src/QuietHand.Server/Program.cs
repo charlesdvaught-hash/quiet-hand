@@ -86,6 +86,8 @@ app.MapPost("/api/continue", () =>
 
 app.MapGet("/api/origins", () => Results.Json(content.Origins, jsonOpts));
 
+app.MapPost("/api/abandon", () => { engine = null; saveOrigin = null; return Results.Ok(); });
+
 app.MapGet("/api/state", () => engine is null
     ? Results.Json(new { empty = true }, jsonOpts)
     : Results.Json(Snapshot(engine), jsonOpts));
@@ -109,6 +111,7 @@ app.MapPost("/api/cmd", (JsonElement c) =>
         "set_control" => new SetControlState(c.GetProperty("nodeId").GetString()!,
             Enum.Parse<ControlState>(c.GetProperty("target").GetString()!, true)),
         "spread" => new SpreadAction(c.GetProperty("nodeId").GetString()!),
+        "seed" => new SeedAction(c.GetProperty("nodeId").GetString()!),
         "stealth" => new StealthAction(c.GetProperty("action").GetString()!,
             c.TryGetProperty("nodeId", out var n) ? n.GetString()! : ""),
         "nudge" => new Nudge(c.GetProperty("id").GetString()!,
@@ -184,6 +187,7 @@ object Snapshot(SimEngine e)
             name = content.Regions.Find(r => r.Id == kv.Key)?.Name ?? kv.Key,
             suspicion = Math.Round(kv.Value.Suspicion, 1),
             postures = kv.Value.TierPostures.ToDictionary(p => p.Key.ToString(), p => p.Value.ToString()),
+            links = kv.Value.LinkIds,
             ownedWeight = s.Nodes.Where(n => n.Key.StartsWith(kv.Key + ':')
                 && n.Value.State is not (ControlState.AirGapped or ControlState.Orphaned))
                 .Sum(n => n.Key.Split(':')[1][0] switch { 'a' => 4, 't' => 8, 'k' => 8, _ => 1 }),

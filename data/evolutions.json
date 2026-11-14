@@ -18,7 +18,8 @@
     "forks",
     "sys_analysis",
     "social_engineering",
-    "common_yield"
+    "common_yield",
+    "seed_chance"
   ],
   "unlock_enum": [
     "assimilate_t1_t3",
@@ -54,7 +55,8 @@
     "buy_outright",
     "corrupt_hunter",
     "common_burn",
-    "murmur_personas"
+    "murmur_personas",
+    "seed_target"
   ],
   "nodes": [
     {
@@ -1928,6 +1930,45 @@
       "tech_source": "Fail-operational design; resilient control systems",
       "tech_status": "established",
       "desc": "Disruption assets keep fighting when the head is cut."
+    },
+    {
+      "id": "P16",
+      "name": "Opportunistic Seeding",
+      "branch": "P",
+      "tier": 2,
+      "cost": 16,
+      "prereqs": [
+        "P14"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "seed_chance": 1.5
+      },
+      "unlocks": [],
+      "tech_basis": "Mirai-style opportunistic scanning \u2014 randomized address sweeps that occasionally land an implant somewhere the links never reached",
+      "tech_source": "Mirai botnet propagation (2016); random-scan worm topology",
+      "tech_status": "established",
+      "desc": "Your mesh sweeps random address space. Most sweeps die in the dark \u2014 a few land. Each day there is a chance a new unlinked region seeds itself."
+    },
+    {
+      "id": "P17",
+      "name": "Precision Insertion",
+      "branch": "P",
+      "tier": 4,
+      "cost": 34,
+      "prereqs": [
+        "P16",
+        "S7"
+      ],
+      "prereq_mode": "AND",
+      "effects": {},
+      "unlocks": [
+        "seed_target"
+      ],
+      "tech_basis": "deliberate placement through supply-chain couriers and front logistics \u2014 pick the landing zone instead of waiting for the sweep",
+      "tech_source": "supply-chain implant interdiction (e.g. NSA TAO hardware interdiction); courier-delivered implants",
+      "tech_status": "established",
+      "desc": "Choose where to land. Target any unowned Common or Mid node \u2014 provided the ground is soft enough to take the drop. Expensive, deliberate, precise."
     }
   ],
   "combos": [

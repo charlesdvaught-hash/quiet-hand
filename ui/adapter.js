@@ -113,32 +113,39 @@
     const sevOf = st => POSTURE_ORDER.indexOf(st);
     // real postures only — mock country values are overwritten, never merged
     const covered = new Set();
+    const pick = (a, b) => (sevOf(b || 'dormant') > sevOf(a || 'dormant') ? b : a) || a;
+    // pass 1: deepest posture across ALL regions covering each iso —
+    // posture only counts where you actually hold nodes (every region
+    // defaults to 'Observed', which would wash the whole map cyan)
+    const isoBest = {};
     for (const r of (s.regions || [])) {
       const g = geo[r.id]; if (!g) continue;
-      const soft = r.postures?.Common || null, mid = r.postures?.Mid || null,
-            hard = r.postures?.Atlas || r.postures?.KeystoneT1 || null;
+      const owned = (r.ownedWeight || 0) > 0;
+      const soft = owned ? r.postures?.Common : null,
+            mid  = owned ? r.postures?.Mid : null,
+            hard = owned ? (r.postures?.Atlas || r.postures?.KeystoneT1) : null;
       for (const iso of g.iso) {
         covered.add(iso);
+        const b = isoBest[iso] || (isoBest[iso] = {});
+        b.soft = pick(b.soft || 'dormant', POSTURE_TO_UI[soft]);
+        b.mid  = pick(b.mid  || 'dormant', POSTURE_TO_UI[mid]);
+        b.hard = pick(b.hard || 'dormant', POSTURE_TO_UI[hard]);
+      }
+    }
+    // pass 2: write countries from the computed max
+    for (const r of (s.regions || [])) {
+      const g = geo[r.id]; if (!g) continue;
+      for (const iso of g.iso) {
         const ex = state.countries[iso] || {};
-        const pick = (a, b) => (sevOf(b || 'dormant') > sevOf(a || 'dormant') ? b : a) || a;
-        // pick across REGIONS sharing this iso (e.g. several us_* -> 840), not stale state
-        const sameRegion = ex._region === r.id;
+        const b = isoBest[iso] || {};
         state.countries[iso] = {
           name: ex.name || r.name,
           status: r.suspicion > 60 ? 'AUDIT CRISIS' : r.suspicion > 30 ? 'Probes Detected' : 'Nominal Connectivity',
           tags: [r.name, `suspicion ${Math.round(r.suspicion)}`],
-          soft: pick(sameRegion ? ex.soft : 'dormant', POSTURE_TO_UI[soft]),
-          mid: pick(sameRegion ? ex.mid : 'dormant', POSTURE_TO_UI[mid]),
-          hard: pick(sameRegion ? ex.hard : 'dormant', POSTURE_TO_UI[hard]),
+          soft: b.soft || 'dormant', mid: b.mid || 'dormant', hard: b.hard || 'dormant',
           airgapped: false,
           _region: r.id,
-          _isoPostures: Object.assign(sameRegion ? ex._isoPostures || {} : {},
-            { soft: pick(ex._isoPostures?.soft, POSTURE_TO_UI[soft]),
-              mid: pick(ex._isoPostures?.mid, POSTURE_TO_UI[mid]),
-              hard: pick(ex._isoPostures?.hard, POSTURE_TO_UI[hard]) }),
         };
-        const ip = state.countries[iso]._isoPostures;
-        state.countries[iso].soft = ip.soft; state.countries[iso].mid = ip.mid; state.countries[iso].hard = ip.hard;
       }
     }
     // untouched isos: clear any leftover mock posture
@@ -227,9 +234,22 @@
   window.escalateCountry = (iso) => {
     const c = state.countries[iso]; const rid = c?._region;
     if (!rid) { showToast('No regional link', 'x'); return; }
-    // find an unowned common node in that region (server picks the def)
+    // paid burst: the target must be held or adjacent to held ground
+    const held = new Set((snap.regions || []).filter(r => r.ownedWeight > 0).map(r => r.id));
+    const adjacent = (snap.regions || []).some(r => held.has(r.id) && (r.links || []).includes(rid));
+    if (!held.has(rid) && !adjacent) {
+      showToast(held.size === 0
+        ? 'Your mesh is still a seed — creep grows it from home'
+        : 'Not adjacent to your mesh — creep will reach it, or unlock remote seeding', 'radio-tower');
+      return;
+    }
     cmd({ type: 'spread', nodeId: `${rid}:c${Math.floor(Math.random() * 6)}` });
-    showToast('Spreading the mesh', 'radio-tower');
+    showToast('Bursting the mesh', 'radio-tower');
+  };
+  window.newGame = async () => {
+    if (!confirm('Abandon this run and start over?')) return;
+    try { await fetch(BASE + '/api/abandon', { method: 'POST' }); } catch {}
+    location.reload();
   };
   window.toggleAirGap = () => showToast('Air-gaps are defender-initiated in the live sim', 'scissors');
   window.toggleNudge = (id) => {
@@ -262,6 +282,16 @@
       showToast('Raiding regional Atlas farm', 'swords');
     };
     document.querySelector('#inspector-card .insp-body')?.appendChild(btn);
+    if ((snap.unlocks || []).includes('seed_target')) {
+      const seed = document.createElement('button');
+      seed.className = 'btn-pill'; seed.style.width = '100%'; seed.style.marginTop = '4px';
+      seed.innerHTML = '<i data-lucide="crosshair"></i> Precision Insertion (25cp)';
+      seed.onclick = () => {
+        cmd({ type: 'seed', nodeId: rid + ':c' + Math.floor(Math.random() * 6) });
+        showToast('Insertion drop dispatched — fails if the ground is hardened', 'crosshair');
+      };
+      document.querySelector('#inspector-card .insp-body')?.appendChild(seed);
+    }
     lucide.createIcons();
   };
 
@@ -323,7 +353,7 @@
         id: postSeq++, handle: p[0], persona: p[1], badge: p[2], text: p[3], state: 'normal',
       }));
       mergeState(); refreshAllUI(); zoomToHome(); guide();
-      tutor('This is your street — the lights below are real blocks. Grey specks are uncontacted infrastructure; you have to zoom in to find them. Tap a neighboring area to push your mesh across it.', 1, 4);
+      tutor('This is your street — the lights below are real blocks. Your mesh creeps outward on its own, block by block. To push faster, tap a neighboring area — a paid burst into adjacent ground.', 1, 4);
     });
   }
 
@@ -348,7 +378,7 @@
     }
     if (!guided.evolve && (snap.ownedEvolutions || []).length > 0) {
       guided.evolve = true;
-      tutor('Adaptation live. Each region you hold widens your view — keep pushing down the block toward your first datacenter. Suspicion is the only number that ends you.', 3, 4);
+      tutor('Adaptation live. Evolutions change how you spread — some seed regions at random, one lets you pick a landing zone. Each region you hold widens your view. Suspicion is the only number that ends you.', 3, 4);
       setTimeout(tutDone, 9000);
     }
     // reach-gated zoom-out: the world reveals itself as you grow
@@ -417,5 +447,6 @@
 
   const _merge = mergeState;
   mergeState = function () { _merge(); renderTerritory(); };
+  window._qh = { get state() { return state; }, get snap() { return snap; }, get geo() { return geo; } };
   renderTerritory();
 })();

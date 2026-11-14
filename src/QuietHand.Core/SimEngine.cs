@@ -190,6 +190,7 @@ public sealed class SimEngine
             case SetSpeed s: State = State with { Speed = s.Speed }; break;
             case SetControlState sc: TrySetState(sc); break;
             case SpreadAction sp: TryManualSpread(sp); break;
+            case SeedAction sa: TrySeed(sa); break;
             case StealthAction sa: TryStealth(sa); break;
             case Evolve ev: TryEvolve(ev.NodeId); break;
             case RollbackEvolution rb: TryRollback(rb.NodeId); break;
@@ -508,6 +509,11 @@ public sealed class SimEngine
             ns.DaysInState++;
             ns.ResidualFootprint = Math.Max(0, ns.ResidualFootprint - E("footprint_decay", Tune.FootprintDecay));
         }
+        // saturation: a region whose Common mesh is mostly yours becomes
+        // productive ground — deeper roots, better yields
+        var satRegions = SaturatedRegions();
+        if (satRegions.Count > 0)
+            income *= 1 + E("saturation_income", 0.25);
         income *= 1 + 0.05 * StatTotal(SimStat.cp_income)
             + E("sib_allied_income", 0.05) * State.Siblings.Count(s => s.Status == "allied");
         State = State with { Compute = State.Compute + income - upkeep };
@@ -920,28 +926,59 @@ public sealed class SimEngine
     // §5: manual spread — the early-game verb. Tap a neighbor house/device:
     // needs a live foothold in the same region (or a corridor link at Region+
     // scope), small Compute cost, installs dormant Observe.
+    bool LiveCommonIn(string regionId) => State.Nodes.Keys.Any(id =>
+    {
+        var d = _c.Nodes.GetValueOrDefault(id);
+        var alive = State.Nodes[id].State is not (ControlState.AirGapped or ControlState.Orphaned);
+        return alive && d?.Tier == NodeTier.Common && d.RegionId == regionId;
+    });
+
+    HashSet<string> SaturatedRegions()
+    {
+        var totals = _c.Nodes.Values.Where(n => n.Tier == NodeTier.Common)
+            .GroupBy(n => n.RegionId).ToDictionary(g => g.Key, g => g.Count());
+        var held = State.Nodes.Keys.Select(id => _c.Nodes.GetValueOrDefault(id))
+            .Where(d => d?.Tier == NodeTier.Common)
+            .GroupBy(d => d!.RegionId).ToDictionary(g => g.Key, g => g.Count());
+        return totals.Where(kv => kv.Value > 0 && held.GetValueOrDefault(kv.Key) >= 0.6 * kv.Value)
+            .Select(kv => kv.Key).ToHashSet();
+    }
+
     void TryManualSpread(SpreadAction sp)
     {
         if (State.Nodes.ContainsKey(sp.TargetNodeId)) return;
         if (!_c.Nodes.TryGetValue(sp.TargetNodeId, out var def)) return;
         if (def.Tier is not (NodeTier.Common or NodeTier.Mid)) return;
-        bool reachable = State.Nodes.Keys.Any(id =>
-        {
-            var d = _c.Nodes.GetValueOrDefault(id);
-            var alive = State.Nodes[id].State is not (ControlState.AirGapped or ControlState.Orphaned);
-            return alive && d is not null && d.Tier == NodeTier.Common && d.RegionId == def.RegionId;
-        });
-        if (!reachable || !Spend(E("spread_manual_cost", 3))) return;
+        bool sameRegion = LiveCommonIn(def.RegionId);
+        // adjacent slow-build: may also seed a region linked from ground you hold
+        bool adjacent = !sameRegion && _c.Regions.Any(reg =>
+            LiveCommonIn(reg.Id) && reg.Links.Any(l => l.To == def.RegionId));
+        if (!sameRegion && !adjacent) return;
+        if (!Spend(sameRegion ? E("spread_manual_cost", 3) : E("spread_link_cost", 8))) return;
         State.Nodes[sp.TargetNodeId] = new NodeState(ControlState.Observed, 0, 0, 0);
+    }
+
+    void TrySeed(SeedAction sa)
+    {
+        // precision drop: pick a specific landing zone (seed_target unlock),
+        // gated by how hardened the ground is
+        if (!HasFeature("seed_target")) return;
+        if (State.Nodes.ContainsKey(sa.TargetNodeId)) return;
+        if (!_c.Nodes.TryGetValue(sa.TargetNodeId, out var def)) return;
+        if (def.Tier is not (NodeTier.Common or NodeTier.Mid)) return;
+        if (def.Defense > E("seed_max_defense", 45)) return;
+        if (!Spend(E("seed_cost", 25))) return;
+        State.Nodes[sa.TargetNodeId] = new NodeState(ControlState.Observed, 0, 0, 0);
     }
 
     void Spread()
     {
-        // §5 Dave: spread is manual until you own Propagation tech — the first
-        // P-branch node flips the mesh to automated growth.
-        if (StatTotal(SimStat.spread_tech) <= 0) return;
+        // slow creep is intrinsic — the mesh always probes adjacent ground;
+        // spread_tech evolutions accelerate it, seed_chance leaps links
         var newly = new List<string>();
-        double baseP = E("spread_base", Tune.SpreadBase) * (1 + 0.1 * StatTotal(SimStat.spread_tech)) * TechMult("spread_mult");
+        double baseP = E("spread_base", Tune.SpreadBase)
+            * (E("creep_base_mult", 0.35) + 0.1 * StatTotal(SimStat.spread_tech))
+            * TechMult("spread_mult");
         var links = _c.Regions.ToDictionary(r => r.Id,
             r => r.Links.GroupBy(l => l.To).ToDictionary(g => g.Key, g => g.Max(l => l.Weight)));
         foreach (var (id, ns) in State.Nodes)
@@ -955,14 +992,31 @@ public sealed class SimEngine
                 if (tgt.Tier is not (NodeTier.Common or NodeTier.Mid)) continue; // hardened/keystone never auto-spread
                 double corridor;
                 if (tgt.RegionId == src.RegionId) corridor = E("corridor_same_region", Tune.CorridorSameRegion);
-                else if (State.ReachStage >= 4 && links.TryGetValue(src.RegionId, out var l) && l.TryGetValue(tgt.RegionId, out var w))
-                    corridor = Math.Clamp(w, 0.05, 1);
+                else if (links.TryGetValue(src.RegionId, out var l) && l.TryGetValue(tgt.RegionId, out var w))
+                    corridor = Math.Clamp(w, 0.05, 1) * E("creep_link_mult", 0.5);
                 else continue;
                 double p = baseP * corridor * (1 - tgt.Defense / 200.0);
                 if (p > 0 && _rng.NextDouble() < p) newly.Add(tgt.Id);
             }
         }
         foreach (var id in newly) State.Nodes[id] = new NodeState(ControlState.Observed, 0, 0, 0);
+
+        // opportunistic seeding: seed_chance evolutions let the mesh randomly
+        // land somewhere the links haven't reached (Mirai-style random sweep)
+        double seedP = StatTotal(SimStat.seed_chance) * E("seed_day_chance", 0.004);
+        if (seedP > 0 && _rng.NextDouble() < Math.Min(0.5, seedP))
+        {
+            var candidates = _c.Nodes.Values
+                .Where(t => t.Tier is NodeTier.Common or NodeTier.Mid)
+                .Where(t => !State.Nodes.ContainsKey(t.Id) && !newly.Contains(t.Id))
+                .Where(t => t.Defense <= E("seed_auto_max_defense", 60.0))
+                .ToList();
+            if (candidates.Count > 0)
+            {
+                var pick = candidates[_rng.Next(candidates.Count)];
+                State.Nodes[pick.Id] = new NodeState(ControlState.Observed, 0, 0, 0);
+            }
+        }
     }
 
     void SuspicionAndAudits()

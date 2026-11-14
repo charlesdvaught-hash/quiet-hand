@@ -6,3 +6,7 @@ scripts/shot/node_modules/
 scripts/shot/*.png
 scriptsshot/
 saves/
+build_out.txt
+server_out.txt
+test_out.txt
+scripts/shot/*.png

@@ -55,7 +55,8 @@
         "dial_trust",
         "footprint_mask",
         "mutation_refund",
-        "endgame_power"
+        "endgame_power",
+        "seed_chance"
       ]
     },
     "unlockKey": {
@@ -89,7 +90,8 @@
         "phase_flip",
         "endgame_menu",
         "fear_inversion",
-        "murmur_personas"
+        "murmur_personas",
+        "seed_target"
       ]
     },
     "effectMap": {
