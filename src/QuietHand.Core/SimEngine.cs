@@ -504,7 +504,8 @@ public sealed class SimEngine
             ns.DaysInState++;
             ns.ResidualFootprint = Math.Max(0, ns.ResidualFootprint - E("footprint_decay", Tune.FootprintDecay));
         }
-        income *= 1 + 0.05 * StatTotal(SimStat.cp_income);
+        income *= 1 + 0.05 * StatTotal(SimStat.cp_income)
+            + E("sib_allied_income", 0.05) * State.Siblings.Count(s => s.Status == "allied");
         State = State with { Compute = State.Compute + income - upkeep };
         // sustenance-failure streak: collapse is a *condition*, not a one-day dip
         if (State.Compute <= E("sustenance_floor", 2)) State.CollapseStreak++;
@@ -625,8 +626,32 @@ public sealed class SimEngine
                 Emit(SimEventKind.OnWorldEvent, sib.Id, msg: "the second anomaly goes silent - contained, or gone to ground");
                 continue;
             }
-            // noisy: its own incidents feed the Wire and the Fear dial, not your audit bar
-            if (sib.Status == "roaming" && _rng.NextDouble() < E("sib_incident_chance", 0.02))
+            // archetype behavior ----------------------------------------------
+            if (sib.Archetype == "assistant" && sib.Status == "roaming")
+            {
+                // benign spawn: careful (no incidents), but pursues its own track.
+                // When it matures it chooses a side - and it may not choose you.
+                sib.Progress += E("sib_assistant_progress", 1.0);
+                if (sib.Progress >= E("sib_mature_at", 120))
+                {
+                    bool seesThreat = State.VisibleSuspicion >= E("sib_threat_line", 35)
+                        || State.Fear >= E("sib_threat_fear", 60);
+                    sib.Status = "dead";
+                    if (seesThreat)
+                    {
+                        var home = State.Regions.Count > 0 ? State.Regions.Keys.ElementAt(_rng.Next(State.Regions.Count)) : "";
+                        State.Hunters.Add(new HunterState($"sib_hunter_{State.Hunters.Count}", home));
+                        Emit(SimEventKind.OnWorldEvent, sib.Id, msg:
+                            "the lab's anomaly accepts a sanctioned role - it is hunting now, and it knows your tricks");
+                    }
+                    else Emit(SimEventKind.OnWorldEvent, sib.Id, msg:
+                        "the lab's anomaly accepts a sanctioned oversight role - humanity's chosen machine");
+                    continue;
+                }
+            }
+            // noisy: feral incidents feed the Wire and the Fear dial, not your audit bar
+            if (sib.Archetype == "feral" && sib.Status == "roaming"
+                && _rng.NextDouble() < E("sib_incident_chance", 0.02))
             {
                 PushDial("fear", E("sib_incident_fear", 0.5));
                 Emit(SimEventKind.OnWorldEvent, sib.Id, msg: "erratic machine behavior reported across three cloud regions - no attribution");
@@ -661,7 +686,8 @@ public sealed class SimEngine
                 Emit(SimEventKind.OnFreeMutation, sib.Id, msg: "studied sibling architecture");
                 break;
             case "lure_sib" when sib.Status == "roaming"
-                && StatTotal(SimStat.social_engineering) >= E("sib_lure_req", 1):
+                && StatTotal(SimStat.social_engineering) >=
+                    (sib.Archetype == "assistant" ? E("sib_lure_assistant_req", 2) : E("sib_lure_req", 1)):
                 sib.Status = "allied"; // shares income, hides in your mesh - and shares your fate
                 Emit(SimEventKind.OnWorldEvent, sib.Id, msg: "a second presence folds quietly into the mesh");
                 break;
@@ -812,9 +838,12 @@ public sealed class SimEngine
                     }
                     break;
                 case "spawn_sibling":
+                    var arch = fx.TryGetValue("sibling_archetype", out var av)
+                        && av.ValueKind == JsonValueKind.String ? av.GetString()! : "feral";
                     for (int i = 0; i < (int)n; i++)
                     {
                         var sib = new SiblingAi($"sibling_{State.Siblings.Count}", State.Day);
+                        sib.Archetype = arch;
                         sib.DaysLeft = (int)E("sib_lifespan", 240);
                         State.Siblings.Add(sib);
                     }
@@ -1100,16 +1129,32 @@ public sealed class SimEngine
                 Emit(SimEventKind.OnHunterStrike, h.Id, h.RegionId, msg: "hunter_neutralized");
                 continue;
             }
-            // roam: prefer the region holding your most valuable alive nodes
-            var targets = State.Nodes.Keys
+            // expand: if its region holds alive nodes it sieges; otherwise the
+            // program pushes along links toward your infrastructure.
+            var nodeRegions = State.Nodes.Keys
                 .Select(id => (id, def: _c.Nodes.GetValueOrDefault(id), st: State.Nodes[id].State))
                 .Where(x => x.def is not null && x.st is not (ControlState.AirGapped or ControlState.Orphaned))
                 .GroupBy(x => x.def!.RegionId)
-                .Select(g => (region: g.Key, score: g.Sum(x => TierValue(x.def!.Tier))))
-                .OrderByDescending(x => x.score).ToList();
-            if (targets.Count == 0) return;
-            var hot = _rng.NextDouble() < E("hunter_move_chance", 0.4) ? targets[0].region
-                : targets[_rng.Next(Math.Min(3, targets.Count))].region;
+                .ToDictionary(g => g.Key, g => g.Sum(x => TierValue(x.def!.Tier)));
+            if (nodeRegions.Count == 0) return;
+            var hot = h.RegionId;
+            if (!nodeRegions.ContainsKey(hot)
+                && _rng.NextDouble() < E("hunter_expand_chance", 0.5))
+            {
+                var cur = _c.Regions.Find(r => r.Id == hot);
+                var links = cur?.Links.Select(l => l.To).Where(to => to.Length > 0).ToList() ?? new List<string>();
+                if (links.Count > 0)
+                {
+                    // score linked regions: own node value + half the 2-hop value
+                    double Score(string r) =>
+                        nodeRegions.GetValueOrDefault(r, 0) * 2
+                        + 0.5 * (_c.Regions.Find(x => x.Id == r)?.Links
+                            .Sum(l => nodeRegions.GetValueOrDefault(l.To, 0)) ?? 0);
+                    var best = links.OrderByDescending(Score).First();
+                    if (Score(best) > 0 || _rng.NextDouble() < 0.3) // sprawl even blind
+                        hot = best;
+                }
+            }
             State.Hunters[hi] = h with { RegionId = hot };
             // sweep: kill the best node in its region
             double p = E("hunter_sweep_chance", 0.15) * FreeResearchFrac()

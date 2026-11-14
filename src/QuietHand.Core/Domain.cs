@@ -78,8 +78,10 @@ public record PendingEvent(string EventId, int ExpiresDay);
 // Lifecycle: Roaming (decoy+prey) -> Allied/Framed -> dead/gone.
 public record SiblingAi(string Id, int SpawnDay)
 {
+    public string Archetype { get; set; } = "feral"; // feral|assistant
     public string Status { get; set; } = "roaming"; // roaming|allied|framed|dead
     public int DaysLeft { get; set; }
+    public double Progress { get; set; }            // assistant benevolent track
     public string RegionId { get; set; } = "";
 }
 

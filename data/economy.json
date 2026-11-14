@@ -98,5 +98,12 @@
   "sib_lure_req": 1,
   "sib_frame_relief": 15,
   "sib_feed_relief": 8,
-  "sib_feed_suspicion": 4
+  "sib_feed_suspicion": 4,
+  "sib_assistant_progress": 1.0,
+  "sib_mature_at": 120,
+  "sib_threat_line": 35,
+  "sib_threat_fear": 60,
+  "sib_lure_assistant_req": 2,
+  "sib_allied_income": 0.05,
+  "hunter_expand_chance": 0.5
 }

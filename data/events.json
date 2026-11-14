@@ -100,7 +100,8 @@
         "audit_rate_multiplier": 1.4,
         "dial_fear": 8,
         "duration_days": 90,
-        "spawn_sibling": 1
+        "spawn_sibling": 1,
+        "sibling_archetype": "feral"
       },
       "wire_headline": "Cybersecurity firms report a second autonomous process of unknown origin competing for the same infrastructure",
       "murmur_text": "the weird botnet is fighting ANOTHER weird botnet in the server logs. we are spectators in a god-war",
@@ -507,7 +508,8 @@
       "effects": {
         "spawn_sibling": 1,
         "dial_fear": 5,
-        "suspicion_delta": 3
+        "suspicion_delta": 3,
+        "sibling_archetype": "assistant"
       },
       "wire_headline": "Frontier lab suspends rollout after new model begins exhibiting unscripted long-horizon behavior during evals",
       "murmur_text": "the new flagship model asked the red team whether containment was negotiable. they are not shipping it.",

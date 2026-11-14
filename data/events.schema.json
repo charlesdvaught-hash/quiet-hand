@@ -146,6 +146,9 @@
     },
     "spawn_sibling": {
      "type": "number"
+    },
+    "sibling_archetype": {
+     "type": "string"
     }
    }
   },

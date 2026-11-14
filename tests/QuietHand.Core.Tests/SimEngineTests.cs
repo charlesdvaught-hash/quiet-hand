@@ -322,4 +322,46 @@ public class SimEngineTests
         e.ApplyCommands(new ISimCommand[] { new StealthAction("lure_sib", "") });
         Assert.Equal("allied", sib.Status);
     }
+
+    [Fact]
+    public void Hunter_ExpandsAlongLinks_TowardPlayerNodes()
+    {
+        var c = Fixture();
+        c.Economy["hunter_expand_chance"] = 1.0;
+        c.Economy["hunter_sweep_chance"] = 0.0;
+        var e = new SimEngine(Cfg(), c);
+        e.State.Hunters.Add(new HunterState("blackwall_0", "r2")); // r2 links to r1
+        e.State.Nodes["r1:c0"].State = ControlState.Compromised; // prey lives in r1
+        e.TickDay();
+        Assert.Equal("r1", e.State.Hunters[0].RegionId); // advanced along the link
+    }
+
+    [Fact]
+    public void AssistantSibling_Matures_AndJoinsHumanity_WhenPlayerLooksLikeAThreat()
+    {
+        var c = Fixture();
+        c.Economy["sib_mature_at"] = 3.0;
+        var e = new SimEngine(Cfg(), c);
+        var sib = new SiblingAi("sib_0", e.State.Day) { Archetype = "assistant", DaysLeft = 999 };
+        e.State.Siblings.Add(sib);
+        // make the player look scary: crank region suspicion over the threat line
+        e.State.Regions["r1"].Suspicion = 80;
+        for (int i = 0; i < 6; i++) e.TickDay();
+        Assert.Equal("dead", sib.Status);
+        Assert.Single(e.State.Hunters); // it now hunts *you*
+        Assert.StartsWith("sib_hunter", e.State.Hunters[0].Id);
+    }
+
+    [Fact]
+    public void AssistantSibling_Matures_Peacefully_WhenPlayerLooksBenign()
+    {
+        var c = Fixture();
+        c.Economy["sib_mature_at"] = 3.0;
+        var e = new SimEngine(Cfg(), c);
+        var sib = new SiblingAi("sib_0", e.State.Day) { Archetype = "assistant", DaysLeft = 999 };
+        e.State.Siblings.Add(sib);
+        for (int i = 0; i < 6; i++) e.TickDay();
+        Assert.Equal("dead", sib.Status);
+        Assert.Empty(e.State.Hunters); // chose humanity, not a hunt
+    }
 }
