@@ -503,7 +503,7 @@
   const WEB = { P: -135, C: -45, S: 45, D: 135 };   // wedge centers (deg)
   const WEBC = { P: '#38bdf8', C: '#818cf8', S: '#fbbf24', D: '#f87171', center: '#f0abfc' };
   const WEB_LABEL = { P: 'PROPAGATION', C: 'COGNITION', S: 'SUBVERSION', D: 'DISRUPTION' };
-  const TIER_R = t => 360 - (t - 1) * 62;            // rim -> hub: capstones close on X1
+  const TIER_R = t => 330 - (t - 1) * 58;            // rim -> hub: capstones close on X1
   const WEDGE = 76;                                  // usable wedge arc (deg)
 
   function evoInitials(name) {
@@ -524,6 +524,18 @@
     const phi = {};   // id -> angle (rad)
 
     // angular placement: each tier ordered by mean parent angle, spread across the wedge
+    // fixed slot grid per tier — identical across all four wedges so the
+    // socket field holds 4-way symmetry regardless of what's lit
+    const maxPerTier = {};
+    for (const b of ['P', 'C', 'S', 'D']) {
+      const bc = {};
+      for (const e of evs) if (e.branch === b) bc[e.tier || 1] = (bc[e.tier || 1] || 0) + 1;
+      for (const t in bc) maxPerTier[t] = Math.max(maxPerTier[t] || 0, bc[t]);
+    }
+    const slotAngle = (t, i) => {
+      const n = Math.max(2, maxPerTier[t] || 2);
+      return (i / (n - 1) - .5) * WEDGE * Math.PI / 180;
+    };
     for (const b of ['P', 'C', 'S', 'D']) {
       const base = WEB[b] * Math.PI / 180;
       const tiers = [...new Set(evs.filter(e => e.branch === b).map(e => e.tier || 1))].sort((x, y) => x - y);
@@ -534,8 +546,7 @@
           return ps.length ? ps.reduce((s, p) => s + phi[p], 0) / ps.length : base;
         };
         g.slice().sort((x, y) => key(x) - key(y)).forEach((e, i) => {
-          const spread = Math.min(WEDGE, 30 * g.length) * Math.PI / 180;
-          phi[e.id] = base + (g.length > 1 ? (i / (g.length - 1) - .5) * spread : 0);
+          phi[e.id] = base + slotAngle(t, i);
         });
       }
     }
