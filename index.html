@@ -197,7 +197,10 @@
       touch-action: none;
     }
     #world-svg:active { cursor: grabbing; }
-    #world-svg image.tile { filter: brightness(0.8) saturate(0.75); }
+    /* OSM standard tiles dark-inverted: invert+180° hue-rotate preserves
+       hues while flipping light→dark — reads as a designed dark basemap
+       AND keeps building footprints (Esri Canvas drops them) */
+    #world-svg image.tile { filter: invert(1) hue-rotate(180deg) brightness(0.82) saturate(0.45); }
     .osm-credit {
       position: absolute; right: 8px; bottom: 58px; z-index: 5;
       font-size: 8.5px; color: var(--text-muted); pointer-events: none;
@@ -1104,7 +1107,7 @@
          ===================================================================== -->
     <div id="map-stage">
       <svg id="world-svg"></svg>
-      <div class="osm-credit">Basemap © Esri · © OpenStreetMap contributors</div>
+      <div class="osm-credit">Basemap © OpenStreetMap contributors</div>
     </div>
 
     <!-- =====================================================================
@@ -1638,7 +1641,7 @@ async function initMap() {
         .data(tiles, d => d)
         .join('image')
         .attr('class', 'tile')
-        .attr('xlink:href', d => `https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/${d[2]}/${d[1]}/${d[0]}`)
+        .attr('xlink:href', d => `https://${'abc'[(d[0] + d[1] + d[2]) % 3]}.tile.openstreetmap.org/${d[2]}/${d[0]}/${d[1]}.png`)
         .attr('x', d => d[0]).attr('y', d => d[1])
         .attr('width', 1).attr('height', 1);
       // pins keep constant screen size at any zoom
