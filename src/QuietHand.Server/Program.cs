@@ -184,6 +184,9 @@ object Snapshot(SimEngine e)
             name = content.Regions.Find(r => r.Id == kv.Key)?.Name ?? kv.Key,
             suspicion = Math.Round(kv.Value.Suspicion, 1),
             postures = kv.Value.TierPostures.ToDictionary(p => p.Key.ToString(), p => p.Value.ToString()),
+            ownedWeight = s.Nodes.Where(n => n.Key.StartsWith(kv.Key + ':')
+                && n.Value.State is not (ControlState.AirGapped or ControlState.Orphaned))
+                .Sum(n => n.Key.Split(':')[1][0] switch { 'a' => 4, 't' => 8, 'k' => 8, _ => 1 }),
         }).ToArray(),
         evolutions = content.Evolutions.Select(ev => new
         {

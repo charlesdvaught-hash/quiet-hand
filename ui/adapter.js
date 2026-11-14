@@ -357,4 +357,45 @@
      ['#818cf8','assimilated'],['#f43f5e','weaponized']]
       .map(([c,n]) => `<div>${DOT(c)}${n}</div>`).join('');
   document.body.appendChild(legend);
+
+  // --- territory blobs: your presence painted as soft cyan ground-haze -----
+  const KmToUnit = km => km / 40000; // unit-x spans 360deg ~ 40000km equator
+  const blobKm = w => Math.min(120, 0.5 + 1.6 * Math.sqrt(w));
+
+  function renderTerritory() {
+    if (typeof mapLayer === 'undefined' || !mapLayer || !snap) return;
+    let defs = svg.select('defs');
+    if (defs.empty()) defs = svg.append('defs');
+    if (defs.select('#terr-grad').empty()) {
+      const g = defs.append('radialGradient').attr('id', 'terr-grad');
+      g.append('stop').attr('offset', '0%').attr('stop-color', 'rgba(56,189,248,0.34)');
+      g.append('stop').attr('offset', '55%').attr('stop-color', 'rgba(56,189,248,0.14)');
+      g.append('stop').attr('offset', '100%').attr('stop-color', 'rgba(56,189,248,0)');
+    }
+    let tg = mapLayer.select('#territory-group');
+    if (tg.empty()) tg = mapLayer.insert('g', '#keystones-group').attr('id', 'territory-group');
+    const blobs = (snap.regions || [])
+      .filter(r => (r.ownedWeight || 0) > 0 && geo[r.id]?.pin);
+    tg.selectAll('circle.terr').data(blobs, d => d.id).join('circle')
+      .attr('class', 'terr')
+      .attr('cx', d => projection(geo[d.id].pin)[0])
+      .attr('cy', d => projection(geo[d.id].pin)[1])
+      .attr('r', d => Math.max(KmToUnit(blobKm(d.ownedWeight)), 2.2 / (window.__zoomK || 900)))
+      .attr('fill', 'url(#terr-grad)')
+      .style('mix-blend-mode', 'screen')
+      .style('pointer-events', 'none');
+  }
+
+  // live-update min-radius floor during zoom gestures (named listener)
+  if (typeof zoomBehavior !== 'undefined' && zoomBehavior) {
+    zoomBehavior.on('zoom.territory', (event) => {
+      mapLayer?.selectAll('circle.terr')
+        .attr('r', d => Math.max(KmToUnit(blobKm(d.ownedWeight)),
+          2.2 / event.transform.k));
+    });
+  }
+
+  const _merge = mergeState;
+  mergeState = function () { _merge(); renderTerritory(); };
+  renderTerritory();
 })();
