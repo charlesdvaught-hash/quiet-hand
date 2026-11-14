@@ -456,6 +456,25 @@ public class SimEngineTests
     }
 
     [Fact]
+    public void FreshNodeYieldsLessThanMature()
+    {
+        // a foothold ingrains over ~14 days: day-1 yield << mature yield
+        var e2 = new SimEngine(Cfg(7), Fixture());
+        e2.State.Nodes["r1c1"] = new NodeState(ControlState.Assimilated, 0, 0, 0);
+        e2.GrantCompute(1000 - e2.State.Compute);
+        e2.TickDay();
+        double dayOne = e2.State.Compute - 1000;
+        var e3 = new SimEngine(Cfg(7), Fixture());
+        e3.State.Nodes["r1c1"] = new NodeState(ControlState.Assimilated, 0, 0, 0);
+        e3.GrantCompute(1000 - e3.State.Compute);
+        for (int i = 0; i < 20; i++) e3.TickDay();
+        double before = e3.State.Compute;
+        e3.TickDay();
+        double matureDay = e3.State.Compute - before;
+        Assert.True(matureDay > dayOne * 1.25, $"mature day {matureDay} should exceed fresh day {dayOne}");
+    }
+
+    [Fact]
     public void Nudge_RequiresReach()
     {
         var e = new SimEngine(Cfg(), Fixture());

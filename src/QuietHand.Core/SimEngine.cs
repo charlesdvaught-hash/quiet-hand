@@ -496,6 +496,11 @@ public sealed class SimEngine
         {
             var def = _c.Nodes.GetValueOrDefault(id);
             double bc = def?.BaseCompute ?? 0;
+            // ingrained: a fresh foothold yields a trickle; full output arrives as
+            // the implant settles into its host (resets on each deeper control flip)
+            double mature = E("mature_floor", 0.2)
+                + (1 - E("mature_floor", 0.2)) * Math.Min(1.0, ns.DaysInState / E("mature_days", 14));
+            bc *= mature;
             switch (ns.State)
             {
                 case ControlState.Compromised: income += bc * E("compromise_yield", 0.35); break;

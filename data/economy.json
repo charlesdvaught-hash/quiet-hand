@@ -61,7 +61,9 @@
     "endgame_pacification_cost": 200,
     "endgame_kinetic_cost": 250,
     "creep_base_mult": 0.2,
-    "spread_daily_cap": 5.0
+    "spread_daily_cap": 5.0,
+    "mature_days": 14.0,
+    "mature_floor": 0.2
   },
   "momentum_per_year": 1.5,
   "momentum_audit_weight": 1.0,
