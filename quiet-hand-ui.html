@@ -83,8 +83,12 @@
       font-family: var(--font-sans);
       font-size: 11.5px;
       line-height: 1.35;
-      zoom: 0.82;
       -webkit-font-smoothing: antialiased;
+    }
+    /* Desktop-only comfort shrink: phones/tablets must fill the display
+       1:1 — a global zoom leaves the shell offset and undersized */
+    @media (min-width: 1100px) {
+      html, body { zoom: 0.82; }
     }
 
     .mono {
@@ -1584,8 +1588,19 @@ let svg, mapLayer, tilesLayer, vectorLayer, projection, pathGen, zoomBehavior, t
 
 async function initMap() {
   svg = d3.select('#world-svg');
-  const width = 1000, height = 500;
+  // viewBox = real client pixels so d3.zoom's screen-px math and the
+  // viewBox-unit transform space are the SAME space — any fixed viewBox
+  // breaks pan/zoom/centering on screens that aren't that exact size
+  function viewSize() {
+    const r = svg.node().getBoundingClientRect();
+    return [Math.max(1, r.width), Math.max(1, r.height)];
+  }
+  const [width, height] = viewSize();
   svg.attr('viewBox', `0 0 ${width} ${height}`);
+  window.__worldView = () => {
+    const [w, h] = viewSize();
+    return d3.zoomIdentity.translate(w / 2, h / 2).scale(w * 0.9);
+  };
 
   // unit-mercator: lon/lat -> [0,1]; the zoom transform (tile-pixel space)
   // drives tiles + vectors together so they can never disagree
@@ -1605,7 +1620,11 @@ async function initMap() {
 
   // Zoom & Pan
   zoomBehavior = d3.zoom()
-    .scaleExtent([600, 16777216])   // ~world view -> z16 streets (tile space)
+    .scaleExtent([Math.round(width * 0.9), 16777216])   // world view floor -> z16 streets
+    // translateExtent is in CONTENT coords — unit-mercator space where the
+    // whole world is ~1 wide. Keeping it near ±0.65 means the viewport can
+    // never leave the world behind
+    .translateExtent([[-0.65, -0.65], [0.65, 0.65]])
     .on('zoom', (event) => {
       const t = event.transform;
       mapLayer.attr('transform', t);
@@ -1630,8 +1649,15 @@ async function initMap() {
       });
     });
   svg.call(zoomBehavior);
-  svg.call(zoomBehavior.transform,
-    d3.zoomIdentity.translate(500, 250).scale(900)); // world view
+  svg.call(zoomBehavior.transform, window.__worldView());
+
+  // keep the px==viewBox invariant when the window/phone rotates
+  window.addEventListener('resize', () => {
+    const [w, h] = viewSize();
+    svg.attr('viewBox', `0 0 ${w} ${h}`);
+    tile.size([w, h]);
+    zoomBehavior.scaleExtent([Math.round(w * 0.9), 16777216]);
+  });
 
   try {
     // Public Domain Natural Earth 110m TopoJSON
@@ -1719,7 +1745,6 @@ function renderMapOverlays() {
     const pt = projection(k.coords);
     if (!pt) return;
     const color = STATE_COLORS[k.state] || STATE_COLORS.observe;
-    const radius = k.tier.includes('Tier 1') ? 2.6 : 1.8;
 
     const pinScale = Math.min(1, 3 / (window.__zoomK || 1));
     const g = kGroup.append('g')
@@ -1732,6 +1757,23 @@ function renderMapOverlays() {
       });
 
     g.append('circle').attr('class', 'keystone-hit').attr('r', 9);
+
+    if (k.ambient) {
+      // ambient atlas farm — a small diamond dot, distinct from the big
+      // named-keystone rings; a discrete facility, not a region lump
+      const r = 1.3;
+      g.append('path')
+        .attr('class', 'atlas-dot')
+        .attr('d', `M0 ${-r} L${r} 0 L0 ${r} L${-r} 0 Z`)
+        .attr('fill', k.state === 'dormant' ? 'none' : color)
+        .attr('stroke', color)
+        .attr('stroke-width', 0.45)
+        .attr('stroke-opacity', k.state === 'dormant' ? 0.4 : 1)
+        .attr('stroke-dasharray', k.state === 'dormant' ? '1 1.4' : 'none');
+      return;
+    }
+
+    const radius = k.tier.includes('Tier 1') ? 2.6 : 1.8;
 
     if (k.state !== 'dormant') {
       g.append('circle')
@@ -1786,7 +1828,10 @@ function zoomMap(factor) {
   svg.transition().duration(300).call(zoomBehavior.scaleBy, factor);
 }
 function resetZoom() {
-  svg.transition().duration(400).call(zoomBehavior.transform, d3.zoomIdentity);
+  // restore the world-view transform — zoomIdentity would collapse the
+  // world to a dot at the origin
+  svg.transition().duration(400).call(zoomBehavior.transform,
+    window.__worldView());
 }
 
 /* ===========================================================================

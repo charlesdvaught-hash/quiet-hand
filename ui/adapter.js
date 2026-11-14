@@ -135,6 +135,40 @@
       };
     });
 
+    // ambient Atlas farms — every generated facility gets its own dot near
+    // the region pin instead of folding into region aggregates. They ride
+    // the keystone list so selection/inspector/verbs all reuse one path.
+    const hashN = s2 => { let h = 0; for (const ch of s2) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h; };
+    const ambientAtlas = (s.atlasNodes || []).map((n) => {
+      const g = geo[n.regionId] || { pin: [0, 0] };
+      const regionName = (s.regions || []).find(r => r.id === n.regionId)?.name || n.regionId;
+      // deterministic ring scatter so the sites per region read as
+      // separate facilities, stable across renders
+      const idx = parseInt(n.id.split(':')[1]?.slice(1)) || 0;
+      const ang = idx * 2.4 + (hashN(n.regionId) % 628) / 100;
+      const coords = [g.pin[0] + Math.cos(ang) * 0.55, g.pin[1] + Math.sin(ang) * 0.38];
+      const raidCost = 40;
+      const raidDays = Math.max(1, Math.round(14 * n.defense / 50));
+      const det = Math.round(400 * n.defense / 50) / 10;
+      return {
+        id: n.id, name: `Atlas Farm — ${regionName}`,
+        region: n.regionId,
+        coords,
+        tier: 'Atlas',
+        computeBand: `${Math.round(n.baseCompute)} compute`,
+        status: n.raiding ? `RAIDING — ${raidLeft[n.id]}d left` : (n.nodeState ? n.nodeState : 'Unbreached'),
+        state: n.nodeState ? (POSTURE_TO_UI[n.nodeState] || 'dormant') : 'dormant',
+        owned: !!n.nodeState,
+        atlas: { role: `atlas farm — ${n.regionId}`, energy: `Defense ${Math.round(n.defense)}`,
+          source: 'game data',
+          note: `Yields ~${Math.round(n.baseCompute)}cp/day once held. Raid: ~${raidCost}cp · ~${raidDays}d · ~${det}%/day detection.` },
+        metrics: { yield: Math.round(n.baseCompute / 2), load: Math.round(n.defense / 4), risk: 'Low' },
+        raidCost, raidDays,
+        ambient: true, pinned: false,
+      };
+    });
+    state.keystones = state.keystones.concat(ambientAtlas);
+
     // countries: every region's posture/suspicion -> iso states
     const sevOf = st => POSTURE_ORDER.indexOf(st);
     // real postures only — mock country values are overwritten, never merged
@@ -345,7 +379,7 @@
     btn.className = 'btn-pill'; btn.style.width = '100%'; btn.style.marginTop = '4px';
     btn.innerHTML = '<i data-lucide="swords"></i> Breach Atlas Farm';
     btn.onclick = () => {
-      const idx = [0,1].find(i => !(snap.keystones||[]).some(k=>k.id===rid+':a'+i));
+      const idx = [0,1].find(i => !(snap.atlasNodes||[]).some(k=>k.id===rid+':a'+i && k.nodeState));
       cmd({ type: 'stealth', action: 'intrude', nodeId: rid + ':a' + (idx ?? 0) });
       showToast('Raiding regional Atlas farm', 'swords');
     };
@@ -444,8 +478,9 @@
     const [x, y] = projection(g.pin);
     if (!isFinite(x) || !isFinite(y)) { setTimeout(zoomToHome, 350); return; }
     const k = 5500000; // ~z14 street view
+    const r = svg.node().getBoundingClientRect();
     svg.transition().duration(1200).call(zoomBehavior.transform,
-      d3.zoomIdentity.translate(500 - x * k, 250 - y * k).scale(k));
+      d3.zoomIdentity.translate(r.width / 2 - x * k, r.height / 2 - y * k).scale(k));
   }
 
   let pendingReach = 0, horizonSeen = false, dbgLast = null;
@@ -461,8 +496,9 @@
       el.onclick = () => {
         const [x, y] = projection(geo[snap.homeRegion]?.pin || [0, 20]);
         const f = Math.max(900, 5500000 / Math.pow(9, pendingReach));
+        const r = svg.node().getBoundingClientRect();
         svg.transition().duration(1600).call(zoomBehavior.transform,
-          d3.zoomIdentity.translate(500 - x * f, 250 - y * f).scale(f));
+          d3.zoomIdentity.translate(r.width / 2 - x * f, r.height / 2 - y * f).scale(f));
         el.style.display = 'none'; pendingReach = 0;
       };
       document.body.appendChild(el);

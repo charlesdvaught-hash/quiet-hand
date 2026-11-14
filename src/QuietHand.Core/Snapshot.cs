@@ -103,6 +103,16 @@ public static class Snapshots
             }).ToArray(),
             pendingEvent = s.PendingEvent is null ? null : PendingView(s, content),
             activeRaids = s.ActiveRaids.Select(r => new { r.NodeId, r.CompletesDay }).ToArray(),
+            // ambient Atlas farms — every generated facility, so the map can
+            // draw each site as its own dot instead of folding them into
+            // region aggregates. ~2/region.
+            atlasNodes = content.Nodes.Values.Where(n => n.Tier == NodeTier.Atlas)
+                .Select(n => new
+                {
+                    n.Id, n.RegionId, n.BaseCompute, n.Defense,
+                    nodeState = s.Nodes.TryGetValue(n.Id, out var ns) ? ns.State.ToString() : null,
+                    raiding = s.ActiveRaids.Any(r => r.NodeId == n.Id),
+                }).ToArray(),
         };
     }
 
