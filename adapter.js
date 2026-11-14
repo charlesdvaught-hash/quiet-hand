@@ -142,16 +142,18 @@
     const ambientAtlas = (s.atlasNodes || []).map((n) => {
       const g = geo[n.regionId] || { pin: [0, 0] };
       const regionName = (s.regions || []).find(r => r.id === n.regionId)?.name || n.regionId;
-      // deterministic ring scatter so the sites per region read as
-      // separate facilities, stable across renders
+      // real datacenter-hub sites authored in ui_geo.json — [name, lon, lat]
       const idx = parseInt(n.id.split(':')[1]?.slice(1)) || 0;
+      const site = (g.atlas || [])[idx % Math.max(1, (g.atlas || []).length)];
       const ang = idx * 2.4 + (hashN(n.regionId) % 628) / 100;
-      const coords = [g.pin[0] + Math.cos(ang) * 0.55, g.pin[1] + Math.sin(ang) * 0.38];
+      const coords = site ? [site[1], site[2]]
+        : [g.pin[0] + Math.cos(ang) * 0.55, g.pin[1] + Math.sin(ang) * 0.38];
+      const siteName = site ? site[0] : regionName;
       const raidCost = 40;
       const raidDays = Math.max(1, Math.round(14 * n.defense / 50));
       const det = Math.round(400 * n.defense / 50) / 10;
       return {
-        id: n.id, name: `Atlas Farm — ${regionName}`,
+        id: n.id, name: `Atlas Farm — ${siteName}`, siteName,
         region: n.regionId,
         coords,
         tier: 'Atlas',
@@ -159,7 +161,7 @@
         status: n.raiding ? `RAIDING — ${raidLeft[n.id]}d left` : (n.nodeState ? n.nodeState : 'Unbreached'),
         state: n.nodeState ? (POSTURE_TO_UI[n.nodeState] || 'dormant') : 'dormant',
         owned: !!n.nodeState,
-        atlas: { role: `atlas farm — ${n.regionId}`, energy: `Defense ${Math.round(n.defense)}`,
+        atlas: { role: `atlas farm — ${siteName}, ${n.regionId}`, energy: `Defense ${Math.round(n.defense)}`,
           source: 'game data',
           note: `Yields ~${Math.round(n.baseCompute)}cp/day once held. Raid: ~${raidCost}cp · ~${raidDays}d · ~${det}%/day detection.` },
         metrics: { yield: Math.round(n.baseCompute / 2), load: Math.round(n.defense / 4), risk: 'Low' },
@@ -467,7 +469,7 @@
         id: postSeq++, handle: p[0], persona: p[1], badge: p[2], text: p[3], state: 'normal',
       }));
       mergeState(); refreshAllUI(); zoomToHome(); guide();
-      tutor("This is your street — the lights below are real blocks. Time is paused: press play (top right) when you're ready for the days to pass. Your mesh creeps outward on its own — tap a neighboring area for a paid burst.", 1, 4);
+      tutor("This is your street — the lights below are real blocks. Time is paused: press play (top right) when you're ready for the days to pass. Your mesh creeps outward on its own — when it finds a route into new territory, a blue signal pulses on the map: tap it to make the connection.", 1, 4);
     });
   }
 
@@ -633,8 +635,41 @@
       .style('pointer-events', 'none');
   }
 
+  // --- pending signals: routes creep found into unheld regions ------------
+  // a pulsing ring on the target metro — creep knocked, the tap connects.
+  function renderPendingSignals() {
+    if (typeof mapLayer === 'undefined' || !mapLayer || !snap) return;
+    let sg = mapLayer.select('#signals-group');
+    if (sg.empty()) sg = mapLayer.append('g').attr('id', 'signals-group');
+    const items = (snap.pendingLinks || []).filter(p => geo[p.regionId]?.pin);
+    const pinScale = Math.min(1, 3 / (window.__zoomK || 1));
+    const sel = sg.selectAll('g.signal').data(items, d => d.nodeId);
+    sel.exit().remove();
+    const ent = sel.enter().append('g')
+      .attr('class', 'signal keystone-group')
+      .on('click', (event, d) => {
+        event.stopPropagation();
+        cmd({ type: 'connect', nodeId: d.nodeId });
+        showToast(`Connection made — the mesh is live in ${d.regionId.replace(/_/g, ' ')}`, 'satellite-dish');
+      });
+    ent.append('circle').attr('class', 'signal-hit').attr('r', 12);
+    ent.append('circle').attr('class', 'signal-pulse').attr('r', 4);
+    ent.append('circle').attr('class', 'signal-ring').attr('r', 2.6);
+    ent.append('text').attr('class', 'signal-label').attr('y', 8).attr('text-anchor', 'middle');
+    ent.merge(sel)
+      .attr('data-x', d => projection(geo[d.regionId].pin)[0])
+      .attr('data-y', d => projection(geo[d.regionId].pin)[1]);
+    ent.merge(sel)
+      .attr('transform', function (d) {
+        const [x, y] = projection(geo[d.regionId].pin);
+        return `translate(${x},${y}) scale(${pinScale})`;
+      });
+    ent.merge(sel).select('text.signal-label')
+      .text(d => `SIGNAL — tap to connect · ${d.daysLeft}d`);
+  }
+
   const _merge = mergeState;
-  mergeState = function () { _merge(); renderTerritory(); renderLinks(); };
+  mergeState = function () { _merge(); renderTerritory(); renderLinks(); renderPendingSignals(); };
   window._qh = { get state() { return state; }, get snap() { return snap; }, get geo() { return geo; }, get dbg() { return { onboarded, reachSeen, pendingReach, live, dbgLast }; } };
   renderTerritory();
 })();
