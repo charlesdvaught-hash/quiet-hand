@@ -287,8 +287,7 @@
       showToast(`Locked — requires ${src ? src.name : n.gate.replace('nudge_', 'evolution')}`, 'lock');
       return;
     }
-    const reach = reachRegions();
-    const rid = (snap.regions || []).find(r => reach.ok(r.id))?.id || '';
+    const rid = state.nudgeTarget || (snap.regions || []).find(r => reachRegions().ok(r.id))?.id || '';
     if (!rid) { showToast('No reachable ground for a nudge', 'x'); return; }
     cmd({ type: 'nudge', id, regionId: rid });
     showToast(`Nudge ${id} engaged`, 'sliders-horizontal');
@@ -334,6 +333,17 @@
       showToast('Raiding regional Atlas farm', 'swords');
     };
     document.querySelector('#inspector-card .insp-body')?.appendChild(btn);
+    if ((state.nudges || []).some(n => n.unlocked)) {
+      const nu = document.createElement('button');
+      nu.className = 'btn-pill'; nu.style.width = '100%'; nu.style.marginTop = '4px';
+      nu.innerHTML = '<i data-lucide="sliders-horizontal"></i> Nudge Society';
+      nu.onclick = () => {
+        state.nudgeTarget = rid;
+        state.nudgeTargetName = rr?.name || rid;
+        openModal('nudge');
+      };
+      document.querySelector('#inspector-card .insp-body')?.appendChild(nu);
+    }
     if ((snap.unlocks || []).includes('seed_target')) {
       const seed = document.createElement('button');
       seed.className = 'btn-pill'; seed.style.width = '100%'; seed.style.marginTop = '4px';
@@ -744,10 +754,6 @@
   // without opening the web (the Doom Eternal pacing lesson)
   const _refreshAllUI0 = window.refreshAllUI;
   window.refreshAllUI = function () {
-    try {
-      const lock = document.getElementById('nudge-lock');
-      if (lock) lock.style.display = (state.nudges || []).some(n => n.unlocked) ? 'none' : 'inline';
-    } catch {}
     _refreshAllUI0();
     const ready = (window._qh?.snap?.evolutions || []).filter(e => e.canBuy && !e.owned).length;
     const badge = document.getElementById('evo-ready-badge');
