@@ -47,6 +47,8 @@ public record WorldState(
     public bool EndingWasStalemate { get; set; }        // §10 stalemate line: containment finished while near an ending
     public List<string> FieldedTechs { get; } = new();
     public List<SiblingAi> Siblings { get; } = new();
+    public HashSet<string> ProbedRegions { get; } = new(); // regions intel-mapped by probe_intel
+    public int NextProbeDay { get; set; } = 30;
     public bool SiblingStudied { get; set; }  // human counter-techs fielded so far
     public bool FearInversion => Phase == Phase.Subjugated;
 }
@@ -109,7 +111,7 @@ public enum SimEventKind
 {
     OnDayTick, OnLetheTriggered, OnPurgePhase, OnAuditCrisis, OnAirGap,
     OnEndingReached, OnInterceptSpawned, OnFreeMutation, OnComboUnlocked, OnPhaseFlip,
-    OnRaidDetected, OnRaidSuccess, OnHunterStrike, OnWorldEvent, OnEventChoice
+    OnRaidDetected, OnRaidSuccess, OnHunterStrike, OnWorldEvent, OnEventChoice, OnProbe
 }
 
 public record SimEvent(SimEventKind Kind, string? SubjectId = null, string? RegionId = null, double Value = 0, string Message = "");

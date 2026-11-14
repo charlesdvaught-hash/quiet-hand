@@ -473,6 +473,7 @@ public sealed class SimEngine
         UpdateReach();
         Reemergence();
         RollupPostures();
+        ProbeSweep();
         EvaluateEndings();
         Emit(SimEventKind.OnDayTick);
         return Drain();
@@ -929,6 +930,20 @@ public sealed class SimEngine
 
     // reach = what you can *act on*: held ground, ground linked from held
     // ground, or anywhere once proxy subagents are fielded
+    void ProbeSweep()
+    {
+        // probe_intel: every ~30 days the mesh maps a region's terrain —
+        // defense, host density, income potential land as intel
+        if (!HasFeature("probe_intel") || State.Day < State.NextProbeDay) return;
+        var targets = _c.Regions.Where(r => !State.ProbedRegions.Contains(r.Id)).ToList();
+        var pick = targets.Count > 0 ? targets[_rng.Next(targets.Count)]
+            : _c.Regions[_rng.Next(_c.Regions.Count)];
+        State.ProbedRegions.Add(pick.Id);
+        State.NextProbeDay = State.Day + (int)E("probe_interval", 30.0);
+        Emit(SimEventKind.OnProbe, pick.Id, pick.Id, 0,
+            $"SIGINT: {pick.Name} terrain mapped");
+    }
+
     bool RemoteReach(string regionId) =>
         HasFeature("remote_ops")
         || LiveIn(regionId)

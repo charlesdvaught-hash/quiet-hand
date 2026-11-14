@@ -92,7 +92,8 @@
         "fear_inversion",
         "murmur_personas",
         "seed_target",
-        "remote_ops"
+        "remote_ops",
+        "probe_intel"
       ]
     },
     "effectMap": {

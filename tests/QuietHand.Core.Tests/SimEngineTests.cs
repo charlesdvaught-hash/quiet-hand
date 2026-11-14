@@ -39,6 +39,7 @@ public class SimEngineTests
         c.Nodes["r3:c9"] = new NodeDef("r3:c9", "r3", NodeTier.Common, 0.25, 60);
         c.Evolutions.Add(new EvolutionDef { Id = "sd1", Branch = "P", Cost = 5, Unlocks = { "seed_target" } });
         c.Evolutions.Add(new EvolutionDef { Id = "ro1", Branch = "P", Cost = 5, Unlocks = { "remote_ops" } });
+        c.Evolutions.Add(new EvolutionDef { Id = "pb1", Branch = "C", Cost = 5, Unlocks = { "probe_intel" } });
         c.Nudges.Add(new NudgeDef { Id = "ng1", Cost = 0, SuspicionPerDay = 1, DurationDays = 3 });
         c.Nodes["r3:a0"] = new NodeDef("r3:a0", "r3", NodeTier.Atlas, 5, 10);
         c.Economy["spread_base"] = 0.9; // high enough to make spread observable in a few days
@@ -478,5 +479,19 @@ public class SimEngineTests
         e.ApplyCommands(new List<ISimCommand> { new Evolve("ro1") });
         e.ApplyCommands(new List<ISimCommand> { new StealthAction("intrude", "r3:a0") });
         Assert.Contains(e.State.ActiveRaids, r => r.NodeId == "r3:a0");
+    }
+
+    [Fact]
+    public void ProbeIntel_MapsARegionEveryInterval()
+    {
+        var e = new SimEngine(Cfg(7), Fixture());
+        e.GrantCompute(500);
+        e.ApplyCommands(new List<ISimCommand> { new Evolve("pb1") });
+        for (int i = 0; i < 31; i++) e.TickDay();
+        Assert.NotEmpty(e.State.ProbedRegions);
+        var next = e.State.NextProbeDay;
+        for (int i = 0; i < 31; i++) e.TickDay();
+        Assert.True(e.State.ProbedRegions.Count >= 2);
+        Assert.True(e.State.NextProbeDay > next);
     }
 }

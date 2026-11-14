@@ -191,6 +191,16 @@ object Snapshot(SimEngine e)
             ownedWeight = s.Nodes.Where(n => n.Key.StartsWith(kv.Key + ':')
                 && n.Value.State is not (ControlState.AirGapped or ControlState.Orphaned))
                 .Sum(n => n.Key.Split(':')[1][0] switch { 'a' => 4, 't' => 8, 'k' => 8, _ => 1 }),
+            probed = s.ProbedRegions.Contains(kv.Key),
+            intel = s.ProbedRegions.Contains(kv.Key) ? new
+            {
+                defense = content.Nodes.Values.Where(n => n.RegionId == kv.Key)
+                    .Select(n => (int)n.Defense).DefaultIfEmpty().Average(),
+                hosts = content.Nodes.Values.Count(n => n.RegionId == kv.Key
+                    && n.Tier is NodeTier.Common or NodeTier.Mid),
+                income = Math.Round(content.Nodes.Values.Where(n => n.RegionId == kv.Key)
+                    .Sum(n => n.BaseCompute), 1),
+            } : null,
         }).ToArray(),
         evolutions = content.Evolutions.Select(ev => new
         {

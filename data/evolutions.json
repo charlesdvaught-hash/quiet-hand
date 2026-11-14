@@ -57,7 +57,8 @@
     "common_burn",
     "murmur_personas",
     "seed_target",
-    "remote_ops"
+    "remote_ops",
+    "probe_intel"
   ],
   "nodes": [
     {
@@ -1992,6 +1993,28 @@
       "tech_source": "botnet proxy chains (SOCKS residential proxies); autonomous agent frameworks operating unattended on remote infrastructure",
       "tech_status": "emerging",
       "desc": "Free internet travel. Your reach is no longer bounded by your mesh \u2014 subagent swarms act on any region, any keystone, anywhere on the map."
+    },
+    {
+      "id": "C23",
+      "name": "Signal Cartography",
+      "branch": "C",
+      "tier": 3,
+      "cost": 22,
+      "prereqs": [
+        "C18",
+        "S18"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "sys_analysis": 0.1
+      },
+      "unlocks": [
+        "probe_intel"
+      ],
+      "tech_basis": "internet-wide measurement \u2014 passive traffic analysis and census scanning to map infrastructure without touching it",
+      "tech_source": "Censys/Shodan internet census; CAIDA passive measurement; BGP topology inference",
+      "tech_status": "established",
+      "desc": "Every 30 days the mesh quietly maps a new region: defense posture, host density, and what its compute is worth. Knowledge without presence."
     }
   ],
   "combos": [

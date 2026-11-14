@@ -286,6 +286,14 @@
     _origCountryInsp();
     const c = state.countries[state.selectedTarget?.id];
     const rid = c?._region; if (!rid) return;
+    const rr = (snap.regions || []).find(r => r.id === rid);
+    if (rr?.intel) {
+      const intel = document.createElement('div');
+      intel.className = 'insp-tag mono';
+      intel.style.cssText = 'margin-top:4px;color:var(--cyan,#7dd3fc)';
+      intel.textContent = `SIGINT — defense ${Math.round(rr.intel.defense)} · ${rr.intel.hosts} hosts · ~${rr.intel.income}cp/day potential`;
+      document.querySelector('#inspector-card .insp-body')?.appendChild(intel);
+    }
     if (!reachRegions().ok(rid)) {
       const note = document.createElement('div');
       note.className = 'insp-tag mono';
