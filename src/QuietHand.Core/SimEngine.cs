@@ -468,6 +468,7 @@ public sealed class SimEngine
         Intercepts();
         UpdateReach();
         Reemergence();
+        RollupPostures();
         EvaluateEndings();
         Emit(SimEventKind.OnDayTick);
         return Drain();
@@ -1339,6 +1340,34 @@ public sealed class SimEngine
         _ when key.StartsWith("dial_") => State.Dials.GetValueOrDefault(key[5..], 0),
         _ => State.Dials.GetValueOrDefault(key, 0),
     };
+
+    // §7b node->region posture rollup (Dave, 2026-11-13): a region's tier posture
+    // is the deepest control state held across >= posture_*_share of that tier's
+    // compute. Dead nodes (AirGapped/Orphaned) still count in the denominator —
+    // losing nodes makes a region harder to call yours.
+    void RollupPostures()
+    {
+        foreach (var (rid, rs) in State.Regions)
+        {
+            rs.TierPostures.Clear();
+            foreach (var g in _c.Nodes.Values.Where(n => n.RegionId == rid).GroupBy(n => n.Tier))
+            {
+                double total = g.Sum(n => Math.Max(0.01, n.BaseCompute));
+                double Share(ControlState st) => g
+                    .Where(n => State.Nodes.TryGetValue(n.Id, out var ns)
+                        && ns.State >= st && ns.State <= ControlState.Weaponized)
+                    .Sum(n => Math.Max(0.01, n.BaseCompute)) / total;
+                if (Share(ControlState.Weaponized) >= E("posture_share", 0.5))
+                    rs.TierPostures[g.Key] = ControlState.Weaponized;
+                else if (Share(ControlState.Assimilated) >= E("posture_share", 0.5))
+                    rs.TierPostures[g.Key] = ControlState.Assimilated;
+                else if (Share(ControlState.Compromised) >= E("posture_share", 0.5))
+                    rs.TierPostures[g.Key] = ControlState.Compromised;
+                else if (Share(ControlState.Observed) >= E("posture_observed_share", 0.6))
+                    rs.TierPostures[g.Key] = ControlState.Observed;
+            }
+        }
+    }
 
     IEnumerable<string> PuppetRegions() => State.Regions
         .Where(kv => kv.Value.TierPostures.TryGetValue(NodeTier.Atlas, out var s)

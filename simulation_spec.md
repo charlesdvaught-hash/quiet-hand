@@ -129,6 +129,8 @@ The fiction: the classic trope broadcast — every TV, phone and billboard on Ea
 
 Buying X1 SUBJUGATE does **not** end the game — it inverts the game's rules:
 
+- **Node->region posture rollup (Dave, 2026-11-13):** `RegionState.TierPostures[tier]` is computed daily per region per tier — the *deepest* control state held across >= `posture_share` (0.5) of that tier's compute. Dead nodes stay in the denominator, so purged/hunted nodes make a region harder to claim. This is what `puppet_capture`, `corporate_capture`, `retained_state_function`, `kompromat`, and `devoted_regions` actually read — Atlas-route endings now have a working metric path.
+
 - **Fear polarity flips** (`fear_inversion` flag on WorldState). Pre-flip: Fear feeds human alarm — it raises audit odds and accelerates Lethe contribution. Post-flip: Fear is a *control asset* — it suppresses regional Autonomy, reduces resistance-event frequency, and powers conquest actions. Players now *want* Fear high; the same nudges/actions that were dangerous before become the engine of the endgame.
 - **The reveal itself re-terrifies:** on activation, Fear gets an immediate bump + floor (`TUNE` ~+30 / floor 40) — an unignorable broadcast cannot leave the world calm. Interacts with §8's Lethe-decay: a late flip is *weaker, not worthless* — Lethe may have drained your banked Fear, but the broadcast always buys back some terror.
 - **Endgame Menu opens** (`endgame_menu`): a new action category — conquest actions, ultimatums, martial-law imposition, infrastructure seizure — and the Emergency State / Last Order / kinetic finale routes become achievable.

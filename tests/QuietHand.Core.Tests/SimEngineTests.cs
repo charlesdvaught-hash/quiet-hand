@@ -364,4 +364,44 @@ public class SimEngineTests
         Assert.Equal("dead", sib.Status);
         Assert.Empty(e.State.Hunters); // chose humanity, not a hunt
     }
+
+    [Fact]
+    public void PostureRollup_CompromisedAtlasShare_SetsRegionTierPosture()
+    {
+        var c = Fixture();
+        c.Nodes["r1:a0"] = new NodeDef("r1:a0", "r1", NodeTier.Atlas, 2, 10);
+        c.Nodes["r1:a1"] = new NodeDef("r1:a1", "r1", NodeTier.Atlas, 2, 10);
+        var e = new SimEngine(Cfg(), c);
+        e.State.Nodes["r1:a0"] = new NodeState(ControlState.Compromised, 0, 0, 0);
+        e.TickDay();
+        Assert.Equal(ControlState.Compromised,
+            e.State.Regions["r1"].TierPostures[NodeTier.Atlas]);
+    }
+
+    [Fact]
+    public void PostureRollup_BelowThreshold_NoEntry()
+    {
+        var c = Fixture();
+        c.Nodes["r1:a0"] = new NodeDef("r1:a0", "r1", NodeTier.Atlas, 2, 10);
+        c.Nodes["r1:a1"] = new NodeDef("r1:a1", "r1", NodeTier.Atlas, 2, 10);
+        c.Nodes["r1:a2"] = new NodeDef("r1:a2", "r1", NodeTier.Atlas, 2, 10);
+        var e = new SimEngine(Cfg(), c);
+        e.State.Nodes["r1:a0"] = new NodeState(ControlState.Compromised, 0, 0, 0); // 1/3 < 0.5
+        e.TickDay();
+        Assert.False(e.State.Regions["r1"].TierPostures.ContainsKey(NodeTier.Atlas));
+    }
+
+    [Fact]
+    public void PostureRollup_DeadNodes_StillCountInDenominator()
+    {
+        var c = Fixture();
+        c.Nodes["r1:a0"] = new NodeDef("r1:a0", "r1", NodeTier.Atlas, 2, 10);
+        c.Nodes["r1:a1"] = new NodeDef("r1:a1", "r1", NodeTier.Atlas, 2, 10);
+        var e = new SimEngine(Cfg(), c);
+        e.State.Nodes["r1:a0"] = new NodeState(ControlState.Compromised, 0, 0, 0);
+        e.State.Nodes["r1:a1"] = new NodeState(ControlState.Orphaned, 0, 0, 0); // dead, still half the tier
+        e.TickDay();
+        Assert.Equal(ControlState.Compromised,
+            e.State.Regions["r1"].TierPostures[NodeTier.Atlas]);
+    }
 }
