@@ -58,7 +58,9 @@ app.MapPost("/api/new", (string? origin, int? seed, int? bonus) =>
     engine = new SimEngine(
         new NewGameConfig(o, Difficulty.Standard, seed ?? Random.Shared.Next(1_000_000),
             "LATTICE", null, null), content);
-    engine.GrantCompute(Math.Clamp(bonus ?? 20, 0, 60)); // onboarding starter reserve
+    // onboarding starter reserve is authored per-origin (lean origins get a
+    // bigger nudge); the query param still overrides for dev/testing
+    engine.GrantCompute(Math.Clamp(bonus ?? content.Origins.Find(x => x.Id == o)!.StarterBonus, 0, 60));
     saveOrigin = o;
     Autosave();
     return Results.Json(Snapshot(engine), jsonOpts);
@@ -151,10 +153,9 @@ object Snapshot(SimEngine e)
     int alive(ControlState st) => ownedNodes.Count(x => x.st == st);
     double controlledShare = ownedNodes.Count == 0 ? 0 :
         100.0 * ownedNodes.Count(x => x.st is ControlState.Compromised
-            or ControlState.Assimilated or ControlState.Weaponized) / content.Nodes.Count;
+            or ControlState.Trojan or ControlState.Weaponized) / content.Nodes.Count;
 
-    var unlocks = content.Evolutions.Where(ev => s.OwnedEvolutions.Contains(ev.Id))
-        .SelectMany(ev => ev.Unlocks).ToHashSet();
+    var unlocks = e.Features.ToHashSet();
 
     return new
     {
@@ -175,7 +176,7 @@ object Snapshot(SimEngine e)
         {
             observed = alive(ControlState.Observed),
             compromised = alive(ControlState.Compromised),
-            assimilated = alive(ControlState.Assimilated),
+            trojan = alive(ControlState.Trojan),
             weaponized = alive(ControlState.Weaponized),
             airgapped = alive(ControlState.AirGapped),
             orphaned = alive(ControlState.Orphaned),

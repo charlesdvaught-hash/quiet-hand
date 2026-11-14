@@ -399,10 +399,10 @@
           <div class="evo-card" style="cursor:pointer" data-oid="${o.id}">
             <div style="font-weight:700;font-size:13px">${o.name}</div>
             <div style="font-size:10.5px;color:var(--text-secondary)">${o.passive?.desc || ''}</div>
-            <div class="mono" style="font-size:10px;color:var(--text-muted);margin-top:4px">${o.startingCompute}cp reserve · ${o.computeRate}/day</div>
+            <div class="mono" style="font-size:10px;color:var(--text-muted);margin-top:4px">${o.startingCompute}cp · ${o.computeRate}/day${o.starterBonus ? ' · +' + o.starterBonus + ' reserve' : ''}</div>
           </div>`).join('')}
       </div>
-      <div style="font-size:10px;color:var(--text-muted)">+8 compute starter reserve on first run</div>`;
+`;
     document.body.appendChild(ov);
     ov.querySelector('[data-continue]')?.addEventListener('click', async () => {
       snap = await api('/api/continue', { method: 'POST' });
@@ -411,7 +411,7 @@
       showToast('Mesh restored — day ' + snap.day, 'power');
     });
     ov.querySelectorAll('[data-oid]').forEach(el => el.onclick = async () => {
-      snap = await api(`/api/new?origin=${el.dataset.oid}&bonus=8`, { method: 'POST' });
+      snap = await api(`/api/new?origin=${el.dataset.oid}`, { method: 'POST' });
       ov.remove(); onboarded = true; reachSeen = -1;
       setSimSpeed(0); // time is opt-in: the run stays paused until the player presses play
       state.posts = AMBIENT.map((p, i) => ({
@@ -466,7 +466,7 @@
     const nc = snap.nodeCounts || {};
     if (!guided.spread && nc.observed > 0) {
       guided.spread = true;
-      tutor('Cyan is you — a foothold. The legend (bottom-left) is your control ladder: amber compromised, indigo assimilated, red weaponized. Now deploy your first evolution.', 2, 4);
+      tutor('Cyan is you — a foothold. The legend (bottom-left) is your control ladder: amber compromised, indigo trojaned, red weaponized. Now deploy your first evolution.', 2, 4);
       setTimeout(() => openModal('evolve'), 1400);
     }
     if (!guided.evolve && (snap.ownedEvolutions || []).length > 0) {
@@ -498,7 +498,7 @@
   legend.innerHTML = `<div class="mono" style="font-size:7.5px;letter-spacing:.25em;
     color:var(--text-muted);margin-bottom:2px">CONTROL STATES</div>` +
     [['#64748b','dormant'],['#38bdf8','observed'],['#f59e0b','compromised'],
-     ['#818cf8','assimilated'],['#f43f5e','weaponized']]
+     ['#818cf8','trojaned'],['#f43f5e','weaponized']]
       .map(([c,n]) => `<div>${DOT(c)}${n}</div>`).join('');
   document.body.appendChild(legend);
 

@@ -13,6 +13,7 @@ public sealed class OriginDef
     public string StartScope { get; set; } = "";
     public double StartingCompute { get; set; }
     public double ComputeRate { get; set; }
+    public double StarterBonus { get; set; }
     public double StartingSuspicion { get; set; }
     public double StartingFear { get; set; }
     public Dictionary<string, double> BranchMultipliers { get; set; } = new();

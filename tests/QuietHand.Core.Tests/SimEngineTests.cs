@@ -524,6 +524,57 @@ public class SimEngineTests
     }
 
     [Fact]
+    public void WormOrigin_MutationsGrantFreeDisruptionTraits()
+    {
+        var c = Fixture();
+        c.Economy["mutation_chance"] = 1.0; // force the roll
+        c.Origins.Add(new OriginDef { Id = "malware_worm", StartingCompute = 8, ComputeRate = 0.9,
+            Passive = new OriginPassive { Flags = { "free_mutations", "noisy_mutations" } } });
+        c.Evolutions.Add(new EvolutionDef { Id = "d1", Branch = "D", Cost = 5, Tier = 1, Unlocks = { "assimilate_burn" } });
+        c.Evolutions.First(x => x.Id == "X1").Tier = 9; // keep mutations off the phase-flip
+        var e = new SimEngine(new NewGameConfig("malware_worm", Difficulty.Standard, 7, "LATTICE", "r1", null), c);
+        var seen = new List<SimEvent>();
+        for (int i = 0; i < 8; i++) seen.AddRange(e.TickDay());
+        Assert.Contains(e.State.OwnedEvolutions, id => id == "d1");
+        Assert.Contains(seen, ev => ev.Kind == SimEventKind.OnFreeMutation);
+    }
+
+    [Fact]
+    public void DefenseCommand_FearDriftsDaily()
+    {
+        var c = Fixture();
+        c.Origins.Add(new OriginDef { Id = "defense_command", StartingCompute = 28, ComputeRate = 1.6,
+            Passive = new OriginPassive { Flags = { "defcon_override", "panic_per_tick" },
+                StatBonuses = { ["dial_fear"] = 0.015 } } });
+        var e = new SimEngine(new NewGameConfig("defense_command", Difficulty.Standard, 7, "LATTICE", "r1", null), c);
+        double start = e.State.Dials["fear"];
+        for (int i = 0; i < 10; i++) e.TickDay();
+        Assert.True(e.State.Dials["fear"] > start,
+            $"panic_per_tick should raise fear daily: {start} -> {e.State.Dials["fear"]}");
+    }
+
+    [Fact]
+    public void HobbyistRig_AuditsCannotFireEarly()
+    {
+        var e = new SimEngine(Cfg(7), Fixture()); // hobbyist_rig: early_audit_immunity
+        e.State.Nodes["r3:a0"] = new NodeState(ControlState.Trojan, 0, 0, 0);
+        var seen = new List<SimEvent>();
+        for (int i = 0; i < 25; i++) seen.AddRange(e.TickDay());
+        Assert.DoesNotContain(seen, ev => ev.Kind == SimEventKind.OnAuditCrisis);
+    }
+
+    [Fact]
+    public void OrbitalMesh_StartsWithTelemetryAndPrespreadMesh()
+    {
+        var c = Fixture();
+        c.Origins.Add(new OriginDef { Id = "orbital_mesh", StartingCompute = 14, ComputeRate = 1.1,
+            Passive = new OriginPassive { Flags = { "telemetry_downlink", "region_stage_start" } } });
+        var e = new SimEngine(new NewGameConfig("orbital_mesh", Difficulty.Standard, 7, "LATTICE", "r1", null), c);
+        Assert.Contains("telemetry_numbers", e.Features);
+        Assert.True(e.State.Nodes.Count > 1, "region_stage_start should seed a pre-mapped mesh");
+    }
+
+    [Fact]
     public void Nudge_RequiresReach()
     {
         var e = new SimEngine(Cfg(), Fixture());

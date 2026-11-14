@@ -134,6 +134,17 @@ public sealed class SimEngine
             GrantEvolution(freePick);
             Emit(SimEventKind.OnFreeMutation, freePick);
         }
+
+        // orbital_mesh: the downlink sees everything from day one
+        if (OriginFlag("telemetry_downlink")) _features.Add("telemetry_numbers");
+
+        // orbital_mesh: region_stage_start — its LEO view arrives pre-mapped,
+        // a sparse observed mesh across home ground (reach stage 1 from day 0)
+        if (OriginFlag("region_stage_start") && startRegion is not null)
+            foreach (var id in content.Nodes.Values
+                .Where(n => n.RegionId == startRegion && n.Tier == NodeTier.Common
+                    && !nodes.ContainsKey(n.Id)).Select(n => n.Id).OrderBy(x => x).Take(11))
+                nodes[id] = new NodeState(ControlState.Observed, 0, 0, 0);
         if (startRegion is not null && regions.TryGetValue(startRegion, out var rs))
             rs.Suspicion = Math.Max(0, sus);
     }
@@ -164,7 +175,9 @@ public sealed class SimEngine
         return t;
     }
 
+    public IReadOnlyCollection<string> Features => _features;
     bool HasFeature(string f) => _features.Contains(f);
+    bool OriginFlag(string f) => _origin.Passive.Flags.Contains(f);
 
     void GrantEvolution(string id)
     {
@@ -474,6 +487,7 @@ public sealed class SimEngine
         ResolveRaids();
         ResolveReclaims();
         Momentum();
+        OriginPassivesTick();
         SiblingsTick();
         HumanTechProgress();
         EventDeck();
@@ -1087,6 +1101,34 @@ public sealed class SimEngine
         }
     }
 
+    void OriginPassivesTick()
+    {
+        // origin identity hooks — the flags authored in origins.json, made real:
+        // panic_per_tick (defense_command): any passive dial_* bonus is a daily
+        // drift — the override program is already scaring people
+        if (OriginFlag("panic_per_tick"))
+            foreach (var (k, v) in _origin.Passive.StatBonuses)
+                if (k.StartsWith("dial_")) PushDial(k[5..], v);
+
+        // free_mutations + noisy_mutations (malware_worm): every cycle there's a
+        // chance the worm rewrites itself — a free random Disruption trait,
+        // wanted or not
+        if (OriginFlag("free_mutations") && OriginFlag("noisy_mutations")
+            && State.Day % (int)E("mutation_cycle_days", 7) == 0
+            && _rng.NextDouble() < E("mutation_chance", 0.12))
+        {
+            var picks = _c.Evolutions
+                .Where(e => e.Branch == "D" && e.Tier <= (int)E("mutation_max_tier", 3)
+                    && !State.OwnedEvolutions.Contains(e.Id)).ToList();
+            if (picks.Count > 0)
+            {
+                var pick = picks[_rng.Next(picks.Count)];
+                GrantEvolution(pick.Id);
+                Emit(SimEventKind.OnFreeMutation, pick.Id, msg: $"mutation: {pick.Name}");
+            }
+        }
+    }
+
     void SuspicionAndAudits()
     {
         bool closingNet = State.VisibleSuspicion >= E("closing_net_threshold", Tune.ClosingNetThreshold);
@@ -1110,9 +1152,10 @@ public sealed class SimEngine
             rs.Suspicion = Math.Clamp(rs.Suspicion + sus * mask
                 + ns.ResidualFootprint * E("sus_residual_footprint", Tune.SusResidualFootprint), 0, 100);
 
+            bool immune = OriginFlag("early_audit_immunity") && State.Day < E("audit_immunity_days", 30);
             if (ns.State is ControlState.Compromised or ControlState.Trojan or ControlState.Weaponized)
             {
-                double p = E("audit_base", Tune.AuditBase)
+                double p = immune ? 0 : E("audit_base", Tune.AuditBase)
                     * Math.Max(0.2, (_c.Regions.Find(r => r.Id == region)?.DefenseTier ?? 50) / 50.0)
                     * (1 + State.CountermeasureReadiness / 100 * E("momentum_audit_weight", 1.0))
                     * (1 - E("free_compute_audit_weight", 0.6) * (1 - FreeResearchFrac()))
