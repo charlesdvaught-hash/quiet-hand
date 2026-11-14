@@ -74,23 +74,55 @@ sealed class PolicyBot
             reserve += 4;
         }
 
-        // Breach: intrude the weakest unowned Atlas/Mid in regions we hold —
-        // AtlasFocus routes push harder (2/day), others opportunistically (1/day).
-        int intrusions = _route.AtlasFocus ? 2 : 1;
-        foreach (var d in _c.Nodes.Values
-            .Where(d => d.Tier is NodeTier.Mid or NodeTier.Atlas
-                && !s.Nodes.ContainsKey(d.Id) && !s.ActiveRaids.Any(r => r.NodeId == d.Id))
-            .Where(d => s.Nodes.Keys.Any(id =>
-                _c.Nodes.GetValueOrDefault(id)?.RegionId == d.RegionId
-                && s.Nodes[id].State is not (ControlState.AirGapped or ControlState.Orphaned)))
-            .OrderBy(d => d.Defense))
+        // Breach. AtlasFocus routes SATURATE regions: a region only counts as
+        // puppeted when >=50% of its Atlas compute is Compromised+, so the bot
+        // finishes regions it has footholds in before opening new fronts.
+        // Other routes intrude opportunistically (1/day, weakest first).
+        bool Alive(ControlState st) => st <= ControlState.Weaponized;
+        bool BeachheadIn(NodeDef d) => s.Nodes.Keys.Any(id =>
+            _c.Nodes.GetValueOrDefault(id)?.RegionId == d.RegionId
+            && Alive(s.Nodes[id].State));
+
+        if (_route.AtlasFocus)
         {
-            if (intrusions-- <= 0 || s.Compute < reserve + 60) break;
-            cmds.Add(new StealthAction("intrude", d.Id));
-            reserve += 60;
+            // rank regions by held-atlas share (finish close ones first)
+            var regionRank = _c.Nodes.Values.Where(d => d.Tier == NodeTier.Atlas)
+                .GroupBy(d => d.RegionId)
+                .Select(g => (rid: g.Key,
+                    share: g.Where(n => s.Nodes.TryGetValue(n.Id, out var ns)
+                            && ns.State >= ControlState.Compromised && Alive(ns.State))
+                        .Sum(n => n.BaseCompute) / Math.Max(0.01, g.Sum(n => n.BaseCompute))))
+                .OrderByDescending(x => x.share).ToList(); // closest-to-puppeted first: finish them
+            int intrusions = 3;
+            foreach (var d in regionRank
+                .Where(x => x.share < 0.5)
+                .SelectMany(x => _c.Nodes.Values.Where(n =>
+                    n.Tier == NodeTier.Atlas && n.RegionId == x.rid
+                    && !s.Nodes.ContainsKey(n.Id) && !s.ActiveRaids.Any(r => r.NodeId == n.Id)))
+                .Where(BeachheadIn).OrderBy(d => d.Defense))
+            {
+                if (intrusions <= 0 || s.Compute < reserve + 90) break;
+                cmds.Add(new StealthAction("intrude", d.Id));
+                reserve += 90; intrusions--;
+            }
+            // reclaim purged Atlas before raiding new ones — cheaper recovery
+            if (ownedUnlocks.Contains("reinfect"))
+                foreach (var (id, ns) in s.Nodes.Where(kv => kv.Value.State == ControlState.Orphaned))
+                    if (_c.Nodes.GetValueOrDefault(id)?.Tier == NodeTier.Atlas
+                        && s.Compute > reserve + 60)
+                    { cmds.Add(new ReclaimNode(id, false)); reserve += 60; }
+        }
+        else
+        {
+            var tgt = _c.Nodes.Values
+                .Where(d => d.Tier is NodeTier.Mid or NodeTier.Atlas
+                    && !s.Nodes.ContainsKey(d.Id) && !s.ActiveRaids.Any(r => r.NodeId == d.Id))
+                .Where(BeachheadIn).OrderBy(d => d.Defense).FirstOrDefault();
+            if (tgt is not null && s.Compute >= reserve + 60)
+            { cmds.Add(new StealthAction("intrude", tgt.Id)); reserve += 60; }
         }
 
-        // Atlas focus: compromise Atlas-tier footholds to spread puppet coverage.
+        // Compromise every owned Atlas foothold — posture needs them ACTIVE.
         if (_route.AtlasFocus)
         {
             foreach (var (id, ns) in s.Nodes.Where(kv => kv.Value.State == ControlState.Observed))
