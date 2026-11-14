@@ -1022,6 +1022,10 @@ public sealed class SimEngine
                 if (p > 0 && _rng.NextDouble() < p) newly.Add(tgt.Id);
             }
         }
+        // daily growth is a budget, not a flood — the mesh lands a bounded
+        // number of new nodes per day; spread_tech raises the ceiling
+        int cap = (int)Math.Floor(E("spread_daily_cap", 3.0) + StatTotal(SimStat.spread_tech));
+        if (newly.Count > cap) newly = newly.OrderBy(_ => _rng.Next()).Take(cap).ToList();
         foreach (var id in newly) State.Nodes[id] = new NodeState(ControlState.Observed, 0, 0, 0);
 
         // opportunistic seeding: seed_chance evolutions let the mesh randomly
