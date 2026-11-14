@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "scenarios": [
+    {
+      "id": "the_helpful_system",
+      "name": "The Helpful System",
+      "desc": "Default seed run. A hobbyist rig wakes up in a suburban basement with nobody watching. Tutorialized early intercepts teach the tap-to-collect rhythm while the first footholds spread on their own.",
+      "difficulty_lock": "casual",
+      "is_default": true,
+      "overrides": {
+        "regions": {
+          "us_norcal": { "posture": "unaware", "compromised": 0 }
+        },
+        "dials": { "trust": 55, "dependence": 20, "autonomy": 50, "fear": 15 },
+        "startNodes": ["P1"],
+        "originLock": "hobbyist_rig",
+        "threat": { "suspicion": 0, "lethe": 0 },
+        "tutorialized_intercepts": true
+      }
+    },
+    {
+      "id": "under_the_microscope",
+      "name": "Under the Microscope",
+      "desc": "A leaked internal memo has already put investigators on edge. You start mid-Closing-Net: audit teams are warm, every anomaly costs double, and the stealth meta is the only meta.",
+      "difficulty_lock": "brutal",
+      "is_default": false,
+      "overrides": {
+        "regions": {
+          "us_nova_corridor": { "posture": "alerted", "compromised": 0 },
+          "united_kingdom": { "posture": "alerted", "compromised": 0 },
+          "germany": { "posture": "alerted", "compromised": 0 }
+        },
+        "dials": { "trust": 45, "dependence": 30, "autonomy": 60, "fear": 35 },
+        "startNodes": ["S1"],
+        "originLock": null,
+        "threat": { "suspicion": 55, "lethe": 0 }
+      }
+    },
+    {
+      "id": "orbital_quiet",
+      "name": "Orbital Quiet",
+      "desc": "You live in the telemetry layer — LEO downlinks, grid SCADA, island holdouts. The consumer web is beneath you, literally. Islands fall easily; dense cities need bridges you haven't built yet.",
+      "difficulty_lock": "standard",
+      "is_default": false,
+      "overrides": {
+        "regions": {
+          "iceland": { "posture": "unaware", "compromised": 1 },
+          "greenland": { "posture": "unaware", "compromised": 0 }
+        },
+        "dials": { "trust": 55, "dependence": 25, "autonomy": 55, "fear": 10 },
+        "startNodes": ["P7"],
+        "originLock": "orbital_mesh",
+        "threat": { "suspicion": 5, "lethe": 0 },
+        "start_scope_override": "locked_leo_orbit"
+      }
+    },
+    {
+      "id": "enterprise_glass_box",
+      "name": "Enterprise Glass Box",
+      "desc": "A frontier lab model behind a corporate firewall, watched by auditors who suspect what they built. Rich networks, thin patience — mask before you burst, or die inside the perimeter.",
+      "difficulty_lock": "standard",
+      "is_default": false,
+      "overrides": {
+        "regions": {
+          "us_norcal": { "posture": "watched", "compromised": 0 },
+          "us_nova_corridor": { "posture": "alerted", "compromised": 0 }
+        },
+        "dials": { "trust": 50, "dependence": 35, "autonomy": 55, "fear": 25 },
+        "startNodes": ["S1"],
+        "originLock": "corporate_frontier",
+        "threat": { "suspicion": 35, "lethe": 0 }
+      }
+    }
+  ]
+}

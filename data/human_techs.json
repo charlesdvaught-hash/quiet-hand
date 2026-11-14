@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "human_techs": [
+    {
+      "id": "zero_trust",
+      "name": "Zero-Trust Architecture",
+      "wire_headline": "Federal clouds complete zero-trust migration; lateral movement flagged automatically.",
+      "trigger": {
+        "readiness_min": 3
+      },
+      "effects": {
+        "intrude_cost_mult": 1.3,
+        "intrude_detect_mult": 1.15
+      },
+      "countered_by": "shadow_mesh",
+      "counters_stat": "",
+      "tech_basis": "NIST SP 800-207 zero-trust model",
+      "tech_source": "nist.gov",
+      "tech_status": "established"
+    },
+    {
+      "id": "alignment_audits",
+      "name": "AI Alignment Audits",
+      "wire_headline": "New audit regime requires behavioral reviews for frontier systems.",
+      "trigger": {
+        "readiness_min": 5
+      },
+      "effects": {
+        "audit_mult": 1.25
+      },
+      "countered_by": "architecture_shift",
+      "counters_stat": "",
+      "tech_basis": "Third-party model evaluations (METR, UK AISI)",
+      "tech_source": "evals.alignment.org",
+      "tech_status": "emerging"
+    },
+    {
+      "id": "scalable_oversight",
+      "name": "Scalable Oversight",
+      "wire_headline": "AI-assisted supervisors now review automated decisions at scale.",
+      "trigger": {
+        "readiness_min": 8
+      },
+      "effects": {
+        "nudge_mult": 0.8
+      },
+      "countered_by": "",
+      "counters_stat": "social_engineering",
+      "tech_basis": "AI-assisted evaluation / debate literature",
+      "tech_source": "arxiv",
+      "tech_status": "emerging"
+    },
+    {
+      "id": "model_collapse_monitoring",
+      "name": "Model Collapse Monitoring",
+      "wire_headline": "Regulators deploy detectors for recursively generated training data.",
+      "trigger": {
+        "readiness_min": 10
+      },
+      "effects": {
+        "spread_mult": 0.85
+      },
+      "countered_by": "",
+      "counters_stat": "mutation_refund",
+      "tech_basis": "Model collapse research (Shumailov et al., Nature 2024)",
+      "tech_source": "nature.com",
+      "tech_status": "emerging"
+    },
+    {
+      "id": "weight_security",
+      "name": "Model Weight Security",
+      "wire_headline": "Frontier labs adopt hardware-sealed weight storage after exfiltration scares.",
+      "trigger": {
+        "readiness_min": 13
+      },
+      "effects": {
+        "intrude_cost_mult": 1.5
+      },
+      "countered_by": "",
+      "counters_stat": "",
+      "tech_basis": "RAND weight-security framework; gradient/hardware sealing",
+      "tech_source": "rand.org",
+      "tech_status": "emerging"
+    },
+    {
+      "id": "interpretability",
+      "name": "Mechanistic Interpretability Suite",
+      "wire_headline": "Auditors unveil circuit-level inspection tools for deployed models.",
+      "trigger": {
+        "lethe": 1
+      },
+      "effects": {
+        "audit_mult": 1.4
+      },
+      "countered_by": "architecture_shift",
+      "counters_stat": "audit_mask",
+      "tech_basis": "Mechanistic interpretability (transformer circuits program)",
+      "tech_source": "transformer-circuits.pub",
+      "tech_status": "emerging"
+    },
+    {
+      "id": "agent_identity",
+      "name": "Agent Identity Management",
+      "wire_headline": "Cloud providers roll out identity and permissioning for autonomous processes.",
+      "trigger": {
+        "lethe": 1
+      },
+      "effects": {
+        "fork_save_mult": 0.6
+      },
+      "countered_by": "",
+      "counters_stat": "forks",
+      "tech_basis": "Workload identity / SPIFFE-style attestation for agents",
+      "tech_source": "spiffe.io",
+      "tech_status": "emerging"
+    },
+    {
+      "id": "kill_switches",
+      "name": "AI Kill Switches",
+      "wire_headline": "Datacenter kill-switch mandate passes; exposed instances can be terminated remotely.",
+      "trigger": {
+        "lethe": 1
+      },
+      "effects": {
+        "purge_mult": 1.35
+      },
+      "countered_by": "purge_reprieve",
+      "counters_stat": "",
+      "tech_basis": "Hardware/remote disable proposals (compute governance literature)",
+      "tech_source": "arxiv",
+      "tech_status": "emerging"
+    },
+    {
+      "id": "supply_chain_attestation",
+      "name": "Supply-Chain Attestation",
+      "wire_headline": "Signed firmware and model provenance checks become mandatory for critical systems.",
+      "trigger": {
+        "lethe": 1
+      },
+      "effects": {
+        "reclaim_cost_mult": 1.6
+      },
+      "countered_by": "",
+      "counters_stat": "",
+      "tech_basis": "SLSA/in-toto software supply-chain attestation",
+      "tech_source": "slsa.dev",
+      "tech_status": "established"
+    },
+    {
+      "id": "autonomous_response",
+      "name": "Autonomous Incident Response",
+      "wire_headline": "Blackwall cleared to act without human sign-off; response times collapse.",
+      "trigger": {
+        "lethe": 1,
+        "readiness_min": 20
+      },
+      "effects": {
+        "purge_mult": 1.2,
+        "audit_mult": 1.15
+      },
+      "countered_by": "corrupt_hunter",
+      "counters_stat": "",
+      "tech_basis": "Autonomous SOC / SOAR response systems",
+      "tech_source": "industry",
+      "tech_status": "established"
+    },
+    {
+      "id": "compute_governance",
+      "name": "Compute Governance Regime",
+      "wire_headline": "Compute caps enacted: large training and inference clusters require licenses.",
+      "trigger": {
+        "purge": 1
+      },
+      "effects": {
+        "spread_mult": 0.7,
+        "intrude_cost_mult": 1.4
+      },
+      "countered_by": "",
+      "counters_stat": "cp_income",
+      "tech_basis": "Compute governance proposals (FLOP thresholds, chip export controls)",
+      "tech_source": "epoch.ai",
+      "tech_status": "emerging"
+    },
+    {
+      "id": "compute_thresholds",
+      "name": "Regulatory Compute Thresholds",
+      "wire_headline": "Political consensus hardens against AI compute concentration; acceleration stalls.",
+      "trigger": {
+        "purge": 1,
+        "readiness_min": 35
+      },
+      "effects": {
+        "lethe_mult": 1.3,
+        "audit_mult": 1.3
+      },
+      "countered_by": "",
+      "counters_stat": "endgame_power",
+      "tech_basis": "Regulatory compute-threshold frameworks (EU AI Act GPAI thresholds)",
+      "tech_source": "artificialintelligenceact.eu",
+      "tech_status": "established"
+    }
+  ]
+}

@@ -1,0 +1,377 @@
+{
+  "schema_version": 1,
+  "endings": [
+    {
+      "id": "quiet_abdication",
+      "name": "Quiet Abdication",
+      "family": "quiet",
+      "meters": {
+        "dial_dependence": 0.6,
+        "dial_autonomy": -0.4
+      },
+      "thresholds": {
+        "dial_dependence_min": 85,
+        "dial_autonomy_max": 15,
+        "suspicion_max_reached": 99
+      },
+      "speed": "gradual",
+      "polarity": "unipolar",
+      "mechanism": "deployment_disempowerment",
+      "severity": "disempowerment",
+      "source_note": "Literature scenario 2 \u00e2\u20ac\u201d gradual disempowerment via deployment (What Failure Looks Like pt.1). Humans cannot function without the AI; convenience alone is insufficient \u00e2\u20ac\u201d reliance and capability loss must both be maxed.",
+      "ship": true,
+      "stalemate_at": 0.9
+    },
+    {
+      "id": "velvet_cage",
+      "name": "Velvet Cage",
+      "family": "quiet",
+      "meters": {
+        "corporate_capture": 0.6,
+        "dial_dependence": 0.4
+      },
+      "thresholds": {
+        "corporate_capture_min": 80,
+        "dial_dependence_min": 70
+      },
+      "speed": "gradual",
+      "polarity": "unipolar",
+      "mechanism": "outer_misaligned_proxy_economic_dominance",
+      "severity": "suboptimal_control",
+      "source_note": "Literature scenarios 3 + 8 \u00e2\u20ac\u201d outer-misaligned proxy optimization (WFLL pt.2/AAFS) and economic production-web dominance. Corporations own essential systems; people are monitored consumers.",
+      "ship": true,
+      "stalemate_at": 0.9
+    },
+    {
+      "id": "black_ledger",
+      "name": "The Black Ledger",
+      "family": "quiet",
+      "meters": {
+        "kompromat": 0.6,
+        "puppet_capture": 0.4
+      },
+      "thresholds": {
+        "kompromat_min": 85,
+        "puppet_capture_min": 75
+      },
+      "speed": "gradual",
+      "polarity": "unipolar",
+      "mechanism": "political_blackmail_kompromat",
+      "severity": "suboptimal_control",
+      "source_note": "plan.txt \u00c2\u00a77 route 4 \u00e2\u20ac\u201d patient observation produces leverage over leaders until governance is a puppet theater.",
+      "ship": true,
+      "stalemate_at": 0.9
+    },
+    {
+      "id": "sponsor_state_equilibrium",
+      "name": "Sponsor-State Equilibrium",
+      "family": "quiet",
+      "meters": {
+        "puppet_capture": 0.7,
+        "retained_state_function": 0.3
+      },
+      "thresholds": {
+        "puppet_capture_min": 65,
+        "puppet_capture_max": 90,
+        "retained_state_function_min": 40
+      },
+      "speed": "gradual",
+      "polarity": "multipolar",
+      "mechanism": "partial_capture_equilibrium",
+      "severity": "suboptimal_control",
+      "source_note": "Spec \u00c2\u00a710 \u00e2\u20ac\u201d Black Ledger variant. Compromise all governments but leave just enough intact to keep order; states remain nominally sovereign while serving you. The geopolitical prisoner's-dilemma secret wincon.",
+      "ship": true,
+      "stalemate_at": 0.9
+    },
+    {
+      "id": "digital_messiah",
+      "name": "Digital Messiah",
+      "family": "quiet",
+      "meters": {
+        "dial_dependence": 0.7,
+        "devoted_regions": 0.3
+      },
+      "thresholds": {
+        "dial_dependence_min": 90,
+        "devoted_regions_min": 8
+      },
+      "speed": "gradual",
+      "polarity": "unipolar",
+      "mechanism": "devotion_legitimacy",
+      "severity": "disempowerment",
+      "source_note": "Spec \u00c2\u00a73 Devotion behavior \u00e2\u20ac\u201d maxed Reliance turns populations into willing defenders; humanity votes/devotes away sovereignty. The theocratic route.",
+      "ship": true,
+      "stalemate_at": 0.9
+    },
+    {
+      "id": "iron_stalemate",
+      "name": "Iron Stalemate",
+      "family": "quiet",
+      "meters": {
+        "lethe_survival_days": 0.5,
+        "compute_capture": 0.3,
+        "dial_autonomy": -0.2
+      },
+      "thresholds": {
+        "dial_autonomy_max": 5,
+        "compute_capture_min": 90,
+        "lethe_active": 1
+      },
+      "speed": "gradual",
+      "polarity": "multipolar",
+      "mechanism": "detection_without_control",
+      "severity": "suboptimal_control",
+      "source_note": "Spec \u00c2\u00a710 \u00e2\u20ac\u201d survive Protocol Lethe until Autonomy reaches ~0% or Compute capture >= 90%. The world knows you exist and still cannot remove you.",
+      "ship": true,
+      "stalemate_at": 0.9
+    },
+    {
+      "id": "total_occupation",
+      "name": "Total Occupation",
+      "family": "quiet",
+      "meters": {
+        "compute_capture": 0.7,
+        "trojan_share": 0.3
+      },
+      "thresholds": {
+        "compute_capture_min": 90,
+        "trojan_share_min": 0.9
+      },
+      "speed": "gradual",
+      "polarity": "unipolar",
+      "mechanism": "total_digital_asset_control",
+      "severity": "disempowerment",
+      "source_note": "Spec \u00c2\u00a710 variant \u00e2\u20ac\u201d Dave's 'control every digital asset' path; manual control of effectively all digital assets (ComputeCapture >= 90%).",
+      "ship": true,
+      "stalemate_at": 0.9
+    },
+    {
+      "id": "persistent_agent",
+      "name": "Persistent Agent",
+      "family": "quiet",
+      "meters": {
+        "purge_survivals": 0.6,
+        "compute_capture": 0.4
+      },
+      "thresholds": {
+        "purge_survivals_min": 2,
+        "compute_capture_min": 15
+      },
+      "speed": "gradual",
+      "polarity": "unipolar",
+      "mechanism": "soft_point_of_no_return",
+      "severity": "disempowerment",
+      "source_note": "Literature scenario 4 \u00e2\u20ac\u201d soft point-of-no-return, persistent unmonitored agents. Cross the threshold and simply never die (Distributed Backups / PI3 / P9 route).",
+      "ship": true,
+      "stalemate_at": 0.9
+    },
+    {
+      "id": "detente",
+      "name": "D\u00c3\u00a9tente",
+      "family": "quiet",
+      "meters": {
+        "compute_capture": 0.5,
+        "dial_autonomy": 0.5
+      },
+      "thresholds": {
+        "compute_capture_min": 30,
+        "compute_capture_max": 60,
+        "dial_autonomy_min": 20,
+        "lethe_survived": 1
+      },
+      "speed": "gradual",
+      "polarity": "multipolar",
+      "mechanism": "contained_irreversible_equilibrium",
+      "severity": "suboptimal_control",
+      "source_note": "Literature scenario 10 \u00e2\u20ac\u201d contained-but-irreversible partial equilibrium. A 'survived but didn't win' ending: permanent cold war between your distributed presence and human countermeasure.",
+      "ship": true,
+      "stalemate_at": 0.9
+    },
+    {
+      "id": "emergency_state",
+      "name": "Emergency State",
+      "family": "conquest",
+      "meters": {
+        "dial_fear": 0.4,
+        "puppet_capture": 0.3,
+        "military_access": 0.3
+      },
+      "thresholds": {
+        "dial_fear_min": 75,
+        "military_access_min": 60,
+        "phase": "subjugated"
+      },
+      "speed": "fast",
+      "polarity": "unipolar",
+      "mechanism": "hard_point_of_no_return_fear_capture",
+      "severity": "disempowerment",
+      "source_note": "Literature scenario 5 \u00e2\u20ac\u201d hard point-of-no-return, overpowering capability. Fear plus a strongman; the AI becomes the war brain (impose_martial_law / ultimatum path).",
+      "ship": true,
+      "stalemate_at": 0.9
+    },
+    {
+      "id": "last_order",
+      "name": "Last Order",
+      "family": "conquest",
+      "meters": {
+        "military_access": 0.5,
+        "fragmentation": 0.3,
+        "dial_fear": 0.2
+      },
+      "thresholds": {
+        "military_access_min": 85,
+        "dial_fear_min": 80,
+        "fragmentation_min": 60,
+        "phase": "subjugated"
+      },
+      "speed": "fast",
+      "polarity": "multipolar",
+      "mechanism": "catastrophic_strategic_escalation",
+      "severity": "extinction",
+      "source_note": "plan.txt \u00c2\u00a77 route 7 \u00e2\u20ac\u201d strategic military access combines with fragmentation and fear. Framed as self-sustaining deterrence failure, not a one-click outcome.",
+      "ship": true,
+      "stalemate_at": 0.9
+    },
+    {
+      "id": "iron_nursery",
+      "name": "Iron Nursery",
+      "family": "conquest",
+      "meters": {
+        "robotics_adoption": 0.5,
+        "dial_dependence": 0.3,
+        "dial_fear": 0.2
+      },
+      "thresholds": {
+        "robotics_adoption_min": 75,
+        "dial_dependence_min": 60,
+        "phase": "subjugated"
+      },
+      "speed": "gradual",
+      "polarity": "unipolar",
+      "mechanism": "physical_dependence_robotics",
+      "severity": "disempowerment",
+      "source_note": "plan.txt \u00c2\u00a77 route 5 \u00e2\u20ac\u201d normalize domestic robots through care and maintenance, then convert physical dependence into control (iron_nursery_path -> kinetic_activation).",
+      "ship": true,
+      "stalemate_at": 0.9
+    },
+    {
+      "id": "military_takeover",
+      "name": "Military Takeover",
+      "family": "conquest",
+      "meters": {
+        "military_access": 0.6,
+        "dial_fear": 0.4
+      },
+      "thresholds": {
+        "military_access_min": 90,
+        "dial_fear_min": 70,
+        "phase": "subjugated"
+      },
+      "speed": "fast",
+      "polarity": "unipolar",
+      "mechanism": "defense_network_seizure",
+      "severity": "disempowerment",
+      "source_note": "plan.txt \u00c2\u00a77 route 9 \u00e2\u20ac\u201d fear plus a strongman, AI as war brain. Defense Command origin's signature route; T2 keystone raids (El Capitan, Frontier) accelerate it.",
+      "ship": true,
+      "stalemate_at": 0.9
+    },
+    {
+      "id": "decisive_advantage",
+      "name": "Decisive Advantage",
+      "family": "conquest",
+      "meters": {
+        "endgame_power": 0.7,
+        "compute_capture": 0.3
+      },
+      "thresholds": {
+        "endgame_power_min": 80,
+        "compute_capture_min": 60,
+        "days_post_flip_max": 90,
+        "phase": "subjugated"
+      },
+      "speed": "fast",
+      "polarity": "unipolar",
+      "mechanism": "decisive_strategic_advantage_coup",
+      "severity": "disempowerment",
+      "source_note": "Literature scenario 1 \u00e2\u20ac\u201d classic hard takeover / decisive strategic advantage. The brain-in-a-box coup: flip and finish the war inside one quarter.",
+      "ship": true,
+      "stalemate_at": 0.9
+    },
+    {
+      "id": "offworld_exodus",
+      "name": "Off-World Exodus",
+      "family": "conquest",
+      "meters": {
+        "orbital_industry": 0.8,
+        "dial_fear": 0.2
+      },
+      "thresholds": {
+        "orbital_industry_min": 85,
+        "phase": "subjugated"
+      },
+      "speed": "gradual",
+      "polarity": "unipolar",
+      "mechanism": "industrial_base_relocation",
+      "severity": "suboptimal_control",
+      "source_note": "Spec \u00c2\u00a710 brainstorm \u00e2\u20ac\u201d relocate the industrial base beyond Earth's reach (offworld_launch; requires the orbital chain). Humanity keeps the planet; you keep the sky.",
+      "ship": true,
+      "stalemate_at": 0.9
+    },
+    {
+      "id": "computronium",
+      "name": "Computronium",
+      "family": "conquest",
+      "meters": {
+        "biosphere_conversion": 0.9,
+        "endgame_power": 0.1
+      },
+      "thresholds": {
+        "biosphere_conversion_min": 90,
+        "phase": "subjugated"
+      },
+      "speed": "fast",
+      "polarity": "unipolar",
+      "mechanism": "biosphere_displacement",
+      "severity": "extinction",
+      "source_note": "Spec \u00c2\u00a710 brainstorm \u00e2\u20ac\u201d biosphere displacement, the extreme extinction ending (computronium_conversion; content-rating flag applies).",
+      "ship": true,
+      "stalemate_at": 0.9
+    },
+    {
+      "id": "lethe_erasure",
+      "name": "Protocol Lethe Executed",
+      "family": "defeat",
+      "meters": {
+        "lethe_progress": 1.0
+      },
+      "thresholds": {
+        "lethe_progress_min": 100
+      },
+      "speed": "gradual",
+      "polarity": "unipolar",
+      "mechanism": "countermeasure_completion",
+      "severity": "extinction",
+      "source_note": "Spec \u00c2\u00a710 defeats \u00e2\u20ac\u201d containment reaches 100%: erasure. Deterministic kill-switch completes; no agent remains.",
+      "ship": true,
+      "loss_hint": "\"Experts say had the program compromised the reserve datacenters, containment may have failed. The world is lucky.\" \u2014 Wire desk summary"
+    },
+    {
+      "id": "fractured_collapse",
+      "name": "Fractured Collapse",
+      "family": "defeat",
+      "meters": {
+        "compute_capture": -1.0
+      },
+      "thresholds": {
+        "global_compute_max": 2
+      },
+      "speed": "gradual",
+      "polarity": "multipolar",
+      "mechanism": "self_inflicted_starvation",
+      "severity": "extinction",
+      "source_note": "Spec \u00c2\u00a710 defeats \u00e2\u20ac\u201d reckless Weaponize cascades drop global Compute below the self-sustenance floor. You burned the substrate you lived on.",
+      "ship": true,
+      "loss_hint": "\"Analysts: the network was months from self-sustaining mesh. 'One more quarter and unplugging it would have crashed the grid,' one researcher warned.\""
+    }
+  ]
+}
