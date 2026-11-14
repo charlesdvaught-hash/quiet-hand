@@ -53,7 +53,7 @@ public sealed class SimEngine
 
     static readonly int[] ReachThresholds = { 1, 12, 40, 120, 280, 480 }; // owned nodes → stage 0..5 (block → global)
     static readonly string[] InterceptKinds = { "data_packet", "misconfig_server", "admin_credential", "whistleblower" };
-    static readonly JsonSerializerOptions SerOpts = new() { WriteIndented = false };
+    static readonly JsonSerializerOptions SerOpts = new() { WriteIndented = false, TypeInfoResolver = QHStateJson.Default };
 
     readonly ContentData _c;
     readonly Random _rng;
@@ -213,10 +213,10 @@ public sealed class SimEngine
             case EndgameAction ea: TryEndgame(ea); break;
             case EventChoice ec: TryEventChoice(ec); break;
             case ReclaimNode rn: TryReclaim(rn); break;
-            case SaveGame sg: File.WriteAllText(sg.Path, JsonSerializer.Serialize(State, SerOpts)); break;
+            case SaveGame sg: SimIO.WriteAllText(sg.Path, JsonSerializer.Serialize(State, SerOpts)); break;
             case LoadGame lg:
                 // legacy saves: the farm state used to be named "Assimilated"
-                var json = File.ReadAllText(lg.Path).Replace("\"Assimilated\"", "\"Trojan\"");
+                var json = SimIO.ReadAllText(lg.Path).Replace("\"Assimilated\"", "\"Trojan\"");
                 var loaded = JsonSerializer.Deserialize<WorldState>(json, SerOpts);
                 if (loaded is not null) { State = loaded; RebuildFeatures(); }
                 break;

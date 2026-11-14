@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <WasmMainJSPath>main.js</WasmMainJSPath>
+    <!-- reflection-based System.Text.Json for the snapshot's anonymous
+         shapes; browser-wasm disables it by default (source-gen only) -->
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\QuietHand.Core\QuietHand.Core.csproj" />
+    <!-- the wasm SDK links the app; root our assemblies so content/state
+         types reached only via reflection keep their members -->
+    <TrimmerRootAssembly Include="QuietHand.Core" />
+    <TrimmerRootAssembly Include="QuietHand.Wasm" />
+  </ItemGroup>
+
+</Project>

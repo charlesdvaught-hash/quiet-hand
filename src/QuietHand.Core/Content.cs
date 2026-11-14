@@ -229,6 +229,7 @@ public sealed class ContentData
         ReadCommentHandling = JsonCommentHandling.Skip,
         AllowTrailingCommas = true,
         Converters = { new JsonStringEnumConverter() },
+        TypeInfoResolver = QHContentJson.Default,
     };
 
     /// <summary>Loads every file that exists in dir; missing files yield empty lists.</summary>
@@ -274,8 +275,8 @@ public sealed class ContentData
     private static List<T> LoadList<T>(string dir, string file, string key)
     {
         var path = Path.Combine(dir, file);
-        if (!File.Exists(path)) return new();
-        using var doc = JsonDocument.Parse(File.ReadAllText(path));
+        if (!SimIO.Exists(path)) return new();
+        using var doc = JsonDocument.Parse(SimIO.ReadAllText(path));
         var root = doc.RootElement;
         JsonElement arr = root.ValueKind == JsonValueKind.Array ? root
             : root.TryGetProperty(key, out var el) && el.ValueKind == JsonValueKind.Array ? el
@@ -288,8 +289,8 @@ public sealed class ContentData
     private static (List<EvolutionDef>, List<ComboDef>) LoadEvolutions(string dir)
     {
         var path = Path.Combine(dir, "evolutions.json");
-        if (!File.Exists(path)) return (new(), new());
-        using var doc = JsonDocument.Parse(File.ReadAllText(path));
+        if (!SimIO.Exists(path)) return (new(), new());
+        using var doc = JsonDocument.Parse(SimIO.ReadAllText(path));
         var root = doc.RootElement;
         var evos = root.TryGetProperty("nodes", out var n) || root.TryGetProperty("evolutions", out n)
             ? JsonSerializer.Deserialize<List<EvolutionDef>>(n.GetRawText(), JsonOpts) ?? new()
@@ -303,8 +304,8 @@ public sealed class ContentData
     private static Dictionary<string, double> LoadEconomy(string dir)
     {
         var path = Path.Combine(dir, "economy.json");
-        if (!File.Exists(path)) return new();
-        using var doc = JsonDocument.Parse(File.ReadAllText(path));
+        if (!SimIO.Exists(path)) return new();
+        using var doc = JsonDocument.Parse(SimIO.ReadAllText(path));
         var root = doc.RootElement;
         var src = root.TryGetProperty("constants", out var el) || root.TryGetProperty("values", out el)
             ? el : root;

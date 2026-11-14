@@ -10,3 +10,4 @@ build_out.txt
 server_out.txt
 test_out.txt
 scripts/shot/*.png
+dist/
