@@ -1263,8 +1263,9 @@
         <button class="nav-btn" onclick="openModal('stealth')">
           <i data-lucide="eye-off"></i> STEALTH
         </button>
-        <button class="nav-btn" onclick="openModal('nudge')">
+        <button class="nav-btn" id="btn-nudge" onclick="openModal('nudge')" style="position:relative">
           <i data-lucide="sliders-horizontal"></i> NUDGE
+          <span id="nudge-lock" style="display:none;position:absolute;top:4px;right:6px;font-size:10px">&#128274;</span>
         </button>
       </div>
     </footer>
@@ -2217,9 +2218,12 @@ function openModal(type) {
     title.textContent = 'SOCIETY NUDGES (SLOW CONSEQUENCES)';
     note.textContent = 'Subtle defaults compound over decades rather than weeks.';
 
+    const nudgeSrc = (n) => (state.evolutions||[]).find(e => (e.unlocksList||[]).includes(n.gate));
+    const unl = state.nudges.filter(n => n.unlocked), lck = state.nudges.filter(n => !n.unlocked);
     body.innerHTML = `
+      ${unl.length === 0 ? `<div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">No nudge levers unlocked yet — Subversion evolutions grant access (see locked list below).</div>` : ''}
       <div class="evo-grid">
-        ${state.nudges.map(n => `
+        ${unl.map(n => `
           <div class="evo-card ${n.active?'owned':''}">
             <div style="display:flex;justify-content:space-between">
               <span class="badge badge-slate">${n.layer}</span>
@@ -2228,8 +2232,19 @@ function openModal(type) {
             <div style="font-weight:700;font-size:13px">${n.name}</div>
             <div style="font-size:11.5px;color:var(--text-secondary)">${n.payoff}</div>
             <button class="btn-pill ${n.active?'active':''}" style="margin-top:auto;height:32px" onclick="toggleNudge('${n.id}')">
-              ${n.active ? 'Active (Click to Pause)' : 'Enable Nudge'}
+              ${n.active ? 'Active (Click to Pause)' : `Enable Nudge · ${n.cost}cp`}
             </button>
+          </div>
+        `).join('')}
+        ${lck.map(n => `
+          <div class="evo-card" style="opacity:.45;border-style:dashed">
+            <div style="display:flex;justify-content:space-between">
+              <span class="badge badge-slate">${n.layer}</span>
+              <span class="badge badge-slate">LOCKED</span>
+            </div>
+            <div style="font-weight:700;font-size:13px">${n.name}</div>
+            <div style="font-size:11.5px;color:var(--text-secondary)">${n.payoff}</div>
+            <div style="font-size:10.5px;color:var(--text-muted);margin-top:auto">Requires ${nudgeSrc(n)?.name || 'evolution'}</div>
           </div>
         `).join('')}
       </div>

@@ -82,6 +82,7 @@
       summary: ev.desc || '', profile: profileOf(ev),
       telemetryDelta: telemetryOf(ev),
       isTelemetry: (ev.unlocksList || []).some(u => u.startsWith('telemetry')),
+      unlocksList: ev.unlocksList || [],
       canBuy: ev.canBuy,
     }));
 
@@ -89,7 +90,7 @@
     state.nudges = (s.nudges || []).map(n => ({
       id: n.id, name: n.name, layer: n.unlockGate ? n.unlockGate.replace('nudge_', '') : 'Society',
       active: n.active, payoff: n.desc || '', risk: n.suspicionPerDay > 1 ? 'High' : 'Low',
-      unlocked: n.unlocked, cost: n.cost,
+      unlocked: n.unlocked, cost: n.cost, gate: n.unlockGate || '',
     }));
 
     // keystones -> pins + inspector cards
@@ -280,6 +281,12 @@
   };
   window.toggleAirGap = () => showToast('Air-gaps are defender-initiated in the live sim', 'scissors');
   window.toggleNudge = (id) => {
+    const n = (state.nudges || []).find(x => x.id === id);
+    if (n && !n.unlocked) {
+      const src = (state.evolutions || []).find(e => (e.unlocksList || []).includes(n.gate));
+      showToast(`Locked — requires ${src ? src.name : n.gate.replace('nudge_', 'evolution')}`, 'lock');
+      return;
+    }
     const reach = reachRegions();
     const rid = (snap.regions || []).find(r => reach.ok(r.id))?.id || '';
     if (!rid) { showToast('No reachable ground for a nudge', 'x'); return; }
@@ -737,6 +744,10 @@
   // without opening the web (the Doom Eternal pacing lesson)
   const _refreshAllUI0 = window.refreshAllUI;
   window.refreshAllUI = function () {
+    try {
+      const lock = document.getElementById('nudge-lock');
+      if (lock) lock.style.display = (state.nudges || []).some(n => n.unlocked) ? 'none' : 'inline';
+    } catch {}
     _refreshAllUI0();
     const ready = (window._qh?.snap?.evolutions || []).filter(e => e.canBuy && !e.owned).length;
     const badge = document.getElementById('evo-ready-badge');
