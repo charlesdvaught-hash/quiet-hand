@@ -56,7 +56,11 @@
         "footprint_mask",
         "mutation_refund",
         "endgame_power",
-        "seed_chance"
+        "seed_chance",
+        "common_yield",
+        "forks",
+        "social_engineering",
+        "sys_analysis"
       ]
     },
     "unlockKey": {
@@ -93,7 +97,11 @@
         "murmur_personas",
         "seed_target",
         "remote_ops",
-        "probe_intel"
+        "probe_intel",
+        "buy_outright",
+        "common_burn",
+        "corrupt_hunter",
+        "reinfect"
       ]
     },
     "effectMap": {

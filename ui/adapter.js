@@ -503,7 +503,7 @@
   const WEB = { P: -135, C: -45, S: 45, D: 135 };   // wedge centers (deg)
   const WEBC = { P: '#38bdf8', C: '#818cf8', S: '#fbbf24', D: '#f87171', center: '#f0abfc' };
   const WEB_LABEL = { P: 'PROPAGATION', C: 'COGNITION', S: 'SUBVERSION', D: 'DISRUPTION' };
-  const TIER_R = t => 124 + (t - 1) * 66;            // tier ring radius (px)
+  const TIER_R = t => 360 - (t - 1) * 62;            // rim -> hub: capstones close on X1
   const WEDGE = 76;                                  // usable wedge arc (deg)
 
   function evoInitials(name) {
@@ -597,7 +597,7 @@
 
     // wedge labels on the outer rim
     const rim = ['P', 'C', 'S', 'D'].map(b => {
-      const a2 = WEB[b] * Math.PI / 180, r = TIER_R(5) + 44;
+      const a2 = WEB[b] * Math.PI / 180, r = TIER_R(1) + 44;
       return `<div style="position:absolute;left:${CX + r * Math.cos(a2) - 70}px;top:${CY + r * Math.sin(a2) - 9}px;width:140px;
         text-align:center;font-size:10px;font-weight:800;letter-spacing:.1em;color:${WEBC[b]}">${WEB_LABEL[b]}</div>`;
     }).join('');

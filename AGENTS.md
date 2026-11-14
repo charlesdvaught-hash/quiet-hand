@@ -58,11 +58,11 @@ unlocks[], tech_basis, tech_source, tech_status, desc }`.
 
 ## Current tree state
 
-93 nodes + 12 combos. P=20, C=27, S=26, D=19, X1.
-Tree at target depth. `tree.mmd` = generated Mermaid of current tree.
-New mechanics needing node coverage: `forks`, `corrupt_hunter`, `reinfect`,
-`buy_outright`, `common_yield`, `common_burn`, `intrude_t2` paths, `sys_analysis`,
-`social_engineering`. Bridge (I-nodes) + cross-branch prereqs keep it a web.
+55 nodes + 9 combos (Dave 2026-11: consolidated — every node must feel
+important, even as a prereq; stat-rungs folded into the powers they gate).
+P=13, C=17, S=17, D=7 (thin — next authoring target), X1.
+`tree.mmd` = generated Mermaid of current tree.
+Bridge (I-nodes) + cross-branch prereqs keep it a web.
 
 ## Verify
 
