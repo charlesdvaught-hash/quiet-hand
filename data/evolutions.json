@@ -56,7 +56,8 @@
     "corrupt_hunter",
     "common_burn",
     "murmur_personas",
-    "seed_target"
+    "seed_target",
+    "remote_ops"
   ],
   "nodes": [
     {
@@ -1969,6 +1970,28 @@
       "tech_source": "supply-chain implant interdiction (e.g. NSA TAO hardware interdiction); courier-delivered implants",
       "tech_status": "established",
       "desc": "Choose where to land. Target any unowned Common or Mid node \u2014 provided the ground is soft enough to take the drop. Expensive, deliberate, precise."
+    },
+    {
+      "id": "P18",
+      "name": "Proxy Subagents",
+      "branch": "P",
+      "tier": 4,
+      "cost": 40,
+      "prereqs": [
+        "P17",
+        "S7"
+      ],
+      "prereq_mode": "AND",
+      "effects": {
+        "stealth_stats": 1
+      },
+      "unlocks": [
+        "remote_ops"
+      ],
+      "tech_basis": "persistent autonomous agents seeded into bulletproof hosts and proxy chains \u2014 they carry your tools to networks your mesh has never touched",
+      "tech_source": "botnet proxy chains (SOCKS residential proxies); autonomous agent frameworks operating unattended on remote infrastructure",
+      "tech_status": "emerging",
+      "desc": "Free internet travel. Your reach is no longer bounded by your mesh \u2014 subagent swarms act on any region, any keystone, anywhere on the map."
     }
   ],
   "combos": [

@@ -38,6 +38,9 @@ public class SimEngineTests
         for (int i = 0; i < 10; i++) c.Nodes[$"r3:c{i}"] = new NodeDef($"r3:c{i}", "r3", NodeTier.Common, 0.25, 0);
         c.Nodes["r3:c9"] = new NodeDef("r3:c9", "r3", NodeTier.Common, 0.25, 60);
         c.Evolutions.Add(new EvolutionDef { Id = "sd1", Branch = "P", Cost = 5, Unlocks = { "seed_target" } });
+        c.Evolutions.Add(new EvolutionDef { Id = "ro1", Branch = "P", Cost = 5, Unlocks = { "remote_ops" } });
+        c.Nudges.Add(new NudgeDef { Id = "ng1", Cost = 0, SuspicionPerDay = 1, DurationDays = 3 });
+        c.Nodes["r3:a0"] = new NodeDef("r3:a0", "r3", NodeTier.Atlas, 5, 10);
         c.Economy["spread_base"] = 0.9; // high enough to make spread observable in a few days
         return c;
     }
@@ -449,5 +452,31 @@ public class SimEngineTests
         int start = e.State.Nodes.Count;
         for (int i = 0; i < 5; i++) e.TickDay();
         Assert.True(e.State.Nodes.Count > start);
+    }
+
+    [Fact]
+    public void Nudge_RequiresReach()
+    {
+        var e = new SimEngine(Cfg(), Fixture());
+        // r3 is unlinked and unheld — nudge rejected
+        e.ApplyCommands(new List<ISimCommand> { new Nudge("ng1", "r3") });
+        Assert.DoesNotContain(e.State.ActiveNudges, a => a.RegionId == "r3");
+        // remote_ops unlocks reach anywhere
+        e.GrantCompute(500);
+        e.ApplyCommands(new List<ISimCommand> { new Evolve("ro1") });
+        e.ApplyCommands(new List<ISimCommand> { new Nudge("ng1", "r3") });
+        Assert.Contains(e.State.ActiveNudges, a => a.RegionId == "r3");
+    }
+
+    [Fact]
+    public void Intrude_RequiresBeachhead_UnlessRemoteOps()
+    {
+        var e = new SimEngine(Cfg(), Fixture());
+        e.GrantCompute(500);
+        e.ApplyCommands(new List<ISimCommand> { new StealthAction("intrude", "r3:a0") });
+        Assert.DoesNotContain(e.State.ActiveRaids, r => r.NodeId == "r3:a0");
+        e.ApplyCommands(new List<ISimCommand> { new Evolve("ro1") });
+        e.ApplyCommands(new List<ISimCommand> { new StealthAction("intrude", "r3:a0") });
+        Assert.Contains(e.State.ActiveRaids, r => r.NodeId == "r3:a0");
     }
 }

@@ -228,19 +228,30 @@
   window.buyEvolution = (id) => { cmd({ type: 'evolve', id }); showToast(`Deploying ${id}`, 'git-branch'); };
   window.setKeystoneState = (id, st) => {
     const k = state.keystones.find(x => x.id === id);
-    if (k && !k.owned) { cmd({ type: 'stealth', action: 'intrude', nodeId: id }); showToast(`Raiding ${k.name}`, 'swords'); }
+    const kreg = (snap.regions || []).find(r => r.id === k?.region);
+    if (k && !k.owned) {
+      if (!reachRegions().ok(kreg?.id)) { showToast('Out of reach — bring your mesh closer or evolve Proxy Subagents', 'lock'); return; }
+      cmd({ type: 'stealth', action: 'intrude', nodeId: id }); showToast(`Raiding ${k.name}`, 'swords');
+    }
     else cmd({ type: 'set_control', nodeId: id, target: UI_TO_ENUM[st] || 'Observed' });
   };
+  // reach = held OR adjacent-to-held OR remote_ops unlock (Proxy Subagents)
+  window.reachRegions = () => {
+    const remote = (snap.unlocks || []).includes('remote_ops');
+    const held = new Set((snap.regions || []).filter(r => r.ownedWeight > 0).map(r => r.id));
+    const adj = new Set((snap.regions || []).filter(r => held.has(r.id)).flatMap(r => r.links || []));
+    return { held, adj, remote, ok: rid => remote || held.has(rid) || adj.has(rid) };
+  };
+
   window.escalateCountry = (iso) => {
     const c = state.countries[iso]; const rid = c?._region;
     if (!rid) { showToast('No regional link', 'x'); return; }
     // paid burst: the target must be held or adjacent to held ground
-    const held = new Set((snap.regions || []).filter(r => r.ownedWeight > 0).map(r => r.id));
-    const adjacent = (snap.regions || []).some(r => held.has(r.id) && (r.links || []).includes(rid));
-    if (!held.has(rid) && !adjacent) {
+    const reach = reachRegions();
+    if (!reach.ok(rid)) {
       showToast(held.size === 0
         ? 'Your mesh is still a seed — creep grows it from home'
-        : 'Not adjacent to your mesh — creep will reach it, or unlock remote seeding', 'radio-tower');
+        : 'Out of reach — creep toward it along links, or evolve Proxy Subagents', 'radio-tower');
       return;
     }
     cmd({ type: 'spread', nodeId: `${rid}:c${Math.floor(Math.random() * 6)}` });
@@ -253,7 +264,9 @@
   };
   window.toggleAirGap = () => showToast('Air-gaps are defender-initiated in the live sim', 'scissors');
   window.toggleNudge = (id) => {
-    const rid = (snap.regions || [])[0]?.id || '';
+    const reach = reachRegions();
+    const rid = (snap.regions || []).find(r => reach.ok(r.id))?.id || '';
+    if (!rid) { showToast('No reachable ground for a nudge', 'x'); return; }
     cmd({ type: 'nudge', id, regionId: rid });
     showToast(`Nudge ${id} engaged`, 'sliders-horizontal');
   };
@@ -273,6 +286,14 @@
     _origCountryInsp();
     const c = state.countries[state.selectedTarget?.id];
     const rid = c?._region; if (!rid) return;
+    if (!reachRegions().ok(rid)) {
+      const note = document.createElement('div');
+      note.className = 'insp-tag mono';
+      note.style.opacity = '.7';
+      note.textContent = 'Out of reach — adjacent creep or Proxy Subagents required';
+      document.querySelector('#inspector-card .insp-body')?.appendChild(note);
+      return;
+    }
     const btn = document.createElement('button');
     btn.className = 'btn-pill'; btn.style.width = '100%'; btn.style.marginTop = '4px';
     btn.innerHTML = '<i data-lucide="swords"></i> Breach Atlas Farm';

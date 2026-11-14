@@ -339,7 +339,7 @@ public sealed class SimEngine
     void TryNudge(Nudge n)
     {
         var def = _c.Nudges.Find(x => x.Id == n.NudgeId);
-        if (def is null || !Spend(def.Cost)) return;
+        if (def is null || !RemoteReach(n.RegionId) || !Spend(def.Cost)) return;
         // gated by the nudge_* unlock an owned evolution must grant
         if (def.UnlockGate.Length > 0 && !_c.Evolutions.Any(ev =>
                 State.OwnedEvolutions.Contains(ev.Id) && ev.Unlocks.Contains(def.UnlockGate))) return;
@@ -561,13 +561,7 @@ public sealed class SimEngine
         bool gold = def.Tier is NodeTier.KeystoneT1 or NodeTier.KeystoneT2
             or NodeTier.KeystoneT3to5 or NodeTier.Wildcard;
         if (gold && !HasFeature("intrude_t2")) return;
-        bool beachhead = State.Nodes.Keys.Any(id =>
-        {
-            var d = _c.Nodes.GetValueOrDefault(id);
-            return d?.RegionId == def.RegionId
-                && State.Nodes[id].State is not (ControlState.AirGapped or ControlState.Orphaned);
-        });
-        if (!beachhead) return;
+        if (!LiveIn(def.RegionId) && !HasFeature("remote_ops")) return;
         double tierMult = def.Tier switch
         {
             NodeTier.Mid => 0.5, NodeTier.Atlas => 1,
@@ -926,6 +920,20 @@ public sealed class SimEngine
     // §5: manual spread — the early-game verb. Tap a neighbor house/device:
     // needs a live foothold in the same region (or a corridor link at Region+
     // scope), small Compute cost, installs dormant Observe.
+    bool LiveIn(string regionId) => State.Nodes.Keys.Any(id =>
+    {
+        var d = _c.Nodes.GetValueOrDefault(id);
+        return d?.RegionId == regionId
+            && State.Nodes[id].State is not (ControlState.AirGapped or ControlState.Orphaned);
+    });
+
+    // reach = what you can *act on*: held ground, ground linked from held
+    // ground, or anywhere once proxy subagents are fielded
+    bool RemoteReach(string regionId) =>
+        HasFeature("remote_ops")
+        || LiveIn(regionId)
+        || _c.Regions.Any(reg => LiveIn(reg.Id) && reg.Links.Any(l => l.To == regionId));
+
     bool LiveCommonIn(string regionId) => State.Nodes.Keys.Any(id =>
     {
         var d = _c.Nodes.GetValueOrDefault(id);

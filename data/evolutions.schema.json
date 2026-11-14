@@ -91,7 +91,8 @@
         "endgame_menu",
         "fear_inversion",
         "murmur_personas",
-        "seed_target"
+        "seed_target",
+        "remote_ops"
       ]
     },
     "effectMap": {
