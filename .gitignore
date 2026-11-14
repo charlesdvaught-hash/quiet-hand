@@ -5,3 +5,4 @@ obj/
 scripts/shot/node_modules/
 scripts/shot/*.png
 scriptsshot/
+saves/
