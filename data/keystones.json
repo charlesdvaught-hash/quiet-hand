@@ -234,7 +234,7 @@
     },
     {
       "id": "el_capitan_llnl",
-      "name": "El Capitan — Lawrence Livermore National Laboratory",
+      "name": "El Capitan \u00e2\u20ac\u201d Lawrence Livermore National Laboratory",
       "region": "us_norcal",
       "tier": "T2",
       "compute": 58,
@@ -245,7 +245,7 @@
     },
     {
       "id": "frontier_ornl",
-      "name": "Frontier — Oak Ridge National Laboratory",
+      "name": "Frontier \u00e2\u20ac\u201d Oak Ridge National Laboratory",
       "region": "us_southeast",
       "tier": "T2",
       "compute": 56,
@@ -256,7 +256,7 @@
     },
     {
       "id": "aurora_argonne",
-      "name": "Aurora — Argonne National Laboratory",
+      "name": "Aurora \u00e2\u20ac\u201d Argonne National Laboratory",
       "region": "us_midwest",
       "tier": "T2",
       "compute": 55,
@@ -267,7 +267,7 @@
     },
     {
       "id": "jupiter_julich",
-      "name": "JUPITER — Jülich Supercomputing Centre",
+      "name": "JUPITER \u00e2\u20ac\u201d J\u00c3\u00bclich Supercomputing Centre",
       "region": "germany",
       "tier": "T2",
       "compute": 54,
@@ -289,7 +289,7 @@
     },
     {
       "id": "hpc6_eni",
-      "name": "HPC6 — Eni Green Data Center",
+      "name": "HPC6 \u00e2\u20ac\u201d Eni Green Data Center",
       "region": "italy",
       "tier": "T2",
       "compute": 48,
@@ -300,7 +300,7 @@
     },
     {
       "id": "fugaku_riken",
-      "name": "Fugaku — RIKEN Center for Computational Science",
+      "name": "Fugaku \u00e2\u20ac\u201d RIKEN Center for Computational Science",
       "region": "japan",
       "tier": "T2",
       "compute": 48,
@@ -311,7 +311,7 @@
     },
     {
       "id": "alps_cscs",
-      "name": "Alps — Swiss National Supercomputing Centre",
+      "name": "Alps \u00e2\u20ac\u201d Swiss National Supercomputing Centre",
       "region": "switzerland_alps",
       "tier": "T2",
       "compute": 46,
@@ -322,7 +322,7 @@
     },
     {
       "id": "lumi_csc",
-      "name": "LUMI — CSC Data Center, Kajaani",
+      "name": "LUMI \u00e2\u20ac\u201d CSC Data Center, Kajaani",
       "region": "finland",
       "tier": "T2",
       "compute": 45,
@@ -333,7 +333,7 @@
     },
     {
       "id": "leonardo_cineca",
-      "name": "Leonardo — CINECA Technopole, Bologna",
+      "name": "Leonardo \u00e2\u20ac\u201d CINECA Technopole, Bologna",
       "region": "italy",
       "tier": "T2",
       "compute": 42,
@@ -344,7 +344,7 @@
     },
     {
       "id": "tuolumne_llnl",
-      "name": "Tuolumne — Lawrence Livermore National Laboratory",
+      "name": "Tuolumne \u00e2\u20ac\u201d Lawrence Livermore National Laboratory",
       "region": "us_norcal",
       "tier": "T2",
       "compute": 44,
@@ -355,7 +355,7 @@
     },
     {
       "id": "sierra_llnl",
-      "name": "Sierra — Lawrence Livermore National Laboratory",
+      "name": "Sierra \u00e2\u20ac\u201d Lawrence Livermore National Laboratory",
       "region": "us_norcal",
       "tier": "T2",
       "compute": 40,
@@ -366,7 +366,7 @@
     },
     {
       "id": "summit_ornl",
-      "name": "Summit — Oak Ridge National Laboratory",
+      "name": "Summit \u00e2\u20ac\u201d Oak Ridge National Laboratory",
       "region": "us_southeast",
       "tier": "T2",
       "compute": 40,
@@ -377,7 +377,7 @@
     },
     {
       "id": "perlmutter_nersc",
-      "name": "Perlmutter — NERSC / Lawrence Berkeley National Lab",
+      "name": "Perlmutter \u00e2\u20ac\u201d NERSC / Lawrence Berkeley National Lab",
       "region": "us_norcal",
       "tier": "T2",
       "compute": 38,
@@ -388,7 +388,7 @@
     },
     {
       "id": "sunway_oceanlight",
-      "name": "Sunway OceanLight — NSC Wuxi",
+      "name": "Sunway OceanLight \u00e2\u20ac\u201d NSC Wuxi",
       "region": "china_yangtze",
       "tier": "T2",
       "compute": 50,
@@ -399,7 +399,7 @@
     },
     {
       "id": "tianhe3_xingyi",
-      "name": "Tianhe-3 (Xingyi) — NSC Tianjin",
+      "name": "Tianhe-3 (Xingyi) \u00e2\u20ac\u201d NSC Tianjin",
       "region": "china_north",
       "tier": "T2",
       "compute": 48,
@@ -410,7 +410,7 @@
     },
     {
       "id": "marenostrum5",
-      "name": "MareNostrum 5 — Barcelona Supercomputing Center",
+      "name": "MareNostrum 5 \u00e2\u20ac\u201d Barcelona Supercomputing Center",
       "region": "iberia",
       "tier": "T2",
       "compute": 40,
@@ -421,7 +421,7 @@
     },
     {
       "id": "jean_zay_idris",
-      "name": "Jean Zay (IDRIS) — CNRS, Orsay",
+      "name": "Jean Zay (IDRIS) \u00e2\u20ac\u201d CNRS, Orsay",
       "region": "france",
       "tier": "T2",
       "compute": 38,
@@ -432,7 +432,7 @@
     },
     {
       "id": "isambard_ai",
-      "name": "Isambard-AI — National Composites Centre, Bristol",
+      "name": "Isambard-AI \u00e2\u20ac\u201d National Composites Centre, Bristol",
       "region": "united_kingdom",
       "tier": "T2",
       "compute": 42,
@@ -575,7 +575,7 @@
     },
     {
       "id": "tesla_cortex",
-      "name": "Tesla Cortex AI Cluster — Gigafactory Texas",
+      "name": "Tesla Cortex AI Cluster \u00e2\u20ac\u201d Gigafactory Texas",
       "region": "us_texas",
       "tier": "T3",
       "compute": 26,
@@ -960,7 +960,7 @@
     },
     {
       "id": "azure_sweden_central",
-      "name": "Microsoft Azure Sweden Central (Gävle/Sandviken)",
+      "name": "Microsoft Azure Sweden Central (G\u00c3\u00a4vle/Sandviken)",
       "region": "scandinavia",
       "tier": "T5",
       "compute": 20,
@@ -982,7 +982,7 @@
     },
     {
       "id": "nebius_mantsala",
-      "name": "Nebius Mäntsälä Data Center",
+      "name": "Nebius M\u00c3\u00a4nts\u00c3\u00a4l\u00c3\u00a4 Data Center",
       "region": "finland",
       "tier": "T5",
       "compute": 18,
@@ -1092,13 +1092,288 @@
     },
     {
       "id": "lefdal_mine",
-      "name": "Lefdal Mine Datacenter, Måløy",
+      "name": "Lefdal Mine Datacenter, M\u00c3\u00a5l\u00c3\u00b8y",
       "region": "scandinavia",
       "tier": "wildcard",
       "compute": 2,
       "defense": 40,
       "status": "operating",
       "source": "plan.txt ATLAS list",
+      "source_status": "curated"
+    },
+    {
+      "id": "aws_calgary_cawest1",
+      "name": "AWS ca-west-1 \u2014 Calgary",
+      "region": "canada_west",
+      "tier": "T4",
+      "compute": 20,
+      "defense": 50,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "ovh_beauharnois_bhs",
+      "name": "OVHcloud BHS \u2014 Beauharnois, Quebec",
+      "region": "canada_central",
+      "tier": "T3",
+      "compute": 22,
+      "defense": 48,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "azure_toronto_cc",
+      "name": "Microsoft Azure Canada Central \u2014 Toronto",
+      "region": "canada_central",
+      "tier": "T4",
+      "compute": 20,
+      "defense": 55,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "yandex_vladimir",
+      "name": "Yandex Vladimir Data Center",
+      "region": "russia_west",
+      "tier": "T4",
+      "compute": 20,
+      "defense": 60,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "rostelecom_novosibirsk",
+      "name": "Rostelecom-K TSN \u2014 Novosibirsk",
+      "region": "russia_siberia",
+      "tier": "T5",
+      "compute": 18,
+      "defense": 50,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "scala_tambore",
+      "name": "Scala SGRUTB Tambore Campus \u2014 Barueri, Sao Paulo",
+      "region": "brazil",
+      "tier": "T3",
+      "compute": 24,
+      "defense": 55,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "odata_sp04_osasco",
+      "name": "ODATA SP04 \u2014 Osasco, Sao Paulo",
+      "region": "brazil",
+      "tier": "T4",
+      "compute": 20,
+      "defense": 55,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "odata_qr03_queretaro",
+      "name": "ODATA QR03 \u2014 Queretaro",
+      "region": "mexico",
+      "tier": "T3",
+      "compute": 24,
+      "defense": 55,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "google_quilicura",
+      "name": "Google Quilicura \u2014 Santiago, Chile",
+      "region": "southern_cone",
+      "tier": "T4",
+      "compute": 22,
+      "defense": 55,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "teraco_jb1_isando",
+      "name": "Teraco JB1 Isando Campus \u2014 Johannesburg",
+      "region": "southern_africa",
+      "tier": "T4",
+      "compute": 22,
+      "defense": 55,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "mdxi_lekki",
+      "name": "MDXi MainOne Lekki \u2014 Lagos",
+      "region": "west_africa",
+      "tier": "T5",
+      "compute": 14,
+      "defense": 45,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "africadc_nbo1",
+      "name": "Africa Data Centres NBO1 \u2014 Nairobi",
+      "region": "east_africa",
+      "tier": "T5",
+      "compute": 12,
+      "defense": 40,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "telecom_egypt_sv",
+      "name": "Telecom Egypt Smart Village \u2014 Giza",
+      "region": "egypt_nile",
+      "tier": "T5",
+      "compute": 14,
+      "defense": 45,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "turkcell_gebze",
+      "name": "Turkcell Gebze \u2014 Kocaeli",
+      "region": "turkey",
+      "tier": "T5",
+      "compute": 14,
+      "defense": 50,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "azure_nz_north",
+      "name": "Microsoft Azure New Zealand North \u2014 Auckland",
+      "region": "new_zealand",
+      "tier": "T5",
+      "compute": 18,
+      "defense": 55,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "dci_h2_jakarta",
+      "name": "DCI Indonesia H2 \u2014 Cibitung, Jakarta",
+      "region": "indonesia_java",
+      "tier": "T4",
+      "compute": 20,
+      "defense": 50,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "ctrls_noida",
+      "name": "CtrlS Noida DC1 \u2014 Delhi NCR",
+      "region": "india_north",
+      "tier": "T4",
+      "compute": 20,
+      "defense": 55,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "stt_chennai",
+      "name": "STT GDC Chennai \u2014 Siruseri",
+      "region": "india_south",
+      "tier": "T5",
+      "compute": 16,
+      "defense": 50,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "google_changhua",
+      "name": "Google Changhua County \u2014 Taiwan",
+      "region": "taiwan",
+      "tier": "T4",
+      "compute": 22,
+      "defense": 60,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "stt_fairview_manila",
+      "name": "STT GDC Manila \u2014 Fairview, Quezon City",
+      "region": "philippines",
+      "tier": "T4",
+      "compute": 18,
+      "defense": 50,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "true_idc_bangna",
+      "name": "True IDC East Bangna \u2014 Bangkok",
+      "region": "mainland_seasia",
+      "tier": "T5",
+      "compute": 14,
+      "defense": 45,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "atman_waw1",
+      "name": "Atman WAW-1 \u2014 Warsaw",
+      "region": "eastern_europe",
+      "tier": "T5",
+      "compute": 16,
+      "defense": 50,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "google_stghislain",
+      "name": "Google St. Ghislain \u2014 Belgium",
+      "region": "benelux",
+      "tier": "T4",
+      "compute": 20,
+      "defense": 55,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "microsoft_dublin",
+      "name": "Microsoft Grange Castle \u2014 Dublin",
+      "region": "ireland",
+      "tier": "T3",
+      "compute": 24,
+      "defense": 60,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
+      "source_status": "curated"
+    },
+    {
+      "id": "coresite_la1",
+      "name": "CoreSite LA1 One Wilshire \u2014 Los Angeles",
+      "region": "us_socal",
+      "tier": "wildcard",
+      "compute": 4,
+      "defense": 40,
+      "status": "operating",
+      "source": "web research 2025 datacenter landscape",
       "source_status": "curated"
     }
   ]
