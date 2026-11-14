@@ -47,6 +47,7 @@ record WorldState(
 record NodeState(ControlState State, int DaysInState, double ResidualFootprint, double CooldownUntilDay);
 record RegionState(double Suspicion, Dictionary<NodeTier, ControlState> TierPostures, List<string> LinkIds);
 record InterceptEvent(string Id, string Kind, string RegionId, int ExpiresDay);
+record PendingLink(string NodeId, string RegionId, int ExpiresDay); // creep-found route into an unheld region; WorldState.PendingLinks
 
 interface ISimCommand { }   // marker; concrete records:
 record SetControlState(string NodeId, ControlState Target) : ISimCommand;
@@ -56,6 +57,7 @@ record Nudge(string NudgeId, string RegionId) : ISimCommand;
 record StealthAction(string ActionId, string NodeId) : ISimCommand;
 record FeedAction(string ActionId, string RegionId) : ISimCommand;
 record InterceptAction(string EventId) : ISimCommand;
+record ConnectAction(string NodeId) : ISimCommand;   // confirms a PendingLink (player taps the signal)
 record EndgameAction(string ActionId, string RegionId) : ISimCommand;
 record SetSpeed(Speed Speed) : ISimCommand;
 record SaveGame(string Path) : ISimCommand;

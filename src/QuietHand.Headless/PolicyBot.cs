@@ -54,6 +54,11 @@ sealed class PolicyBot
         foreach (var ic in s.ActiveIntercepts.ToList())
             cmds.Add(new InterceptAction(ic.Id));
 
+        // confirm every open route — an attentive player never leaves a
+        // first-contact signal unclaimed
+        foreach (var pl in s.PendingLinks.ToList())
+            cmds.Add(new ConnectAction(pl.NodeId));
+
         double reserve = 15;
 
         // Manual spread — the early verb. One new house per day while liquid.

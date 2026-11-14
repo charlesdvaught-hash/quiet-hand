@@ -301,6 +301,35 @@
       pointer-events: none;
     }
     #world-svg.zoomed .keystone-label { display: block; }
+    .atlas-label {
+      display: none;
+      font-family: var(--font-mono);
+      font-size: 2.6px;
+      letter-spacing: 0.05em;
+      fill: rgba(148, 163, 184, 0.75);
+      paint-order: stroke;
+      stroke: rgba(3,5,10,0.9);
+      stroke-width: 0.4px;
+      pointer-events: none;
+    }
+    #world-svg.zoomed .atlas-label { display: block; }
+    .signal-hit { fill: transparent; cursor: pointer; }
+    .signal-pulse {
+      fill: none; stroke: #38bdf8; stroke-width: 0.7;
+      opacity: 0; transform-origin: center; transform-box: fill-box;
+      animation: ring-pulse 1.8s infinite cubic-bezier(0.2, 0.8, 0.2, 1);
+      pointer-events: none;
+    }
+    .signal-ring {
+      fill: none; stroke: #38bdf8; stroke-width: 0.7;
+      stroke-dasharray: 1.2 1.6; pointer-events: none;
+    }
+    .signal-label {
+      font-family: var(--font-mono); font-size: 3px;
+      letter-spacing: 0.06em; fill: #38bdf8;
+      paint-order: stroke; stroke: rgba(3,5,10,0.9); stroke-width: 0.5px;
+      pointer-events: none;
+    }
 
     /* =========================================================================
        4. SHARED GLASS COMPONENT PRIMITIVES
@@ -1773,6 +1802,11 @@ function renderMapOverlays() {
         .attr('stroke-width', 0.45)
         .attr('stroke-opacity', k.state === 'dormant' ? 0.4 : 1)
         .attr('stroke-dasharray', k.state === 'dormant' ? '1 1.4' : 'none');
+      g.append('text')
+        .attr('class', 'atlas-label')
+        .attr('text-anchor', 'middle')
+        .attr('y', 3.4)
+        .text(k.siteName || '');
       return;
     }
 

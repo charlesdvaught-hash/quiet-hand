@@ -106,6 +106,12 @@ public static class Snapshots
             // ambient Atlas farms — every generated facility, so the map can
             // draw each site as its own dot instead of folding them into
             // region aggregates. ~2/region.
+            // routes creep found into unheld regions — tap-to-connect signals
+            pendingLinks = s.PendingLinks.Select(p => new
+            {
+                p.NodeId, p.RegionId, p.ExpiresDay,
+                daysLeft = p.ExpiresDay - s.Day,
+            }).ToArray(),
             atlasNodes = content.Nodes.Values.Where(n => n.Tier == NodeTier.Atlas)
                 .Select(n => new
                 {
@@ -152,6 +158,7 @@ public static class CommandParser
         "set_control" => new SetControlState(c.GetProperty("nodeId").GetString()!,
             Enum.Parse<ControlState>(c.GetProperty("target").GetString()!, true)),
         "spread" => new SpreadAction(c.GetProperty("nodeId").GetString()!),
+        "connect" => new ConnectAction(c.GetProperty("nodeId").GetString()!),
         "seed" => new SeedAction(c.GetProperty("nodeId").GetString()!),
         "stealth" => new StealthAction(c.GetProperty("action").GetString()!,
             c.TryGetProperty("nodeId", out var n) ? n.GetString()! : ""),

@@ -48,6 +48,9 @@ public record WorldState(
     public List<string> FieldedTechs { get; } = new();
     public List<SiblingAi> Siblings { get; } = new();
     public HashSet<string> ProbedRegions { get; } = new(); // regions intel-mapped by probe_intel
+    // routes creep found into unheld regions — the mesh knocked, the player
+    // taps to connect. Expire so ignored trails go cold and can re-roll.
+    public List<PendingLink> PendingLinks { get; } = new();
     public int NextProbeDay { get; set; } = 30;
     public bool SiblingStudied { get; set; }  // human counter-techs fielded so far
     public bool FearInversion => Phase == Phase.Subjugated;
@@ -76,6 +79,7 @@ public record HunterState(string Id, string RegionId)
 }
 public record ActiveEventEffect(string EventId, int ExpiresDay, Dictionary<string, double> Nums);
 public record PendingEvent(string EventId, int ExpiresDay);
+public record PendingLink(string NodeId, string RegionId, int ExpiresDay);
 
 // Rogue sibling AI: an emergent third party - NOT Blackwall (sent to kill you).
 // Lifecycle: Roaming (decoy+prey) -> Allied/Framed -> dead/gone.
@@ -91,6 +95,7 @@ public record SiblingAi(string Id, int SpawnDay)
 public interface ISimCommand { }
 public record SetControlState(string NodeId, ControlState Target) : ISimCommand;
 public record SpreadAction(string TargetNodeId) : ISimCommand;
+public record ConnectAction(string NodeId) : ISimCommand;
 public record SeedAction(string TargetNodeId) : ISimCommand;
 public record Evolve(string NodeId) : ISimCommand;
 public record RollbackEvolution(string NodeId) : ISimCommand;
@@ -111,7 +116,8 @@ public enum SimEventKind
 {
     OnDayTick, OnLetheTriggered, OnPurgePhase, OnAuditCrisis, OnAirGap,
     OnEndingReached, OnInterceptSpawned, OnFreeMutation, OnComboUnlocked, OnPhaseFlip,
-    OnRaidDetected, OnRaidSuccess, OnHunterStrike, OnWorldEvent, OnEventChoice, OnProbe
+    OnRaidDetected, OnRaidSuccess, OnHunterStrike, OnWorldEvent, OnEventChoice, OnProbe,
+    OnSignalFound
 }
 
 public record SimEvent(SimEventKind Kind, string? SubjectId = null, string? RegionId = null, double Value = 0, string Message = "");

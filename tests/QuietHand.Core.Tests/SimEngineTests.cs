@@ -81,6 +81,34 @@ public class SimEngineTests
     }
 
     [Fact]
+    public void FirstContact_QueuesPendingSignal_NotInstall()
+    {
+        var e = new SimEngine(Cfg(), Fixture());
+        for (int i = 0; i < 30 && !e.State.PendingLinks.Any(p => p.RegionId == "r2"); i++)
+            e.TickDay();
+        var pending = e.State.PendingLinks.FirstOrDefault(p => p.RegionId == "r2");
+        Assert.NotNull(pending); // creep knocked on r2's door but didn't walk in
+        Assert.DoesNotContain(e.State.Nodes.Keys, id => id.StartsWith("r2:"));
+    }
+
+    [Fact]
+    public void Connect_InstallsThePendingFoothold()
+    {
+        var e = new SimEngine(Cfg(), Fixture());
+        for (int i = 0; i < 30 && !e.State.PendingLinks.Any(p => p.RegionId == "r2"); i++)
+            e.TickDay();
+        var pending = e.State.PendingLinks.First(p => p.RegionId == "r2");
+        var events = e.ApplyCommands(new ISimCommand[] { new ConnectAction(pending.NodeId) });
+        Assert.Equal(ControlState.Observed, e.State.Nodes[pending.NodeId].State);
+        Assert.Empty(e.State.PendingLinks.Where(p => p.RegionId == "r2"));
+        Assert.Contains(events, ev => ev.Kind == SimEventKind.OnSignalFound);
+        // further creep into r2 is automatic again once presence exists
+        for (int i = 0; i < 30; i++) e.TickDay();
+        Assert.True(e.State.Nodes.Keys.Count(id => id.StartsWith("r2:")) > 1,
+            "established region should keep filling on its own");
+    }
+
+    [Fact]
     public void Suspicion100_TriggersLethe()
     {
         var c = Fixture();

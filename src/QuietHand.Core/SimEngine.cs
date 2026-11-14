@@ -204,6 +204,7 @@ public sealed class SimEngine
             case SetSpeed s: State = State with { Speed = s.Speed }; break;
             case SetControlState sc: TrySetState(sc); break;
             case SpreadAction sp: TryManualSpread(sp); break;
+            case ConnectAction ca: TryConnect(ca); break;
             case SeedAction sa: TrySeed(sa); break;
             case StealthAction sa: TryStealth(sa); break;
             case Evolve ev: TryEvolve(ev.NodeId); break;
@@ -1036,6 +1037,18 @@ public sealed class SimEngine
         State.Nodes[sp.TargetNodeId] = new NodeState(ControlState.Observed, 0, 0, 0);
     }
 
+    // the player-committed half of creep: creep *finds* the route, the tap
+    // *makes* the connection. Free — the time already paid for it.
+    void TryConnect(ConnectAction ca)
+    {
+        var p = State.PendingLinks.FirstOrDefault(x => x.NodeId == ca.NodeId);
+        if (p is null || State.Nodes.ContainsKey(ca.NodeId)) return;
+        State.PendingLinks.Remove(p);
+        State.Nodes[ca.NodeId] = new NodeState(ControlState.Observed, 0, 0, 0);
+        Emit(SimEventKind.OnSignalFound, ca.NodeId, p.RegionId, 0,
+            $"connection established — {_c.Regions.Find(r => r.Id == p.RegionId)?.Name ?? p.RegionId}");
+    }
+
     void TrySeed(SeedAction sa)
     {
         // precision drop: pick a specific landing zone (seed_target unlock),
@@ -1081,7 +1094,27 @@ public sealed class SimEngine
         // number of new nodes per day; spread_tech raises the ceiling
         int cap = (int)Math.Floor(E("spread_daily_cap", 3.0) + StatTotal(SimStat.spread_tech));
         if (newly.Count > cap) newly = newly.OrderBy(_ => _rng.Next()).Take(cap).ToList();
-        foreach (var id in newly) State.Nodes[id] = new NodeState(ControlState.Observed, 0, 0, 0);
+        // first contact with a region doesn't auto-install — it becomes a
+        // pending signal the player taps to connect. Inside held regions the
+        // mesh stays fully automatic. Ignored signals go cold and re-roll.
+        State.PendingLinks.RemoveAll(p => p.ExpiresDay <= State.Day);
+        foreach (var id in newly)
+        {
+            var tgt = _c.Nodes.GetValueOrDefault(id);
+            if (tgt is null) continue;
+            if (!LiveIn(tgt.RegionId))
+            {
+                if (State.PendingLinks.All(p => p.RegionId != tgt.RegionId))
+                {
+                    State.PendingLinks.Add(new PendingLink(id, tgt.RegionId,
+                        State.Day + (int)E("pending_link_days", 20)));
+                    Emit(SimEventKind.OnSignalFound, id, tgt.RegionId, 0,
+                        $"route found — a door is open in {_c.Regions.Find(r => r.Id == tgt.RegionId)?.Name ?? tgt.RegionId}. Tap it to connect.");
+                }
+                continue;
+            }
+            State.Nodes[id] = new NodeState(ControlState.Observed, 0, 0, 0);
+        }
 
         // opportunistic seeding: seed_chance evolutions let the mesh randomly
         // land somewhere the links haven't reached (Mirai-style random sweep)
