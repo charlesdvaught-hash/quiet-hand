@@ -1742,10 +1742,12 @@ function renderMapOverlays() {
         .attr('stroke', color);
     }
 
-    if (k.state !== 'dormant') g.append('circle')
+    g.append('circle')
       .attr('class', 'keystone-ring')
       .attr('r', radius)
-      .attr('stroke', color);
+      .attr('stroke', color)
+      .attr('stroke-opacity', k.state === 'dormant' ? 0.35 : 1)
+      .attr('stroke-dasharray', k.state === 'dormant' ? '1.5 2' : 'none');
 
     g.append('circle')
       .attr('class', 'keystone-core')

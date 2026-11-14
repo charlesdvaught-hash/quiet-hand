@@ -455,7 +455,7 @@
 
   // --- territory blobs: your presence painted as soft cyan ground-haze -----
   const KmToUnit = km => km / 40000; // unit-x spans 360deg ~ 40000km equator
-  const blobKm = w => Math.min(120, 0.5 + 1.6 * Math.sqrt(w));
+  const blobKm = w => Math.min(70, 0.5 + 1.1 * Math.sqrt(w));
 
   function renderTerritory() {
     if (typeof mapLayer === 'undefined' || !mapLayer || !snap) return;
@@ -463,8 +463,8 @@
     if (defs.empty()) defs = svg.append('defs');
     if (defs.select('#terr-grad').empty()) {
       const g = defs.append('radialGradient').attr('id', 'terr-grad');
-      g.append('stop').attr('offset', '0%').attr('stop-color', 'rgba(56,189,248,0.34)');
-      g.append('stop').attr('offset', '55%').attr('stop-color', 'rgba(56,189,248,0.14)');
+      g.append('stop').attr('offset', '0%').attr('stop-color', 'rgba(56,189,248,0.22)');
+      g.append('stop').attr('offset', '55%').attr('stop-color', 'rgba(56,189,248,0.09)');
       g.append('stop').attr('offset', '100%').attr('stop-color', 'rgba(56,189,248,0)');
     }
     let tg = mapLayer.select('#territory-group');
@@ -490,8 +490,49 @@
     });
   }
 
+  // --- mesh links: arcs along corridors you hold / are probing -------------
+  function renderLinks() {
+    if (typeof mapLayer === 'undefined' || !mapLayer || !snap) return;
+    let lg = mapLayer.select('#links-group');
+    if (lg.empty()) lg = mapLayer.insert('g', '#territory-group').attr('id', 'links-group');
+    const held = new Set((snap.regions || []).filter(r => (r.ownedWeight || 0) > 0).map(r => r.id));
+    const arcs = [], remote = [];
+    const seen = new Set();
+    for (const r of (snap.regions || [])) {
+      if (!held.has(r.id)) continue;
+      const a = geo[r.id]?.pin; if (!a) continue;
+      let touched = false;
+      for (const l of (r.links || [])) {
+        const key = [r.id, l].sort().join('|');
+        if (seen.has(key)) continue; seen.add(key);
+        const b = geo[l]?.pin; if (!b) continue;
+        touched = touched || held.has(l);
+        arcs.push({ a, b, kind: held.has(l) ? 'held' : 'frontier' });
+      }
+      if (!touched && r.id !== snap.homeRegion) remote.push({ a: geo[snap.homeRegion]?.pin, b: a });
+    }
+    const bend = (a, b) => {
+      const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+      const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1;
+      return `M${a[0]},${a[1]} Q${mx - dy / L * L * .18},${my + dx / L * L * .18} ${b[0]},${b[1]}`;
+    };
+    const toXY = p => { const q = projection(p); return q || [0, 0]; };
+    const all = arcs.map(x => ({ d: bend(toXY(x.a), toXY(x.b)), kind: x.kind }))
+      .concat(remote.filter(r => r.a).map(r => ({ d: bend(toXY(r.a), toXY(r.b)), kind: 'remote' })));
+    lg.selectAll('path.mesh-link').data(all).join('path')
+      .attr('class', 'mesh-link')
+      .attr('d', d => d.d)
+      .attr('fill', 'none')
+      .attr('stroke', d => d.kind === 'remote' ? '#a78bfa' : '#38bdf8')
+      .attr('stroke-width', d => d.kind === 'held' ? 0.8 : 0.5)
+      .attr('stroke-opacity', d => d.kind === 'held' ? .22 : d.kind === 'remote' ? .4 : .08)
+      .attr('stroke-dasharray', d => d.kind === 'held' ? 'none' : '3 5')
+      .attr('vector-effect', 'non-scaling-stroke')
+      .style('pointer-events', 'none');
+  }
+
   const _merge = mergeState;
-  mergeState = function () { _merge(); renderTerritory(); };
+  mergeState = function () { _merge(); renderTerritory(); renderLinks(); };
   window._qh = { get state() { return state; }, get snap() { return snap; }, get geo() { return geo; } };
   renderTerritory();
 })();
