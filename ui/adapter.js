@@ -18,6 +18,16 @@
     ['@civicsignal', 'journalist', 'badge-emerald'],
     ['@airgapped_andy', 'paranoid', 'badge-slate'],
   ];
+  const AMBIENT = [
+    ['@mia_wfh', 'netizen', 'badge-slate', 'landlord raised the rent again. third year running.'],
+    ['@cafedave', 'normie', 'badge-cyan', 'the oat milk situation at my local is an actual tragedy'],
+    ['@runner_k', 'fitness', 'badge-emerald', '8k before work. nobody can take that from me'],
+    ['@plant_dad', 'normie', 'badge-emerald', 'repotted the monstera. she has never looked happier'],
+    ['@late_shift', 'worker', 'badge-amber', 'inventory count tonight. someone please send coffee'],
+    ['@bookclub_bea', 'reader', 'badge-indigo', 'chapter 12 broke me. no spoilers for anyone still behind'],
+    ['@streetphotog', 'artist', 'badge-cyan', 'fog over the river this morning was unreal. shots in bio'],
+    ['@gradgrind', 'student', 'badge-slate', 'two finals and a group project where nobody replies. fine.'],
+  ];
   const BRANCH_LABEL = { P: 'Propagation', C: 'Cognition', S: 'Subversion', D: 'Disruption', center: 'X1' };
   const POSTURE_TO_UI = { Observed: 'observe', Compromised: 'compromise', Assimilated: 'assimilate', Weaponized: 'weaponize' };
   const POSTURE_ORDER = ['dormant', 'observe', 'compromise', 'assimilate', 'weaponize'];
@@ -236,7 +246,24 @@
   };
 
   // --- onboarding: origin picker + neighborhood zoom + guided steps --------
-  let onboarded = false, reachSeen = -1, guided = { spread: false, evolve: false };
+  let onboarded = false, reachSeen = -1, guided = { spread: false, evolve: false, done: false };
+
+  function tutor(text, step, total) {
+    let card = document.getElementById('tut-card');
+    if (!card) {
+      card = document.createElement('div');
+      card.id = 'tut-card';
+      card.style.cssText = `position:fixed;left:50%;transform:translateX(-50%);bottom:110px;z-index:60;
+        max-width:340px;padding:10px 14px;border-radius:10px;text-align:center;cursor:pointer;
+        background:var(--glass-bg);border:1px solid var(--glass-border-bright);backdrop-filter:blur(12px)`;
+      card.onclick = () => card.remove();
+      document.body.appendChild(card);
+    }
+    card.innerHTML = `<div class="mono" style="font-size:8.5px;letter-spacing:.3em;color:var(--accent-observe);margin-bottom:4px">
+      SIGNAL ${step}/${total}</div><div style="font-size:11.5px;color:var(--text-primary)">${text}</div>
+      <div class="mono" style="font-size:8px;color:var(--text-muted);margin-top:5px">tap to dismiss</div>`;
+  }
+  const tutDone = () => { document.getElementById('tut-card')?.remove(); guided.done = true; };
 
   async function intro() {
     const origins = await api('/api/origins');
@@ -259,14 +286,21 @@
     ov.querySelectorAll('[data-oid]').forEach(el => el.onclick = async () => {
       snap = await api(`/api/new?origin=${el.dataset.oid}&bonus=25`, { method: 'POST' });
       ov.remove(); onboarded = true; reachSeen = -1;
+      state.posts = AMBIENT.map((p, i) => ({
+        id: postSeq++, handle: p[0], persona: p[1], badge: p[2], text: p[3], state: 'normal',
+      }));
       mergeState(); refreshAllUI(); zoomToHome(); guide();
-      showToast('Tap a neighboring country to push across the street', 'radio-tower');
+      tutor('This is your street. Your mesh is a handful of devices in one neighborhood — the world does not know you exist yet. Tap a neighboring area to push across it.', 1, 3);
     });
   }
 
   function zoomToHome() {
-    const g = geo[snap.homeRegion]; if (!g || typeof projection === 'undefined') return;
-    const [x, y] = projection(g.pin), k = 900; // street view
+    const g = geo[snap.homeRegion];
+    if (!g || typeof projection === 'undefined') return;
+    if (!(topoFeatures || []).length) { setTimeout(zoomToHome, 350); return; } // wait for fit
+    const [x, y] = projection(g.pin);
+    if (!isFinite(x) || !isFinite(y)) { setTimeout(zoomToHome, 350); return; }
+    const k = 700; // street view
     svg.transition().duration(1200).call(zoomBehavior.transform,
       d3.zoomIdentity.translate(500 - x * k, 250 - y * k).scale(k));
   }
@@ -276,11 +310,17 @@
     const nc = snap.nodeCounts || {};
     if (!guided.spread && nc.observed > 0) {
       guided.spread = true;
-      setTimeout(() => { openModal('evolve'); showToast('Deploy your first evolution', 'git-branch'); }, 800);
+      tutor('Foothold established — your mesh now spans the block. Deploy your first evolution to start becoming something.', 2, 3);
+      setTimeout(() => openModal('evolve'), 1400);
+    }
+    if (!guided.evolve && (snap.ownedEvolutions || []).length > 0) {
+      guided.evolve = true;
+      tutor('Adaptation live. Each region you hold widens your view — keep pushing down the block. Suspicion is the only number that ends you.', 3, 3);
+      setTimeout(tutDone, 9000);
     }
     // reach-gated zoom-out: the world reveals itself as you grow
     const floor = Math.max(0.55, 2200 / Math.pow(9, snap.reach || 0)); // street -> world
-    zoomBehavior.scaleExtent([floor, 8]);
+    zoomBehavior.scaleExtent([floor, 12000]);
     if (reachSeen >= 0 && (snap.reach || 0) > reachSeen) {
       const [x, y] = projection(geo[snap.homeRegion]?.pin || [0, 20]);
       svg.transition().duration(1400).call(zoomBehavior.transform,
