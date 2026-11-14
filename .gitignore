@@ -2,3 +2,6 @@ bin/
 obj/
 *.user
 .vs/
+scripts/shot/node_modules/
+scripts/shot/*.png
+scriptsshot/
