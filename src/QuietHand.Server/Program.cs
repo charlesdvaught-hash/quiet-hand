@@ -31,15 +31,18 @@ app.MapGet("/adapter.js", () => Results.Text(
 app.MapGet("/ui_geo.json", () => Results.Json(geo));
 
 // --- game lifecycle --------------------------------------------------------
-app.MapPost("/api/new", (string? origin, int? seed) =>
+app.MapPost("/api/new", (string? origin, int? seed, int? bonus) =>
 {
     var o = origin is not null && content.Origins.Any(x => x.Id == origin)
         ? origin : "hobbyist_rig";
     engine = new SimEngine(
         new NewGameConfig(o, Difficulty.Standard, seed ?? Random.Shared.Next(1_000_000),
             "LATTICE", null, null), content);
+    engine.GrantCompute(Math.Clamp(bonus ?? 20, 0, 60)); // onboarding starter reserve
     return Results.Json(Snapshot(engine), jsonOpts);
 });
+
+app.MapGet("/api/origins", () => Results.Json(content.Origins, jsonOpts));
 
 app.MapGet("/api/state", () => engine is null
     ? Results.Json(new { empty = true }, jsonOpts)
@@ -124,6 +127,8 @@ object Snapshot(SimEngine e)
             orphaned = alive(ControlState.Orphaned),
         },
         ending = s.Ending,
+        homeRegion = s.Nodes.Keys.Select(id => content.Nodes.GetValueOrDefault(id)?.RegionId)
+            .FirstOrDefault(r => r is not null),
         ownedEvolutions = s.OwnedEvolutions.ToArray(),
         unlocks = unlocks.ToArray(),
         hunters = s.Hunters.Count,

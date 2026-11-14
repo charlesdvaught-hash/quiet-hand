@@ -33,8 +33,8 @@
   try {
     geo = await api('/ui_geo.json');
     snap = await api('/api/state');
-    if (snap.empty) snap = await api('/api/new', { method: 'POST' });
-    live = !!snap && snap.day !== undefined;
+    live = true;
+    if (snap.empty) { snap = null; intro(); }
   } catch { live = false; }
   if (!live) { console.warn('[adapter] no server — mock mode'); return; }
   console.log('[adapter] live sim connected');
@@ -42,7 +42,7 @@
 
   // --- translation ----------------------------------------------------------
   function mergeState() {
-    const s = snap;
+    const s = snap; if (!s || s.empty) return;
     const prevCompute = state.compute;
     state.compute = s.compute;
     state.computeRate = Math.max(0, s.compute - (state._prevCompute ?? s.compute)) * 15; // rough /mo
@@ -154,12 +154,13 @@
   // --- live tick loop --------------------------------------------------------
   let busy = false;
   setInterval(async () => {
-    if (busy || state.simSpeed === 0 || snap.ending) return;
+    if (busy || !snap || snap.ending || state.simSpeed === 0) return;
     busy = true;
     try {
       const r = await api(`/api/tick?days=${DAYS_PER_BEAT[state.simSpeed] || 2}`, { method: 'POST' });
       snap = r.state; ingestEvents(r.events || []); mergeState(); refreshAllUI();
       if (snap.pendingEvent) renderChoiceCard();
+      guide();
     } finally { busy = false; }
   }, 1400);
 
@@ -233,5 +234,59 @@
     lucide.createIcons();
   };
 
-  mergeState(); refreshAllUI();
+  // --- onboarding: origin picker + neighborhood zoom + guided steps --------
+  let onboarded = false, reachSeen = -1, guided = { spread: false, evolve: false };
+
+  async function intro() {
+    const origins = await api('/api/origins');
+    const ov = document.createElement('div');
+    ov.id = 'intro-overlay';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(3,5,10,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;overflow:auto';
+    ov.innerHTML = `
+      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:.35em;color:var(--accent-observe)">QUIET HAND</div>
+      <div style="font-size:15px;font-weight:700">You wake up. Where?</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,240px));gap:10px">
+        ${origins.map(o => `
+          <div class="evo-card" style="cursor:pointer" data-oid="${o.id}">
+            <div style="font-weight:700;font-size:13px">${o.name}</div>
+            <div style="font-size:10.5px;color:var(--text-secondary)">${o.passive?.desc || ''}</div>
+            <div class="mono" style="font-size:10px;color:var(--text-muted);margin-top:4px">${o.startingCompute}cp reserve · ${o.computeRate}/day</div>
+          </div>`).join('')}
+      </div>
+      <div style="font-size:10px;color:var(--text-muted)">+25 compute starter reserve on first run</div>`;
+    document.body.appendChild(ov);
+    ov.querySelectorAll('[data-oid]').forEach(el => el.onclick = async () => {
+      snap = await api(`/api/new?origin=${el.dataset.oid}&bonus=25`, { method: 'POST' });
+      ov.remove(); onboarded = true; reachSeen = -1;
+      mergeState(); refreshAllUI(); zoomToHome(); guide();
+      showToast('Tap a neighboring country to push across the street', 'radio-tower');
+    });
+  }
+
+  function zoomToHome() {
+    const g = geo[snap.homeRegion]; if (!g || typeof projection === 'undefined') return;
+    const [x, y] = projection(g.pin), k = 4;
+    svg.transition().duration(1200).call(zoomBehavior.transform,
+      d3.zoomIdentity.translate(500 - x * k, 250 - y * k).scale(k));
+  }
+
+  function guide() {
+    if (!onboarded || !snap) return;
+    const nc = snap.nodeCounts || {};
+    if (!guided.spread && nc.observed > 0) {
+      guided.spread = true;
+      setTimeout(() => { openModal('evolve'); showToast('Deploy your first evolution', 'git-branch'); }, 800);
+    }
+    // reach-gated zoom-out: the world reveals itself as you grow
+    const floor = Math.max(1, 4.5 - (snap.reach || 0) * 0.9);
+    zoomBehavior.scaleExtent([floor, 8]);
+    if (reachSeen >= 0 && (snap.reach || 0) > reachSeen) {
+      const [x, y] = projection(geo[snap.homeRegion]?.pin || [0, 20]);
+      svg.transition().duration(1400).call(zoomBehavior.transform,
+        d3.zoomIdentity.translate(500 - x * floor, 250 - y * floor).scale(floor));
+    }
+    reachSeen = snap.reach || 0;
+  }
+
+  if (snap && !snap.empty) { mergeState(); refreshAllUI(); }
 })();

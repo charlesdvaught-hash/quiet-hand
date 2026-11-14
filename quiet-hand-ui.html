@@ -80,8 +80,9 @@
       background: #03050a;
       color: var(--text-primary);
       font-family: var(--font-sans);
-      font-size: 13px;
-      line-height: 1.4;
+      font-size: 11.5px;
+      line-height: 1.35;
+      zoom: 0.82;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -269,6 +270,16 @@
     .keystone-core {
       transition: all 0.25s ease;
     }
+    .keystone-label {
+      display: none;
+      font-size: 2.6px;
+      letter-spacing: 0.08em;
+      fill: var(--text-secondary);
+      paint-order: stroke;
+      stroke: rgba(3,5,10,0.85);
+      stroke-width: 0.6px;
+    }
+    #world-svg.zoomed .keystone-label { display: block; }
     .keystone-label {
       font-family: var(--font-mono);
       font-size: 7.5px;
@@ -1552,9 +1563,11 @@ async function initMap() {
 
   // Zoom & Pan
   zoomBehavior = d3.zoom()
-    .scaleExtent([1, 6.5])
+    .scaleExtent([1, 8])
     .on('zoom', (event) => {
       mapLayer.attr('transform', event.transform);
+      svg.classed('zoomed', event.transform.k >= 3.2);
+      window.__zoomK = event.transform.k;
     });
   svg.call(zoomBehavior);
 
@@ -1644,7 +1657,7 @@ function renderMapOverlays() {
     const pt = projection(k.coords);
     if (!pt) return;
     const color = STATE_COLORS[k.state] || STATE_COLORS.observe;
-    const radius = k.tier.includes('Tier 1') ? 7.5 : 5.8;
+    const radius = k.tier.includes('Tier 1') ? 2.6 : 1.8;
 
     const g = kGroup.append('g')
       .attr('class', 'keystone-group')
@@ -1654,30 +1667,30 @@ function renderMapOverlays() {
         selectKeystone(k.id);
       });
 
-    g.append('circle').attr('class', 'keystone-hit').attr('r', 16);
+    g.append('circle').attr('class', 'keystone-hit').attr('r', 9);
 
     if (k.state !== 'dormant') {
       g.append('circle')
         .attr('class', 'keystone-pulse')
-        .attr('r', radius + 3)
+        .attr('r', radius + 2.5)
         .attr('stroke', color);
     }
 
-    g.append('circle')
+    if (k.state !== 'dormant') g.append('circle')
       .attr('class', 'keystone-ring')
       .attr('r', radius)
       .attr('stroke', color);
 
     g.append('circle')
       .attr('class', 'keystone-core')
-      .attr('r', radius * 0.44)
+      .attr('r', radius * 0.5)
       .attr('fill', color);
 
     g.append('text')
       .attr('class', 'keystone-label')
-      .attr('x', radius + 5)
-      .attr('y', 3)
-      .text(k.id.toUpperCase());
+      .attr('text-anchor', 'middle')
+      .attr('y', radius + 4)
+      .text(k.name.length > 26 ? k.name.slice(0, 25) + '…' : k.name);
   });
 }
 

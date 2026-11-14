@@ -65,6 +65,9 @@ public sealed class SimEngine
 
     public WorldState State { get; private set; }
 
+    /// <summary>Shell affordance: starter/gift compute outside the command stream.</summary>
+    public void GrantCompute(double n) => State = State with { Compute = State.Compute + n };
+
     public SimEngine(NewGameConfig cfg, ContentData content)
     {
         _c = content;
