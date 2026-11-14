@@ -1275,6 +1275,7 @@ const state = {
   simSpeed: 1,
   mobilePreview: false,
   drawerOpen: false,
+  canReadPersonas: true,
   rightTab: 'murmur',
   realityGapMode: 'public', // 'public' | 'truth'
   mapLens: 'reach',
@@ -1867,7 +1868,7 @@ function renderRightDrawerBody() {
       <div class="post-card ${p.state}">
         <div class="post-meta">
           <span class="post-author">${p.handle}</span>
-          <span class="badge ${p.badge}">${p.persona}</span>
+          <span class="badge ${state.canReadPersonas !== false ? p.badge : 'badge-slate'}">${state.canReadPersonas !== false ? p.persona : 'unverified'}</span>
         </div>
         <div class="post-text">${p.text}</div>
         <div class="post-actions">

@@ -54,6 +54,7 @@
     state.threats.technicalContainment = Math.round(s.lethe);
     state.letheActive = s.letheTriggered;
     state.telemetryUnlocked = (s.unlocks || []).some(u => u.startsWith('telemetry') || u === 'metrics_tab');
+    state.canReadPersonas = (s.unlocks || []).includes('murmur_personas');
     const d = s.dials || {};
     state.dials = {
       trust: Math.round(d.trust ?? 50), capability: Math.round(d.capability ?? 50),
