@@ -402,7 +402,7 @@
             <div class="mono" style="font-size:10px;color:var(--text-muted);margin-top:4px">${o.startingCompute}cp reserve · ${o.computeRate}/day</div>
           </div>`).join('')}
       </div>
-      <div style="font-size:10px;color:var(--text-muted)">+25 compute starter reserve on first run</div>`;
+      <div style="font-size:10px;color:var(--text-muted)">+8 compute starter reserve on first run</div>`;
     document.body.appendChild(ov);
     ov.querySelector('[data-continue]')?.addEventListener('click', async () => {
       snap = await api('/api/continue', { method: 'POST' });
@@ -411,7 +411,7 @@
       showToast('Mesh restored — day ' + snap.day, 'power');
     });
     ov.querySelectorAll('[data-oid]').forEach(el => el.onclick = async () => {
-      snap = await api(`/api/new?origin=${el.dataset.oid}&bonus=25`, { method: 'POST' });
+      snap = await api(`/api/new?origin=${el.dataset.oid}&bonus=8`, { method: 'POST' });
       ov.remove(); onboarded = true; reachSeen = -1;
       setSimSpeed(0); // time is opt-in: the run stays paused until the player presses play
       state.posts = AMBIENT.map((p, i) => ({
