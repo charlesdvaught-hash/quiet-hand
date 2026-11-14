@@ -213,6 +213,7 @@ object Snapshot(SimEngine e)
                 PrereqMode.ANY_TWO => ev.Prereqs.Count(s.OwnedEvolutions.Contains) >= 2,
                 _ => ev.Prereqs.All(s.OwnedEvolutions.Contains),
             },
+            prereqs = ev.Prereqs, prereqMode = ev.PrereqMode.ToString(),
             effects = ev.Effects, unlocksList = ev.Unlocks, desc = ev.Desc,
         }).ToArray(),
         nudges = content.Nudges.Select(n => new

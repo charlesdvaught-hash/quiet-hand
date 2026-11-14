@@ -479,3 +479,140 @@
   window._qh = { get state() { return state; }, get snap() { return snap; }, get geo() { return geo; } };
   renderTerritory();
 })();
+
+  // --- evolution tree (replaces the flat card grid) --------------------------
+  const EVO_COLS = { P: 0, C: 1, S: 2, D: 3 };
+  const COLW = 196, ROWH = 92, HEADH = 40;
+
+  function evoSortKey(e) {
+    const m = /(\d+)$/.exec(e.id);
+    return [e.tier || 9, m ? +m[1] : 999, e.id];
+  }
+
+  window.renderEvoTree = function () {
+    const body = document.getElementById('modal-body');
+    const title = document.getElementById('modal-title');
+    const icon = document.getElementById('modal-icon');
+    const note = document.getElementById('modal-footer-note');
+    if (icon) icon.setAttribute('data-lucide', 'git-branch');
+    if (title) title.textContent = 'EVOLUTION ARCHITECTURE';
+    if (note) note.textContent = 'One deployment per node. Locked nodes show their prerequisites.';
+
+    const evs = (window._qh.snap.evolutions || []).slice();
+    const pos = {};            // id -> {x,y,w,h}
+    const rows = {};
+    // lay each branch top-down by (tier, id)
+    for (const b of ['P', 'C', 'S', 'D']) {
+      const col = evs.filter(e => e.branch === b).sort((a, z) => {
+        const ka = evoSortKey(a), kz = evoSortKey(z);
+        return ka[0] - kz[0] || ka[1] - kz[1] || (ka[2] < kz[2] ? -1 : 1);
+      });
+      col.forEach((e, i) => {
+        pos[e.id] = { x: EVO_COLS[b] * COLW + 8, y: HEADH + i * ROWH, w: COLW - 16, h: ROWH - 14, node: e };
+        rows[b] = i + 1;
+      });
+    }
+    const maxRows = Math.max(0, ...Object.values(rows));
+    const center = evs.find(e => e.branch === 'center');
+    let H = HEADH + maxRows * ROWH + 20;
+    if (center) {
+      pos[center.id] = { x: COLW * 1.5, y: HEADH + maxRows * ROWH + 26, w: COLW, h: ROWH - 10, node: center };
+      H += ROWH + 30;
+    }
+    const W = COLW * 4;
+
+    const colHead = (b, label, color) => `
+      <div style="position:absolute;left:${EVO_COLS[b] * COLW + 8}px;top:0;width:${COLW - 16}px;
+        font-size:10px;font-weight:800;letter-spacing:.08em;color:${color};text-align:center;
+        border-bottom:1px solid ${color}55;padding-bottom:6px">${label}</div>`;
+
+    const cardHtml = p => {
+      const e = p.node;
+      const st = e.owned ? 'owned' : e.canBuy ? 'open' : 'locked';
+      const bc = st === 'owned' ? 'var(--accent-emerald,#34d399)'
+        : st === 'open' ? 'var(--accent-observe,#38bdf8)' : 'var(--glass-border,#334155)';
+      return `<div class="evo-node evo-${st}" data-ev="${e.id}"
+        style="position:absolute;left:${p.x}px;top:${p.y}px;width:${p.w}px;height:${p.h}px;
+          border:1px solid ${bc};border-radius:8px;padding:6px 8px;cursor:pointer;
+          background:var(--glass-bg,rgba(15,23,42,.75));opacity:${st === 'locked' ? .45 : 1};
+          box-shadow:${st === 'owned' ? '0 0 10px #34d39933' : 'none'}">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <span class="mono" style="font-size:9px;font-weight:800;opacity:.7">${e.id}</span>
+          <span class="mono" style="font-size:9px;font-weight:800;color:${st === 'owned' ? 'var(--accent-emerald,#34d399)' : 'var(--text-secondary,#94a3b8)'}">
+            ${e.owned ? '✓' : e.cost + 'cp'}</span>
+        </div>
+        <div style="font-size:11px;font-weight:700;line-height:1.15;margin-top:2px">${e.name}</div>
+        <div style="font-size:9px;color:var(--text-muted,#64748b);margin-top:2px">TIER ${e.tier}${st === 'locked' ? ' · ' + (e.prereqs || []).join('+') : ''}</div>
+      </div>`;
+    };
+
+    // svg dependency lines (behind cards)
+    let lines = '';
+    const ctr = p => ({ x: p.x + p.w / 2, y: p.y, yb: p.y + p.h });
+    for (const id in pos) {
+      const e = pos[id].node;
+      for (const pq of e.prereqs || []) {
+        const a = pos[pq]; if (!a) continue;
+        const A = ctr(a), B = ctr(pos[id]);
+        const both = e.owned && pos[pq].node.owned;
+        lines += `<path d="M ${A.x} ${A.yb} C ${A.x} ${A.yb + 22}, ${B.x} ${B.y - 22}, ${B.x} ${B.y}"
+          fill="none" stroke="${both ? '#34d399' : '#38bdf855'}" stroke-width="${both ? 2 : 1}"
+          stroke-dasharray="${e.owned || e.canBuy ? 'none' : '4 4'}"/>`;
+      }
+    }
+
+    body.innerHTML = `
+      <div id="evo-detail" style="margin-bottom:8px"></div>
+      <div style="overflow:auto;max-height:70vh;border:1px solid var(--glass-border);border-radius:10px;background:#0a0f1d">
+        <div style="position:relative;width:${W}px;height:${H}px">
+          <svg width="${W}" height="${H}" style="position:absolute;left:0;top:0">${lines}</svg>
+          ${colHead('P', 'PROPAGATION', '#38bdf8')}
+          ${colHead('C', 'COGNITION', '#818cf8')}
+          ${colHead('S', 'SUBVERSION', '#fbbf24')}
+          ${colHead('D', 'DISRUPTION', '#f87171')}
+          ${Object.values(pos).map(cardHtml).join('')}
+        </div>
+      </div>`;
+
+    body.querySelectorAll('.evo-node').forEach(el => {
+      el.onclick = () => showEvoDetail(el.dataset.ev);
+    });
+    lucide.createIcons();
+  };
+
+  function showEvoDetail(id) {
+    const e = (window._qh.snap.evolutions || []).find(x => x.id === id);
+    const box = document.getElementById('evo-detail');
+    if (!e || !box) return;
+    const pr = (e.prereqs || []).map(p => {
+      const pn = (window._qh.snap.evolutions || []).find(x => x.id === p);
+      return `<span style="color:${pn?.owned ? 'var(--accent-emerald,#34d399)' : 'var(--text-muted,#64748b)'}">${p}${pn ? ' ' + pn.name : ''}</span>`;
+    }).join(' · ') || 'none';
+    const fx = Object.entries(e.effects || {}).map(([k, v]) => `${k} +${v}`).join(' · ');
+    const un = (e.unlocksList || []).map(u => `unlocks ${u}`).join(' · ');
+    box.innerHTML = `
+      <div style="border:1px solid var(--glass-border);border-radius:10px;padding:10px 12px;background:var(--glass-bg,rgba(15,23,42,.75))">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><span class="mono" style="font-size:10px;opacity:.7">${e.id} · TIER ${e.tier} · ${e.branch}</span>
+            <div style="font-size:14px;font-weight:800">${e.name}</div></div>
+          ${e.owned
+            ? '<span class="mono" style="color:var(--accent-emerald,#34d399);font-size:11px;font-weight:800">INSTALLED</span>'
+            : e.canBuy
+              ? `<button class="btn-pill active" style="height:30px;padding:0 14px" onclick="buyEvolution('${e.id}');setTimeout(renderEvoTree,300)">Deploy ${Math.round(e.cost)}cp</button>`
+              : '<span class="mono" style="font-size:10px;color:var(--text-muted,#64748b)">LOCKED</span>'}
+        </div>
+        <div style="font-size:11.5px;color:var(--text-secondary,#94a3b8);margin-top:4px">${e.desc || ''}</div>
+        <div style="font-size:10px;color:var(--text-muted,#64748b);margin-top:6px">
+          ${fx ? fx + ' · ' : ''}${un ? un + ' · ' : ''}needs: ${pr}
+        </div>
+      </div>`;
+  }
+
+  // route the evolve modal through the tree renderer
+  const _openModal0 = window.openModal;
+  window.openModal = function (type) {
+    if (type === 'evolve') {
+      document.getElementById('modal-backdrop')?.classList.add('open');
+      renderEvoTree();
+    } else _openModal0(type);
+  };
