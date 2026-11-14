@@ -265,7 +265,7 @@
 
   function zoomToHome() {
     const g = geo[snap.homeRegion]; if (!g || typeof projection === 'undefined') return;
-    const [x, y] = projection(g.pin), k = 4;
+    const [x, y] = projection(g.pin), k = 900; // street view
     svg.transition().duration(1200).call(zoomBehavior.transform,
       d3.zoomIdentity.translate(500 - x * k, 250 - y * k).scale(k));
   }
@@ -278,7 +278,7 @@
       setTimeout(() => { openModal('evolve'); showToast('Deploy your first evolution', 'git-branch'); }, 800);
     }
     // reach-gated zoom-out: the world reveals itself as you grow
-    const floor = Math.max(1, 4.5 - (snap.reach || 0) * 0.9);
+    const floor = Math.max(0.55, 2200 / Math.pow(9, snap.reach || 0)); // street -> world
     zoomBehavior.scaleExtent([floor, 8]);
     if (reachSeen >= 0 && (snap.reach || 0) > reachSeen) {
       const [x, y] = projection(geo[snap.homeRegion]?.pin || [0, 20]);

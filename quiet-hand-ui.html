@@ -10,6 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
   <!-- TopoJSON Client v3 (ISC License) -->
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-tile@1.0.0/dist/d3-tile.min.js"></script>
   <!-- Lucide Icons UMD (ISC License) -->
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 
@@ -192,6 +193,11 @@
       touch-action: none;
     }
     #world-svg:active { cursor: grabbing; }
+    #world-svg image.tile { filter: invert(0.92) hue-rotate(190deg) brightness(0.55) saturate(0.7); }
+    .osm-credit {
+      position: absolute; right: 8px; bottom: 58px; z-index: 5;
+      font-size: 8.5px; color: var(--text-muted); pointer-events: none;
+    }
 
     .graticule {
       fill: none;
@@ -1070,6 +1076,7 @@
          ===================================================================== -->
     <div id="map-stage">
       <svg id="world-svg"></svg>
+      <div class="osm-credit">© OpenStreetMap contributors</div>
     </div>
 
     <!-- =====================================================================
@@ -1540,19 +1547,20 @@ const STATE_COLORS = {
 /* ===========================================================================
    2. D3 + NATURAL EARTH MAP ENGINE
    =========================================================================== */
-let svg, mapLayer, projection, pathGen, zoomBehavior, topoFeatures = [];
+let svg, mapLayer, tilesLayer, vectorLayer, projection, pathGen, zoomBehavior, topoFeatures = [];
 
 async function initMap() {
   svg = d3.select('#world-svg');
   const width = 1000, height = 500;
   svg.attr('viewBox', `0 0 ${width} ${height}`);
 
-  projection = d3.geoNaturalEarth1()
-    .scale(178)
-    .translate([width / 2, height / 2 + 18]);
-
+  // web-mercator: aligns with OSM slippy tiles at every zoom
+  projection = d3.geoMercator();
   pathGen = d3.geoPath(projection);
+  const tile = d3.tile().size([width, height]);
   mapLayer = svg.append('g').attr('id', 'map-zoom-layer');
+  tilesLayer = svg.insert('g', '#map-zoom-layer').attr('id', 'tiles-layer');
+  vectorLayer = mapLayer;
 
   // Graticule grid
   const graticule = d3.geoGraticule10();
@@ -1563,11 +1571,30 @@ async function initMap() {
 
   // Zoom & Pan
   zoomBehavior = d3.zoom()
-    .scaleExtent([1, 8])
+    .scaleExtent([0.55, 12000])   // half-world -> street level
     .on('zoom', (event) => {
-      mapLayer.attr('transform', event.transform);
-      svg.classed('zoomed', event.transform.k >= 3.2);
-      window.__zoomK = event.transform.k;
+      const t = event.transform;
+      mapLayer.attr('transform', t);
+      svg.classed('zoomed', t.k >= 200);       // pin labels at regional+ zoom
+      window.__zoomK = t.k;
+      // slippy tiles under the vectors
+      const tiles = tile(t);
+      tilesLayer.attr('transform',
+        `scale(${tiles.scale}) translate(${tiles.translate[0]},${tiles.translate[1]})`);
+      tilesLayer.selectAll('image')
+        .data(tiles, d => d)
+        .join('image')
+        .attr('class', 'tile')
+        .attr('xlink:href', d => `https://tile.openstreetmap.org/${d[2]}/${d[0]}/${d[1]}.png`)
+        .attr('x', d => d[0]).attr('y', d => d[1])
+        .attr('width', 1).attr('height', 1);
+      // pins keep constant screen size at any zoom
+      tilesLayer.node(); // noop
+      mapLayer.selectAll('.keystone-group').each(function () {
+        const gx = +this.getAttribute('data-x'), gy = +this.getAttribute('data-y');
+        if (!isNaN(gx)) this.setAttribute('transform',
+          `translate(${gx},${gy}) scale(${Math.min(1, 3 / t.k)})`);
+      });
     });
   svg.call(zoomBehavior);
 
@@ -1576,6 +1603,7 @@ async function initMap() {
     const resp = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json');
     const world = await resp.json();
     topoFeatures = topojson.feature(world, world.objects.countries).features;
+    projection.fitSize([width, height], { type: 'Sphere' });
 
     // Render Countries
     mapLayer.append('g')
@@ -1661,6 +1689,7 @@ function renderMapOverlays() {
 
     const g = kGroup.append('g')
       .attr('class', 'keystone-group')
+      .attr('data-x', pt[0]).attr('data-y', pt[1])
       .attr('transform', `translate(${pt[0]}, ${pt[1]})`)
       .on('click', (event) => {
         event.stopPropagation();
