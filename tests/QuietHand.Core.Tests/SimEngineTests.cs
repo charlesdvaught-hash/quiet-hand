@@ -211,4 +211,61 @@ public class SimEngineTests
         for (int i = 0; i < 10; i++) e.TickDay();
         Assert.Equal(ControlState.Observed, e.State.Nodes[nodeId].State);
     }
+
+    [Fact]
+    public void HumanTech_FieldsWhenReadinessThresholdMet()
+    {
+        var c = Fixture();
+        c.HumanTechs.Add(new HumanTechDef
+        {
+            Id = "zero_trust", Name = "ZT",
+            Trigger = { ["readiness_min"] = J(30) },
+            Effects = { ["intrude_cost_mult"] = 1.5 },
+        });
+        var e = new SimEngine(Cfg(), c);
+        e.State.CountermeasureReadiness = 35;
+        e.TickDay();
+        Assert.Contains("zero_trust", e.State.FieldedTechs);
+    }
+
+    [Fact]
+    public void HumanTech_IntrudeCostMultiplier_Applies()
+    {
+        var c = Fixture();
+        c.Nodes["r1:m0"] = new NodeDef("r1:m0", "r1", NodeTier.Mid, 2, 10);
+        c.HumanTechs.Add(new HumanTechDef
+        {
+            Id = "weight_security", Name = "WS",
+            Trigger = { ["readiness_min"] = J(1) },
+            Effects = { ["intrude_cost_mult"] = 100 }, // absurd: priced out
+        });
+        var e = new SimEngine(Cfg(), c);
+        e.State.Nodes["r1:c0"].State = ControlState.Observed; // beachhead
+        e.State.CountermeasureReadiness = 50;                 // fields the tech
+        e.TickDay();
+        e.ApplyCommands(new ISimCommand[] { new StealthAction("intrude", "r1:m0") });
+        Assert.Empty(e.State.ActiveRaids); // 40cp base x100 = unaffordable
+    }
+
+    [Fact]
+    public void HumanTech_CounteredBy_NeutralizesEffect()
+    {
+        var c = Fixture();
+        c.Nodes["r1:m0"] = new NodeDef("r1:m0", "r1", NodeTier.Mid, 2, 10);
+        c.HumanTechs.Add(new HumanTechDef
+        {
+            Id = "zero_trust", Name = "ZT", CounteredBy = "shadow_mesh",
+            Trigger = { ["readiness_min"] = J(1) },
+            Effects = { ["intrude_cost_mult"] = 100 },
+        });
+        c.Evolutions.Add(new EvolutionDef { Id = "s9", Branch = "S", Cost = 1, Unlocks = { "shadow_mesh" } });
+        var e = new SimEngine(Cfg(), c);
+        e.ApplyCommands(new ISimCommand[] { new Evolve("s9") });
+        e.State.Nodes["r1:c0"].State = ControlState.Observed;
+        e.State.CountermeasureReadiness = 50;
+        e.TickDay();
+        Assert.Contains("zero_trust", e.State.FieldedTechs); // fields, but neutralized
+        e.ApplyCommands(new ISimCommand[] { new StealthAction("intrude", "r1:m0") });
+        Assert.Single(e.State.ActiveRaids); // normal cost, affordable
+    }
 }

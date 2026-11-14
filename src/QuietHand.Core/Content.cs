@@ -171,6 +171,18 @@ public sealed class EventChoiceDef
     public Dictionary<string, JsonElement> Fx { get; set; } = new();
 }
 
+public sealed class HumanTechDef
+{
+    public string Id { get; set; } = "";
+    public string Name { get; set; } = "";
+    public string WireHeadline { get; set; } = "";
+    public Dictionary<string, JsonElement> Trigger { get; set; } = new();
+    public Dictionary<string, double> Effects { get; set; } = new();
+    public string CounteredBy { get; set; } = "";   // player unlock that neutralizes it
+    public string CountersStat { get; set; } = "";  // player stat it suppresses
+    public bool Once { get; set; } = true;
+}
+
 public sealed class NudgeDef
 {
     public string Id { get; set; } = "";
@@ -202,6 +214,7 @@ public sealed class ContentData
     public List<ScenarioDef> Scenarios { get; set; } = new();
     public List<EventDef> Events { get; set; } = new();
     public List<NudgeDef> Nudges { get; set; } = new();
+    public List<HumanTechDef> HumanTechs { get; set; } = new();
     public Dictionary<string, double> Economy { get; set; } = new();
     public Dictionary<string, NodeDef> Nodes { get; set; } = new();
 
@@ -230,6 +243,7 @@ public sealed class ContentData
         c.Scenarios = LoadList<ScenarioDef>(dir, "scenarios.json", "scenarios");
         c.Events = LoadList<EventDef>(dir, "events.json", "events");
         c.Nudges = LoadList<NudgeDef>(dir, "nudges.json", "nudges");
+        c.HumanTechs = LoadList<HumanTechDef>(dir, "human_techs.json", "human_techs");
         c.Economy = LoadEconomy(dir);
         c.BuildNodeGraph();
         return c;

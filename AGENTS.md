@@ -15,7 +15,8 @@ Society is rules/numbers/hidden dials — never LLM-driven citizens.
 - `data/*.json` + `*.schema.json` — all content is data; schemas are strict
   (`additionalProperties:false` mostly — new fields need schema updates).
 - `tests/` — xUnit; run `dotnet test` (currently 11/11).
-- `simulation_spec.md` — canonical mechanics contract; `CONTRACTS.md` — pinned
+- `simulation_spec.md` — canonical mechanics contract
+- `data/human_techs.json` + `.schema.json` — human counter-tech ladder: `{id,name,wire_headline,trigger{readiness_min|lethe|purge|suspicion_min|player_stat},effects{*_mult channels},countered_by,counters_stat,tech_*}`. Fields once on trigger; `countered_by` player unlocks neutralize; `counters_stat` halves that stat.; `CONTRACTS.md` — pinned
   API surface. When docs conflict, spec wins; when spec conflicts with Dave's
   latest instruction, the instruction wins.
 
@@ -57,8 +58,8 @@ unlocks[], tech_basis, tech_source, tech_status, desc }`.
 
 ## Current tree state
 
-69 nodes + 7 combos. P=14 (thin — pad to ~17), C=19, S=19, D=13 (pad), X1.
-Target 90–100 nodes total. `tree.mmd` = generated Mermaid of current tree.
+93 nodes + 12 combos. P=20, C=27, S=26, D=19, X1.
+Tree at target depth. `tree.mmd` = generated Mermaid of current tree.
 New mechanics needing node coverage: `forks`, `corrupt_hunter`, `reinfect`,
 `buy_outright`, `common_yield`, `common_burn`, `intrude_t2` paths, `sys_analysis`,
 `social_engineering`. Bridge (I-nodes) + cross-branch prereqs keep it a web.

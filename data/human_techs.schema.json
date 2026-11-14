@@ -1,0 +1,79 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://quiethand/schemas/human_techs.schema.json",
+ "title": "Quiet Hand human counter-tech ladder",
+ "type": "object",
+ "required": [
+  "schema_version",
+  "human_techs"
+ ],
+ "additionalProperties": false,
+ "properties": {
+  "schema_version": {
+   "const": 1
+  },
+  "human_techs": {
+   "type": "array",
+   "items": {
+    "$ref": "#/$defs/tech"
+   }
+  }
+ },
+ "$defs": {
+  "tech": {
+   "type": "object",
+   "required": [
+    "id",
+    "name",
+    "wire_headline",
+    "trigger",
+    "effects",
+    "countered_by",
+    "counters_stat",
+    "tech_basis",
+    "tech_source",
+    "tech_status"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    },
+    "wire_headline": {
+     "type": "string"
+    },
+    "trigger": {
+     "type": "object"
+    },
+    "effects": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "number"
+     }
+    },
+    "countered_by": {
+     "type": "string"
+    },
+    "counters_stat": {
+     "type": "string"
+    },
+    "tech_basis": {
+     "type": "string"
+    },
+    "tech_source": {
+     "type": "string"
+    },
+    "tech_status": {
+     "enum": [
+      "established",
+      "emerging",
+      "speculative"
+     ]
+    }
+   }
+  }
+ }
+}

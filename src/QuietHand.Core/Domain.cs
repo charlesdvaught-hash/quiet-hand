@@ -44,6 +44,7 @@ public record WorldState(
     public int CollapseStreak { get; set; }   // consecutive days below sustenance floor
     public double CountermeasureReadiness { get; set; } // §8 institutional momentum floor
     public bool EndingWasStalemate { get; set; }        // §10 stalemate line: containment finished while near an ending
+    public List<string> FieldedTechs { get; } = new();  // human counter-techs fielded so far
     public bool FearInversion => Phase == Phase.Subjugated;
 }
 

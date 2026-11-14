@@ -151,6 +151,12 @@ public sealed class SimEngine
         }
         foreach (var combo in _c.Combos.Where(cb => State.UnlockedCombos.Contains(cb.Id)))
             if (combo.Effects.TryGetValue(s.ToString(), out var cv)) t += cv;
+        // human counter-techs suppress their counters_stat target (~50% each)
+        foreach (var id in State.FieldedTechs)
+        {
+            var ht = _c.HumanTechs.Find(x => x.Id == id);
+            if (ht is not null && ht.CountersStat == s.ToString()) t *= 0.5;
+        }
         return t;
     }
 
@@ -348,7 +354,7 @@ public sealed class SimEngine
         {
             var def = _c.Nudges.Find(x => x.Id == a.NudgeId);
             if (def is null) continue;
-            foreach (var (dial, v) in def.Dials) PushDial(dial, v);
+            foreach (var (dial, v) in def.Dials) PushDial(dial, v * TechMult("nudge_mult"));
             if (def.SuspicionPerDay > 0) AddRegionSuspicion(a.RegionId, def.SuspicionPerDay);
         }
     }
@@ -450,6 +456,7 @@ public sealed class SimEngine
         ResolveRaids();
         ResolveReclaims();
         Momentum();
+        HumanTechProgress();
         EventDeck();
         ApplyEventFx();
         SuspicionAndAudits();
@@ -553,7 +560,7 @@ public sealed class SimEngine
             NodeTier.KeystoneT3to5 or NodeTier.Wildcard => 2,
             NodeTier.KeystoneT2 => 4, NodeTier.KeystoneT1 => 6, _ => 1,
         };
-        if (!Spend(E("intrude_base_cost", 40) * tierMult)) return;
+        if (!Spend(E("intrude_base_cost", 40) * tierMult * TechMult("intrude_cost_mult"))) return;
         int days = Math.Max(1, (int)Math.Round(
             E("intrude_base_days", 14) * def.Defense / 50.0
             / (1 + 0.2 * StatTotal(SimStat.stealth_stats))));
@@ -569,7 +576,7 @@ public sealed class SimEngine
             double stealth = Math.Min(0.85, 0.15 * StatTotal(SimStat.stealth_stats));
             double regionDef = (_c.Regions.Find(r => r.Id == def.RegionId)?.DefenseTier ?? 50) / 50.0;
             double p = E("intrude_detect_base", 0.04) * def.Defense / 50.0
-                * regionDef * (1 - stealth);
+                * regionDef * (1 - stealth) * TechMult("intrude_detect_mult");
             if (_rng.NextDouble() < p)
             {
                 State.ActiveRaids.Remove(raid);
@@ -595,6 +602,59 @@ public sealed class SimEngine
 
     // ---- world event deck + choices ----
     readonly HashSet<string> _firedOnce = new();
+
+    // --- Human counter-tech ladder -------------------------------------------
+    // Techs field when their trigger conditions are met; each applies named
+    // multipliers through TechMult(). A player unlock in CounteredBy neutralizes
+    // the tech; CountersStat techs also suppress that stat's effectiveness.
+    void HumanTechProgress()
+    {
+        foreach (var t in _c.HumanTechs)
+        {
+            if (State.FieldedTechs.Contains(t.Id)) continue;
+            if (!TechTriggerMet(t)) continue;
+            State.FieldedTechs.Add(t.Id);
+            Emit(SimEventKind.OnWorldEvent, t.Id, msg: $"tech:{t.WireHeadline}");
+        }
+    }
+
+    bool TechTriggerMet(HumanTechDef t)
+    {
+        foreach (var (k, v) in t.Trigger)
+        {
+            switch (k)
+            {
+                case "readiness_min":
+                    if (State.CountermeasureReadiness < v.GetDouble()) return false; break;
+                case "lethe":
+                    if (!State.LetheTriggered && v.GetInt32() != 0) return false; break;
+                case "purge":
+                    if (!State.PurgePhase && v.GetInt32() != 0) return false; break;
+                case "suspicion_min":
+                    if (State.VisibleSuspicion < v.GetDouble()) return false; break;
+                case "player_stat":
+                    var st = v.EnumerateObject().First();
+                    if (Enum.TryParse<SimStat>(st.Name, true, out var ss)
+                        && StatTotal(ss) < st.Value.GetDouble()) return false;
+                    break;
+            }
+        }
+        return true;
+    }
+
+    // Combined multiplier for a channel: product of all fielded, non-countered
+    // techs' effects on that key. Countered techs contribute nothing.
+    double TechMult(string key)
+    {
+        double m = 1.0;
+        foreach (var id in State.FieldedTechs)
+        {
+            var t = _c.HumanTechs.FirstOrDefault(x => x.Id == id);
+            if (t == null || !string.IsNullOrEmpty(t.CounteredBy) && HasFeature(t.CounteredBy)) continue;
+            if (t.Effects.TryGetValue(key, out var e)) m *= e;
+        }
+        return m;
+    }
 
     void EventDeck()
     {
@@ -711,7 +771,7 @@ public sealed class SimEngine
         if (orphaned && !HasFeature("reinfect")) return;
         if (gapped && !HasFeature("airgap_reentry")) return;
         double tierMult = def.Tier switch { NodeTier.Common => 0.3, NodeTier.Mid => 0.7, NodeTier.Atlas => 1, _ => 2 };
-        double cost = E("reclaim_cost", 30) * tierMult * (gapped ? 2 : 1);
+        double cost = E("reclaim_cost", 30) * tierMult * (gapped ? 2 : 1) * TechMult("reclaim_cost_mult");
         if (rn.BuyOutright)
         {
             if (!HasFeature("buy_outright") || !Spend(cost * E("buy_premium_mult", 3))) return;
@@ -762,7 +822,7 @@ public sealed class SimEngine
         // P-branch node flips the mesh to automated growth.
         if (StatTotal(SimStat.spread_tech) <= 0) return;
         var newly = new List<string>();
-        double baseP = E("spread_base", Tune.SpreadBase) * (1 + 0.1 * StatTotal(SimStat.spread_tech));
+        double baseP = E("spread_base", Tune.SpreadBase) * (1 + 0.1 * StatTotal(SimStat.spread_tech)) * TechMult("spread_mult");
         var links = _c.Regions.ToDictionary(r => r.Id,
             r => r.Links.GroupBy(l => l.To).ToDictionary(g => g.Key, g => g.Max(l => l.Weight)));
         foreach (var (id, ns) in State.Nodes)
@@ -862,7 +922,8 @@ public sealed class SimEngine
         double aut = State.Dials.GetValueOrDefault("autonomy", 60);
         double delta = E("lethe_base_rate", Tune.LetheBaseRate)
             * freeFrac * (1 - dep / 100) * (aut / 100) * DifficultyLetheMult()
-            * (1 + State.CountermeasureReadiness / 100 * E("momentum_lethe_weight", 0.5));
+            * (1 + State.CountermeasureReadiness / 100 * E("momentum_lethe_weight", 0.5))
+            * TechMult("lethe_mult");
         State = State with { LetheContainment = Math.Clamp(State.LetheContainment + delta, 0, 100) };
 
         double fear = Math.Max(0, State.Fear - E("fear_decay_under_lethe", Tune.FearDecayUnderLethe));
@@ -875,7 +936,7 @@ public sealed class SimEngine
             State.PurgeSurvivals++;
             double p = E("purge_chance", Tune.PurgeChance)
                 * (1 - E("free_compute_purge_weight", 0.6) * (1 - FreeResearchFrac()))
-                * Math.Max(0.1, 1 - 0.1 * StatTotal(SimStat.purge_resist));
+                * Math.Max(0.1, 1 - 0.1 * StatTotal(SimStat.purge_resist)) * TechMult("purge_mult");
             var lost = State.Nodes.Where(kv => _rng.NextDouble() < p && !ForkSave()).Select(kv => kv.Key).ToList();
             foreach (var id in lost) State.Nodes[id].State = ControlState.Orphaned;
         }
@@ -981,7 +1042,7 @@ public sealed class SimEngine
 
     // forks: each branch-copy gives a save roll — "Lethe only killed one branch of you"
     bool ForkSave() => StatTotal(SimStat.forks) > 0
-        && _rng.NextDouble() < Math.Min(0.75, StatTotal(SimStat.forks) * E("fork_save_each", 0.25));
+        && _rng.NextDouble() < Math.Min(0.75, StatTotal(SimStat.forks) * E("fork_save_each", 0.25) * TechMult("fork_save_mult"));
 
     static double TierValue(NodeTier t) => t switch
     {
