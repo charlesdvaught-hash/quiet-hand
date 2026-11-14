@@ -69,3 +69,20 @@ Bridge (I-nodes) + cross-branch prereqs keep it a web.
 `dotnet build` · `dotnet test` · headless run:
 `dotnet run --project src/QuietHand.Headless -- data 1500 7` · MC:
 `... -- --quiet --mc 20 --routes`. Validate JSON against `data/*.schema.json`.
+
+## Deployment — GitHub Pages (WASM)
+
+- `src/QuietHand.Wasm/` compiles the Core to browser-wasm; `Snapshots` +
+  `CommandParser` in Core are the single source of truth for the wire format
+  shared with the server shell. SimIO swaps file I/O (JS preloads data/*.json;
+  saves → localStorage).
+- JSON on wasm needs the source-gen contexts (`QHContentJson`/`QHStateJson`) —
+  reflection can't bind ctors under the interpreter. Reflection stays enabled
+  only for anonymous snapshot *writes* (`JsonSerializerIsReflectionEnabledByDefault`).
+- Build: `python scripts/publish_pages.py` → `dist/` (static site).
+- Deploy: push `dist/` contents to the `gh-pages` branch. The branch MUST keep
+  `* -text` in `.gitattributes` — git's line-ending normalization corrupts the
+  boot-manifest SRI hashes otherwise. `.nojekyll` must be present (`_framework/`).
+- Live: https://charlesdvaught-hash.github.io/quiet-hand/
+- adapter.js probes localhost:5087 first — local dev server still wins when
+  running; the same page works both ways.
