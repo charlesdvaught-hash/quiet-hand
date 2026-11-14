@@ -111,21 +111,41 @@
 
     // countries: every region's posture/suspicion -> iso states
     const sevOf = st => POSTURE_ORDER.indexOf(st);
+    // real postures only — mock country values are overwritten, never merged
+    const covered = new Set();
     for (const r of (s.regions || [])) {
       const g = geo[r.id]; if (!g) continue;
       const soft = r.postures?.Common || null, mid = r.postures?.Mid || null,
             hard = r.postures?.Atlas || r.postures?.KeystoneT1 || null;
       for (const iso of g.iso) {
+        covered.add(iso);
         const ex = state.countries[iso] || {};
         const pick = (a, b) => (sevOf(b || 'dormant') > sevOf(a || 'dormant') ? b : a) || a;
+        // pick across REGIONS sharing this iso (e.g. several us_* -> 840), not stale state
+        const sameRegion = ex._region === r.id;
         state.countries[iso] = {
           name: ex.name || r.name,
           status: r.suspicion > 60 ? 'AUDIT CRISIS' : r.suspicion > 30 ? 'Probes Detected' : 'Nominal Connectivity',
           tags: [r.name, `suspicion ${Math.round(r.suspicion)}`],
-          soft: pick(ex.soft, POSTURE_TO_UI[soft]), mid: pick(ex.mid, POSTURE_TO_UI[mid]),
-          hard: pick(ex.hard, POSTURE_TO_UI[hard]), airgapped: false,
+          soft: pick(sameRegion ? ex.soft : 'dormant', POSTURE_TO_UI[soft]),
+          mid: pick(sameRegion ? ex.mid : 'dormant', POSTURE_TO_UI[mid]),
+          hard: pick(sameRegion ? ex.hard : 'dormant', POSTURE_TO_UI[hard]),
+          airgapped: false,
           _region: r.id,
+          _isoPostures: Object.assign(sameRegion ? ex._isoPostures || {} : {},
+            { soft: pick(ex._isoPostures?.soft, POSTURE_TO_UI[soft]),
+              mid: pick(ex._isoPostures?.mid, POSTURE_TO_UI[mid]),
+              hard: pick(ex._isoPostures?.hard, POSTURE_TO_UI[hard]) }),
         };
+        const ip = state.countries[iso]._isoPostures;
+        state.countries[iso].soft = ip.soft; state.countries[iso].mid = ip.mid; state.countries[iso].hard = ip.hard;
+      }
+    }
+    // untouched isos: clear any leftover mock posture
+    for (const iso of Object.keys(state.countries)) {
+      if (!covered.has(iso)) {
+        const c = state.countries[iso];
+        c.soft = c.mid = c.hard = 'dormant';
       }
     }
   }
