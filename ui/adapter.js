@@ -394,11 +394,12 @@
     ov.querySelectorAll('[data-oid]').forEach(el => el.onclick = async () => {
       snap = await api(`/api/new?origin=${el.dataset.oid}&bonus=25`, { method: 'POST' });
       ov.remove(); onboarded = true; reachSeen = -1;
+      setSimSpeed(0); // time is opt-in: the run stays paused until the player presses play
       state.posts = AMBIENT.map((p, i) => ({
         id: postSeq++, handle: p[0], persona: p[1], badge: p[2], text: p[3], state: 'normal',
       }));
       mergeState(); refreshAllUI(); zoomToHome(); guide();
-      tutor('This is your street — the lights below are real blocks. Your mesh creeps outward on its own, block by block. To push faster, tap a neighboring area — a paid burst into adjacent ground.', 1, 4);
+      tutor("This is your street — the lights below are real blocks. Time is paused: press play (top right) when you're ready for the days to pass. Your mesh creeps outward on its own — tap a neighboring area for a paid burst.", 1, 4);
     });
   }
 
