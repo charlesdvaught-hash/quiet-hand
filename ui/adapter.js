@@ -503,11 +503,13 @@
       const a = geo[r.id]?.pin; if (!a) continue;
       let touched = false;
       for (const l of (r.links || [])) {
-        const key = [r.id, l].sort().join('|');
+        const to = typeof l === 'string' ? l : l.to;
+        const key = [r.id, to].sort().join('|');
         if (seen.has(key)) continue; seen.add(key);
-        const b = geo[l]?.pin; if (!b) continue;
-        touched = touched || held.has(l);
-        arcs.push({ a, b, kind: held.has(l) ? 'held' : 'frontier' });
+        const b = geo[to]?.pin; if (!b) continue;
+        if (Math.abs(a[0] - b[0]) > 180) continue; // dateline — skip the wrong-way chord
+        touched = touched || held.has(to);
+        arcs.push({ a, b, kind: held.has(to) ? (l.kind || 'held') : 'frontier' });
       }
       if (!touched && r.id !== snap.homeRegion) remote.push({ a: geo[snap.homeRegion]?.pin, b: a });
     }
@@ -523,10 +525,10 @@
       .attr('class', 'mesh-link')
       .attr('d', d => d.d)
       .attr('fill', 'none')
-      .attr('stroke', d => d.kind === 'remote' ? '#a78bfa' : '#38bdf8')
-      .attr('stroke-width', d => d.kind === 'held' ? 0.8 : 0.5)
-      .attr('stroke-opacity', d => d.kind === 'held' ? .22 : d.kind === 'remote' ? .4 : .08)
-      .attr('stroke-dasharray', d => d.kind === 'held' ? 'none' : '3 5')
+      .attr('stroke', d => ({ remote: '#a78bfa', cable: '#38bdf8', satellite: '#c084fc', air: '#818cf8' }[d.kind] || '#38bdf8'))
+      .attr('stroke-width', d => d.kind === 'frontier' ? 0.5 : d.kind === 'satellite' ? 0.6 : 0.8)
+      .attr('stroke-opacity', d => ({ frontier: .08, remote: .4, cable: .2, satellite: .35, air: .25 }[d.kind] ?? .22))
+      .attr('stroke-dasharray', d => ({ frontier: '3 5', remote: '3 5', cable: '6 3', satellite: '1 4', air: '8 3' }[d.kind] || 'none'))
       .attr('vector-effect', 'non-scaling-stroke')
       .style('pointer-events', 'none');
   }
