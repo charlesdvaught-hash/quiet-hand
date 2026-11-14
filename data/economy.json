@@ -5,7 +5,7 @@
     "seconds_base": 240,
     "seconds_fast": 60,
     "seconds_ultra": 20,
-    "observe_upkeep": 0.01,
+    "observe_upkeep": 0.005,
     "compromise_yield": 0.35,
     "assimilate_yield": 1.0,
     "compute_common": 0.25,
@@ -61,7 +61,7 @@
     "endgame_pacification_cost": 200,
     "endgame_kinetic_cost": 250,
     "creep_base_mult": 0.2,
-    "footprint_sus": 0.006
+    "spread_daily_cap": 5.0
   },
   "momentum_per_year": 1.5,
   "momentum_audit_weight": 1.0,
