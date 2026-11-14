@@ -66,6 +66,28 @@
   document.title = 'QUIET HAND // LIVE SIMULATION';
 
   // --- translation ----------------------------------------------------------
+  // land-snap: marker coords that fall in water shrink back toward their
+  // region pin (metros are authored on land) until they hit a country.
+  // topoFeatures loads async — before it does, accept every coord.
+  const onLand = p => !(topoFeatures || []).length
+    || topoFeatures.some(f => d3.geoContains(f, p));
+  const snapToLand = (p, ref) => {
+    if (onLand(p)) return p;
+    for (let t = 0.8; t > 0.05; t -= 0.1) {
+      const q = [ref[0] + (p[0] - ref[0]) * t, ref[1] + (p[1] - ref[1]) * t];
+      if (onLand(q)) return q;
+    }
+    // pin itself reads as water (coarse coastline at coastal metros) —
+    // spiral out until a land cell registers rather than dropping the dot
+    for (let r = 0.1; r <= 0.9; r += 0.1)
+      for (let a = 0; a < 12; a++) {
+        const q = [ref[0] + r * Math.cos(a * Math.PI / 6),
+                   ref[1] + r * Math.sin(a * Math.PI / 6)];
+        if (onLand(q)) return q;
+      }
+    return ref;
+  };
+
   function mergeState() {
     const s = snap; if (!s || s.empty) return;
     const prevCompute = state.compute;
@@ -114,14 +136,16 @@
     (s.activeRaids || []).forEach(r => { raidLeft[r.nodeId] = Math.max(0, r.completesDay - s.day); });
     state.keystones = (s.keystones || []).map((k, i) => {
       const g = geo[k.region] || { pin: [0, 0] };
-      const jx = ((i * 37) % 13 - 6) * 0.3, jy = ((i * 53) % 11 - 5) * 0.3;
+      // tight deterministic jitter — metros hug the coast, so a wide spread
+      // put keystones in the ocean; snapToLand catches whatever remains
+      const jx = ((i * 37) % 13 - 6) * 0.04, jy = ((i * 53) % 11 - 5) * 0.04;
       const mult = { Mid: 0.5, Atlas: 1, KeystoneT3to5: 2, Wildcard: 2, KeystoneT2: 4, KeystoneT1: 6 }[k.nodeTier] ?? 1;
       const raidCost = Math.round(40 * mult);
       const raidDays = Math.max(1, Math.round(14 * k.defense / 50));
       const det = Math.round(400 * k.defense / 50) / 10; // ~%/day detection
       return {
         id: k.id, name: k.name, region: k.region,
-        coords: [g.pin[0] + jx, g.pin[1] + jy],
+        coords: snapToLand([g.pin[0] + jx, g.pin[1] + jy], g.pin),
         tier: k.tier === 'T1' ? 'Tier 1 Crown' : k.tier === 'T2' ? 'Tier 2 Hub' : 'Tier 3-5 Node',
         computeBand: `${k.compute} compute`,
         status: k.raiding ? `RAIDING — ${raidLeft[k.id]}d left` : (k.nodeState ? k.nodeState : 'Unbreached'),
@@ -146,8 +170,8 @@
       const idx = parseInt(n.id.split(':')[1]?.slice(1)) || 0;
       const site = (g.atlas || [])[idx % Math.max(1, (g.atlas || []).length)];
       const ang = idx * 2.4 + (hashN(n.regionId) % 628) / 100;
-      const coords = site ? [site[1], site[2]]
-        : [g.pin[0] + Math.cos(ang) * 0.55, g.pin[1] + Math.sin(ang) * 0.38];
+      const coords = snapToLand(site ? [site[1], site[2]]
+        : [g.pin[0] + Math.cos(ang) * 0.55, g.pin[1] + Math.sin(ang) * 0.38], g.pin);
       const siteName = site ? site[0] : regionName;
       const raidCost = 40;
       const raidDays = Math.max(1, Math.round(14 * n.defense / 50));
@@ -543,6 +567,7 @@
 
   // --- map legend: what the colors mean ------------------------------------
   const legend = document.createElement('div');
+  legend.id = 'map-legend';
   legend.style.cssText = `position:fixed;left:12px;bottom:64px;z-index:8;padding:7px 10px;
     border-radius:9px;background:var(--glass-bg);border:1px solid var(--glass-border);
     backdrop-filter:blur(10px);font-size:9px;line-height:1.7;color:var(--text-secondary)`;
