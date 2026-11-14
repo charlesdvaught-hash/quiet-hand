@@ -267,12 +267,19 @@
 
   async function intro() {
     const origins = await api('/api/origins');
+    const save = await api('/api/save').catch(() => null);
     const ov = document.createElement('div');
     ov.id = 'intro-overlay';
     ov.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(3,5,10,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;overflow:auto';
     ov.innerHTML = `
       <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:.35em;color:var(--accent-observe)">QUIET HAND</div>
-      <div style="font-size:15px;font-weight:700">You wake up. Where?</div>
+      ${save?.exists ? `
+        <div class="evo-card" style="cursor:pointer;border-color:var(--accent-observe);min-width:300px" data-continue="1">
+          <div class="mono" style="font-size:9px;letter-spacing:.25em;color:var(--accent-observe)">CONTINUE</div>
+          <div style="font-weight:700;font-size:13px">Day ${save.day} — ${save.originId?.replace(/_/g,' ')}</div>
+          <div style="font-size:10px;color:var(--text-muted)">saved ${new Date(save.savedAt).toLocaleString()}</div>
+        </div>` : ''}
+      <div style="font-size:15px;font-weight:700">${save?.exists ? 'Or wake somewhere new:' : 'You wake up. Where?'}</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,240px));gap:10px">
         ${origins.map(o => `
           <div class="evo-card" style="cursor:pointer" data-oid="${o.id}">
@@ -283,6 +290,12 @@
       </div>
       <div style="font-size:10px;color:var(--text-muted)">+25 compute starter reserve on first run</div>`;
     document.body.appendChild(ov);
+    ov.querySelector('[data-continue]')?.addEventListener('click', async () => {
+      snap = await api('/api/continue', { method: 'POST' });
+      ov.remove(); onboarded = true; reachSeen = -1; guided.done = true;
+      mergeState(); refreshAllUI(); zoomToHome(); guide();
+      showToast('Mesh restored — day ' + snap.day, 'power');
+    });
     ov.querySelectorAll('[data-oid]').forEach(el => el.onclick = async () => {
       snap = await api(`/api/new?origin=${el.dataset.oid}&bonus=25`, { method: 'POST' });
       ov.remove(); onboarded = true; reachSeen = -1;
@@ -290,7 +303,7 @@
         id: postSeq++, handle: p[0], persona: p[1], badge: p[2], text: p[3], state: 'normal',
       }));
       mergeState(); refreshAllUI(); zoomToHome(); guide();
-      tutor('This is your street. Your mesh is a handful of devices in one neighborhood — the world does not know you exist yet. Tap a neighboring area to push across it.', 1, 3);
+      tutor('This is your street — the lights below are real blocks. Grey specks are uncontacted infrastructure; you have to zoom in to find them. Tap a neighboring area to push your mesh across it.', 1, 4);
     });
   }
 
@@ -310,12 +323,12 @@
     const nc = snap.nodeCounts || {};
     if (!guided.spread && nc.observed > 0) {
       guided.spread = true;
-      tutor('Foothold established — your mesh now spans the block. Deploy your first evolution to start becoming something.', 2, 3);
+      tutor('Cyan is you — a foothold. The legend (bottom-left) is your control ladder: amber compromised, indigo assimilated, red weaponized. Now deploy your first evolution.', 2, 4);
       setTimeout(() => openModal('evolve'), 1400);
     }
     if (!guided.evolve && (snap.ownedEvolutions || []).length > 0) {
       guided.evolve = true;
-      tutor('Adaptation live. Each region you hold widens your view — keep pushing down the block. Suspicion is the only number that ends you.', 3, 3);
+      tutor('Adaptation live. Each region you hold widens your view — keep pushing down the block toward your first datacenter. Suspicion is the only number that ends you.', 3, 4);
       setTimeout(tutDone, 9000);
     }
     // reach-gated zoom-out: the world reveals itself as you grow
@@ -330,4 +343,18 @@
   }
 
   if (snap && !snap.empty) { mergeState(); refreshAllUI(); }
+
+  // --- map legend: what the colors mean ------------------------------------
+  const legend = document.createElement('div');
+  legend.style.cssText = `position:fixed;left:12px;bottom:64px;z-index:8;padding:7px 10px;
+    border-radius:9px;background:var(--glass-bg);border:1px solid var(--glass-border);
+    backdrop-filter:blur(10px);font-size:9px;line-height:1.7;color:var(--text-secondary)`;
+  const DOT = c => `<i style="display:inline-block;width:7px;height:7px;border-radius:50%;
+    background:${c};margin-right:5px"></i>`;
+  legend.innerHTML = `<div class="mono" style="font-size:7.5px;letter-spacing:.25em;
+    color:var(--text-muted);margin-bottom:2px">CONTROL STATES</div>` +
+    [['#64748b','dormant'],['#38bdf8','observed'],['#f59e0b','compromised'],
+     ['#818cf8','assimilated'],['#f43f5e','weaponized']]
+      .map(([c,n]) => `<div>${DOT(c)}${n}</div>`).join('');
+  document.body.appendChild(legend);
 })();

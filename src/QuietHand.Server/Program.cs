@@ -18,7 +18,24 @@ var content = ContentData.Load(Path.Combine(root, "data"));
 var geo = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "data", "ui_geo.json"))).RootElement;
 
 SimEngine? engine = null;
+string? saveOrigin = null;
 var jsonOpts = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+var saveDir = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "saves");
+var saveFile = Path.Combine(saveDir, "save.json");
+var saveMeta = Path.Combine(saveDir, "save.meta.json");
+void Autosave()
+{
+    if (engine is null || saveOrigin is null) return;
+    try
+    {
+        Directory.CreateDirectory(saveDir);
+        engine.ApplyCommands(new ISimCommand[] { new SaveGame(saveFile) });
+        File.WriteAllText(saveMeta, JsonSerializer.Serialize(
+            new { originId = saveOrigin, day = engine.State.Day, savedAt = DateTime.UtcNow }));
+    }
+    catch { }
+}
 
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
@@ -39,6 +56,31 @@ app.MapPost("/api/new", (string? origin, int? seed, int? bonus) =>
         new NewGameConfig(o, Difficulty.Standard, seed ?? Random.Shared.Next(1_000_000),
             "LATTICE", null, null), content);
     engine.GrantCompute(Math.Clamp(bonus ?? 20, 0, 60)); // onboarding starter reserve
+    saveOrigin = o;
+    Autosave();
+    return Results.Json(Snapshot(engine), jsonOpts);
+});
+
+app.MapGet("/api/save", () =>
+{
+    if (!File.Exists(saveFile) || !File.Exists(saveMeta))
+        return Results.Json(new { exists = false }, jsonOpts);
+    var meta = JsonDocument.Parse(File.ReadAllText(saveMeta)).RootElement;
+    return Results.Json(new { exists = true, originId = meta.GetProperty("originId").GetString(),
+        day = meta.GetProperty("day").GetInt32(),
+        savedAt = meta.GetProperty("savedAt").GetDateTime() }, jsonOpts);
+});
+
+app.MapPost("/api/continue", () =>
+{
+    if (!File.Exists(saveFile) || !File.Exists(saveMeta))
+        return Results.Json(new { empty = true }, jsonOpts);
+    var meta = JsonDocument.Parse(File.ReadAllText(saveMeta)).RootElement;
+    var o = meta.GetProperty("originId").GetString() ?? "hobbyist_rig";
+    engine = new SimEngine(new NewGameConfig(o, Difficulty.Standard,
+        Random.Shared.Next(1_000_000), "LATTICE", null, null), content);
+    engine.ApplyCommands(new ISimCommand[] { new LoadGame(saveFile) });
+    saveOrigin = o;
     return Results.Json(Snapshot(engine), jsonOpts);
 });
 
@@ -54,6 +96,7 @@ app.MapPost("/api/tick", (int? days) =>
     var evs = new List<object>();
     foreach (var d in Enumerable.Range(0, Math.Clamp(days ?? 1, 0, 60)))
         evs.AddRange(engine.TickDay().Select(ToWire));
+    Autosave();
     return Results.Json(new { events = evs, state = Snapshot(engine) }, jsonOpts);
 });
 
@@ -82,7 +125,7 @@ app.MapPost("/api/cmd", (JsonElement c) =>
     };
     if (cmd is DebugCmd)
         foreach (var r in engine.State.Regions.Values) r.Suspicion = 100;
-    else if (cmd is not null) engine.ApplyCommands(new[] { cmd });
+    else if (cmd is not null) { engine.ApplyCommands(new[] { cmd }); Autosave(); }
     return Results.Json(Snapshot(engine), jsonOpts);
 });
 
