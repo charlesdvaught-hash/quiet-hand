@@ -2090,7 +2090,7 @@ function openModal(type) {
         ${state.evolutions.map(ev => `
           <div class="evo-card ${ev.owned?'owned':''} ${ev.isTelemetry?'telemetry-card':''}">
             <div style="display:flex;justify-content:space-between;align-items:center">
-              <span class="badge ${ev.branch==='Infiltrate'?'badge-cyan':ev.branch==='Manipulate'?'badge-amber':'badge-indigo'}">${ev.branch}</span>
+              <span class="badge ${{'Propagation':'badge-cyan','Cognition':'badge-indigo','Subversion':'badge-amber','Disruption':'badge-crimson','X1':'badge-crimson'}[ev.branch]||'badge-slate'}">${ev.branch}</span>
               <span class="mono" style="font-size:11px;font-weight:700;color:${ev.owned?'var(--accent-emerald)':'var(--accent-observe)'}">
                 ${ev.owned ? 'INSTALLED' : `${ev.cost} COMPUTE`}
               </span>
@@ -2331,5 +2331,6 @@ window.addEventListener('DOMContentLoaded', () => {
   refreshAllUI();
 });
 </script>
+  <script src="/adapter.js" defer></script>
 </body>
 </html>
