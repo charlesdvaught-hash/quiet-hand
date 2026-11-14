@@ -477,7 +477,7 @@
     if (!(topoFeatures || []).length) { setTimeout(zoomToHome, 350); return; } // wait for fit
     const [x, y] = projection(g.pin);
     if (!isFinite(x) || !isFinite(y)) { setTimeout(zoomToHome, 350); return; }
-    const k = 5500000; // ~z14 street view
+    const k = 8388608; // ~z15 — the zoom where OSM building footprints appear
     const r = svg.node().getBoundingClientRect();
     svg.transition().duration(1200).call(zoomBehavior.transform,
       d3.zoomIdentity.translate(r.width / 2 - x * k, r.height / 2 - y * k).scale(k));
@@ -495,7 +495,7 @@
         font-size:11px;color:var(--text-primary,#e2e8f0);box-shadow:0 0 14px #38bdf855`;
       el.onclick = () => {
         const [x, y] = projection(geo[snap.homeRegion]?.pin || [0, 20]);
-        const f = Math.max(900, 5500000 / Math.pow(9, pendingReach));
+        const f = Math.max(900, 8388608 / Math.pow(9, pendingReach));
         const r = svg.node().getBoundingClientRect();
         svg.transition().duration(1600).call(zoomBehavior.transform,
           d3.zoomIdentity.translate(r.width / 2 - x * f, r.height / 2 - y * f).scale(f));
