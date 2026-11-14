@@ -29,8 +29,8 @@
     ['@gradgrind', 'student', 'badge-slate', 'two finals and a group project where nobody replies. fine.'],
   ];
   const BRANCH_LABEL = { P: 'Propagation', C: 'Cognition', S: 'Subversion', D: 'Disruption', center: 'X1' };
-  const POSTURE_TO_UI = { Observed: 'observe', Compromised: 'compromise', Assimilated: 'assimilate', Weaponized: 'weaponize' };
-  const POSTURE_ORDER = ['dormant', 'observe', 'compromise', 'assimilate', 'weaponize'];
+  const POSTURE_TO_UI = { Observed: 'observe', Compromised: 'compromise', Trojan: 'trojan', Weaponized: 'weaponize' };
+  const POSTURE_ORDER = ['dormant', 'observe', 'compromise', 'trojan', 'weaponize'];
   const DAYS_PER_BEAT = { 1: 2, 2: 7, 3: 21 };
 
   const api = async (path, opts) => (await fetch(API + path, { cache: 'no-store', ...(opts || {}) })).json();
@@ -64,6 +64,7 @@
     state.threats.technicalContainment = Math.round(s.lethe);
     state.letheActive = s.letheTriggered;
     state.telemetryUnlocked = (s.unlocks || []).some(u => u.startsWith('telemetry') || u === 'metrics_tab');
+    state.unlocks = s.unlocks || [];
     state.canReadPersonas = (s.unlocks || []).includes('murmur_personas');
     const d = s.dials || {};
     state.dials = {
@@ -236,7 +237,7 @@
   window.__pickChoice = (eventId, choiceId) => cmd({ type: 'event_choice', eventId, choiceId });
 
   // --- command overrides ------------------------------------------------------
-  const UI_TO_ENUM = { observe: 'Observed', compromise: 'Compromised', assimilate: 'Assimilated', weaponize: 'Weaponized' };
+  const UI_TO_ENUM = { observe: 'Observed', compromise: 'Compromised', trojan: 'Trojan', weaponize: 'Weaponized' };
   window.buyEvolution = (id) => { cmd({ type: 'evolve', id }); showToast(`Deploying ${id}`, 'git-branch'); };
   window.setKeystoneState = (id, st) => {
     const k = state.keystones.find(x => x.id === id);
@@ -250,6 +251,7 @@
       cmd({ type: 'stealth', action: 'intrude', nodeId: id });
       showToast(`Raiding ${k.name} — ~${k.raidDays}d, ${k.raidCost}cp`, 'swords');
     }
+    else if (st === 'assimilate') { cmd({ type: 'stealth', action: 'assimilate', nodeId: id }); showToast('Scorching the site — extracting everything, frying it permanently', 'flame'); }
     else cmd({ type: 'set_control', nodeId: id, target: UI_TO_ENUM[st] || 'Observed' });
   };
   // reach = held OR adjacent-to-held OR remote_ops unlock (Proxy Subagents)

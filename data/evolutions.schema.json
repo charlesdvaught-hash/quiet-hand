@@ -101,7 +101,9 @@
         "buy_outright",
         "common_burn",
         "corrupt_hunter",
-        "reinfect"
+        "reinfect",
+        "assimilate_burn",
+        "weaponize_ops"
       ]
     },
     "effectMap": {

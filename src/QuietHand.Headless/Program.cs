@@ -72,7 +72,7 @@ static (string? ending, int endDay) RunGame(ContentData content, int seed, int d
             Console.WriteLine($"day={s.Day,4} compute={s.Compute,8:F1} suspicion={s.VisibleSuspicion,5:F1} " +
                 $"lethe={s.LetheContainment,5:F1} fear={s.Fear,5:F1} reach={s.ReachStage} " +
                 $"evo={s.OwnedEvolutions.Count,2} phase={s.Phase} " +
-                $"nodes[obs={C(ControlState.Observed)} cmp={C(ControlState.Compromised)} asm={C(ControlState.Assimilated)} " +
+                $"nodes[obs={C(ControlState.Observed)} cmp={C(ControlState.Compromised)} asm={C(ControlState.Trojan)} " +
                 $"wpn={C(ControlState.Weaponized)} gap={C(ControlState.AirGapped)} orf={C(ControlState.Orphaned)}]" +
                 (s.Ending is not null ? $" ENDING={s.Ending}" : ""));
         }

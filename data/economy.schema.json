@@ -92,10 +92,10 @@
     "audit": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["base_rate_per_day", "assimilated_mult", "gold_raid_detect_spike"],
+      "required": ["base_rate_per_day", "trojan_mult", "gold_raid_detect_spike"],
       "properties": {
         "base_rate_per_day": { "type": "number" },
-        "assimilated_mult": { "type": "number" },
+        "trojan_mult": { "type": "number" },
         "keystone_honeypot_mult": {
           "type": "object",
           "additionalProperties": { "type": "number" }
@@ -139,7 +139,7 @@
       "required": ["downgrade_cost", "downgrade_cooldown_days", "residual_footprint_decay_per_day"],
       "properties": {
         "compromise_cost": { "type": "number" },
-        "assimilate_cost": { "type": "number" },
+        "trojan_cost": { "type": "number" },
         "downgrade_cost": { "type": "number" },
         "downgrade_cooldown_days": { "type": "number" },
         "residual_footprint_decay_per_day": { "type": "number" },

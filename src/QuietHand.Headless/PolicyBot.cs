@@ -143,7 +143,7 @@ sealed class PolicyBot
                 var def = _c.Nodes.GetValueOrDefault(id);
                 if (def is null || def.Tier is not (NodeTier.Common or NodeTier.Mid)) continue;
                 if (s.Compute < reserve + 12 || done >= 2) break;
-                cmds.Add(new SetControlState(id, ControlState.Assimilated));
+                cmds.Add(new SetControlState(id, ControlState.Trojan));
                 reserve += 12; done++;
             }
         }
@@ -151,7 +151,7 @@ sealed class PolicyBot
         // Cool off above the profile's heat ceiling.
         if (s.VisibleSuspicion > _route.SuspicionCeiling)
         {
-            var hot = s.Nodes.FirstOrDefault(kv => kv.Value.State == ControlState.Assimilated);
+            var hot = s.Nodes.FirstOrDefault(kv => kv.Value.State == ControlState.Trojan);
             if (hot.Key is not null) cmds.Add(new SetControlState(hot.Key, ControlState.Compromised));
         }
 

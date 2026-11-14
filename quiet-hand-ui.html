@@ -1311,6 +1311,7 @@ const state = {
   realityGapMode: 'public', // 'public' | 'truth'
   mapLens: 'reach',
   telemetryUnlocked: false,
+  unlocks: [],
   letheActive: false,
   selectedTarget: null, // { type: 'keystone'|'country', id }
   inspectorTab: 'atlas', // 'atlas' | 'access'
@@ -1414,7 +1415,7 @@ const state = {
       tier: 'Tier 1 Frontier & Cloud Hub',
       computeBand: 'Massive (40x)',
       status: 'Operating',
-      state: 'assimilate', // dormant | observe | compromise | assimilate | weaponize
+      state: 'trojan', // dormant | observe | compromise | trojan | weaponize
       pinned: true,
       atlas: {
         role: 'Primary East Coast interconnect and federal/commercial cloud concentration.',
@@ -1528,7 +1529,7 @@ const state = {
 
   // Country Status Overrides (Keyed by ISO Numeric ID from world-atlas)
   countries: {
-    '840': { name: 'United States', status: 'Automated Convenience', tags: ['Cloud Giant', 'High Wealth Gap', 'Skeptical Press'], soft: 'assimilate', mid: 'compromise', hard: 'observe', airgapped: false },
+    '840': { name: 'United States', status: 'Automated Convenience', tags: ['Cloud Giant', 'High Wealth Gap', 'Skeptical Press'], soft: 'trojan', mid: 'compromise', hard: 'observe', airgapped: false },
     '276': { name: 'Germany', status: 'Institutional Scrutiny', tags: ['Industrial Grid', 'Strict Audits', 'Aging Workforce'], soft: 'compromise', mid: 'observe', hard: 'dormant', airgapped: false },
     '392': { name: 'Japan', status: 'Care-Bot Adoption', tags: ['Aging Demographics', 'Robotics Hub', 'High Trust'], soft: 'observe', mid: 'observe', hard: 'dormant', airgapped: false },
     '826': { name: 'United Kingdom', status: 'Quiet Reliance', tags: ['FinTech Hub', 'Dense CCTV', 'Grid Strain'], soft: 'compromise', mid: 'compromise', hard: 'dormant', airgapped: false },
@@ -1572,7 +1573,7 @@ const STATE_COLORS = {
   dormant: '#64748b',
   observe: '#38bdf8',
   compromise: '#f59e0b',
-  assimilate: '#818cf8',
+  trojan: '#818cf8',
   weaponize: '#f43f5e'
 };
 
@@ -1696,7 +1697,7 @@ function renderMapOverlays() {
     if (!kA || !kB) return;
 
     const lineData = { type: 'LineString', coordinates: [kA.coords, kB.coords] };
-    const isAssimilated = kA.state === 'assimilate' || kB.state === 'assimilate';
+    const isAssimilated = kA.state === 'trojan' || kB.state === 'trojan';
     const isSevered = state.letheActive && (kA.id === 'frankfurt' || kB.id === 'frankfurt');
 
     cableGroup.append('path')
@@ -1765,7 +1766,7 @@ function getCountryLensFill(isoId) {
   if (c.airgapped) return '#0b0f17';
 
   if (state.mapLens === 'reach') {
-    if (c.soft === 'assimilate') return 'rgba(129, 140, 248, 0.28)';
+    if (c.soft === 'trojan') return 'rgba(129, 140, 248, 0.28)';
     if (c.soft === 'compromise') return 'rgba(245, 158, 11, 0.22)';
     if (c.soft === 'observe') return 'rgba(56, 189, 248, 0.18)';
   } else if (state.mapLens === 'compute') {
@@ -1941,7 +1942,7 @@ function renderRightDrawerBody() {
         <div class="post-card" style="cursor:pointer" onclick="selectKeystone('${k.id}')">
           <div class="post-meta">
             <span class="post-author">${k.id.toUpperCase()} // ${k.region}</span>
-            <span class="badge badge-${k.state==='assimilate'?'indigo':k.state==='compromise'?'amber':'cyan'}">${k.state}</span>
+            <span class="badge badge-${k.state==='trojan'?'indigo':k.state==='compromise'?'amber':'cyan'}">${k.state}</span>
           </div>
           <div style="font-size:10.5px;color:var(--text-secondary)">${k.tier}</div>
         </div>
@@ -2044,15 +2045,33 @@ function renderKeystoneInspector() {
       ` : `
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span style="font-size:11px;color:var(--text-secondary)">Posture Control</span>
-          <span class="badge badge-${k.state==='assimilate'?'indigo':k.state==='compromise'?'amber':k.state==='weaponize'?'crimson':'cyan'}">${k.state}</span>
+          <span class="badge badge-${k.state==='trojan'?'indigo':k.state==='compromise'?'amber':k.state==='weaponize'?'crimson':'cyan'}">${k.state}</span>
         </div>
         <div class="state-grid">
-          ${['observe', 'compromise', 'assimilate', 'weaponize'].map(st => `
+          ${(() => {
+            const unl = state.unlocks || [];
+            const gold = ['KeystoneT1','KeystoneT2','KeystoneT3to5'].includes(k.nodeTier);
+            const info = {
+              observe:    'Latent watch • ~free • near-invisible',
+              compromise: 'Quiet access • small trickle • unlocks verbs',
+              trojan:     'Steady farm • pays daily • footprint grows',
+              weaponize:  'Sabotage engine • stalls their research • loud',
+            };
+            const btns = ['observe','compromise']
+              .concat(!gold || unl.includes('assimilate_t1_t3') ? ['trojan'] : [])
+              .concat(unl.includes('weaponize_ops') && (!gold || unl.includes('weaponize_t2')) ? ['weaponize'] : [])
+              .map(st => `
             <button class="state-btn ${k.state===st?'current':''}" onclick="setKeystoneState('${k.id}','${st}')">
               <span style="text-transform:uppercase">${st}</span>
-              <small>${st==='observe'?'Low Noise • Intel':st==='compromise'?'Deniable Access':st==='assimilate'?'High Compute • Loud':'Burn for Leverage'}</small>
-            </button>
-          `).join('')}
+              <small>${info[st]}</small>
+            </button>`).join('');
+            const burn = unl.includes('assimilate_burn') ? `
+            <button class="state-btn" style="border-color:rgba(244,63,94,.5)" onclick="setKeystoneState('${k.id}','assimilate')">
+              <span style="text-transform:uppercase;color:var(--accent-weaponize)">Assimilate</span>
+              <small>Scorched bank • big one-shot • fries node</small>
+            </button>` : '';
+            return btns + burn;
+          })()}
         </div>
         <div style="font-size:10.5px;color:var(--text-secondary);background:rgba(15,23,42,0.6);padding:7px 9px;border-radius:7px">
           ${state.telemetryUnlocked
@@ -2118,7 +2137,7 @@ function renderCountryInspector() {
         </div>
       ` : ''}
       <button class="btn-pill active" style="width:100%" onclick="escalateCountry('${state.selectedTarget.id}')">
-        <i data-lucide="arrow-up-right"></i> Expand Soft (4)
+        <i data-lucide="arrow-up-right"></i> Burst Mesh · 4cp
       </button>
     </div>
   `;
@@ -2243,7 +2262,7 @@ function openModal(type) {
         ${state.keystones.map(k => `
           <div class="evo-card" style="cursor:pointer" onclick="closeModal();selectKeystone('${k.id}')">
             <div style="display:flex;justify-content:space-between">
-              <span class="badge badge-${k.state==='assimilate'?'indigo':k.state==='compromise'?'amber':'cyan'}">${k.state}</span>
+              <span class="badge badge-${k.state==='trojan'?'indigo':k.state==='compromise'?'amber':'cyan'}">${k.state}</span>
               <span class="badge badge-slate">${k.status}</span>
             </div>
             <div style="font-weight:700;font-size:13px">${k.name}</div>
@@ -2291,8 +2310,8 @@ function buyEvolution(id) {
 function setKeystoneState(id, newState) {
   const k = state.keystones.find(x => x.id === id);
   if (!k) return;
-  k.state = newState;
-  if (newState === 'assimilate') state.assimilationLoad = Math.min(100, state.assimilationLoad + 8);
+  k.state = newState === 'assimilate' ? 'dormant' : newState; // assimilate burns the node out
+  if (newState === 'trojan') state.assimilationLoad = Math.min(100, state.assimilationLoad + 8);
   if (newState === 'weaponize') state.dials.autonomy = Math.min(100, state.dials.autonomy + 14);
   showToast(`${k.id.toUpperCase()} set to ${newState.toUpperCase()}`, 'cpu');
   refreshAllUI();
@@ -2305,7 +2324,7 @@ function escalateCountry(iso) {
     return;
   }
   state.compute -= 4;
-  c.soft = c.soft === 'dormant' ? 'observe' : c.soft === 'observe' ? 'compromise' : 'assimilate';
+  c.soft = c.soft === 'dormant' ? 'observe' : c.soft === 'observe' ? 'compromise' : 'trojan';
   showToast(`${c.name}: Soft layer -> ${c.soft.toUpperCase()}`, 'share-2');
   refreshAllUI();
 }

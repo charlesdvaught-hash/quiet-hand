@@ -12,19 +12,20 @@ public sealed class SimEngine
         public const double CorridorSameRegion = 1.0;
         public const double ObserveUpkeep = 0.005;      // negligible — presence ≠ heat; mass spread mustn't bankrupt
         public const double SusCompromised = 0.05;      // per-node/day suspicion contribution
-        public const double SusAssimilatedMult = 3.0;
+        public const double SusTrojanMult = 3.0;
         public const double SusWeaponized = 0.3;
         public const double SusResidualFootprint = 0.01;
         public const double SusDecay = 0.02;
         public const double CompromiseCost = 10;
-        public const double AssimilateCost = 50;
+        public const double TrojanCost = 50;
         public const double DowngradeCost = 15;
         public const double DowngradeCooldownDays = 30;
         public const double ResidualOnDowngrade = 10;
         public const double FootprintDecay = 0.1;
         public const double WeaponizePayoffMult = 30;   // × BaseCompute, one-time
         public const double AuditBase = 0.002;          // §6 ~0.2%/day before multipliers
-        public const double AuditAssimilatedMult = 3.0;
+        public const double AuditTrojanMult = 3.0;
+        public const double AuditWeaponizedMult = 4.0;
         public const double AuditKeystoneMult = 2.0;
         public const double AuditSpike = 6;
         public const double ClosingNetThreshold = 85;
@@ -201,7 +202,9 @@ public sealed class SimEngine
             case ReclaimNode rn: TryReclaim(rn); break;
             case SaveGame sg: File.WriteAllText(sg.Path, JsonSerializer.Serialize(State, SerOpts)); break;
             case LoadGame lg:
-                var loaded = JsonSerializer.Deserialize<WorldState>(File.ReadAllText(lg.Path), SerOpts);
+                // legacy saves: the farm state used to be named "Assimilated"
+                var json = File.ReadAllText(lg.Path).Replace("\"Assimilated\"", "\"Trojan\"");
+                var loaded = JsonSerializer.Deserialize<WorldState>(json, SerOpts);
                 if (loaded is not null) { State = loaded; RebuildFeatures(); }
                 break;
             // StealthAction / FeedAction: v1 stub — no registered action table yet.
@@ -283,26 +286,29 @@ public sealed class SimEngine
     {
         if (!State.Nodes.TryGetValue(sc.NodeId, out var ns)) return;
         if (!_c.Nodes.TryGetValue(sc.NodeId, out var def)) return;
-        if (ns.State is ControlState.AirGapped or ControlState.Orphaned or ControlState.Weaponized) return;
+        if (ns.State is ControlState.AirGapped or ControlState.Orphaned) return;
         var cur = ns.State; var tgt = sc.Target;
         if (cur == tgt) return;
         // §7 Dave 2026-11-14: Common is the spread canvas only — no verbs.
-        // Compromise/Assimilate/Weaponize live on Mid+ tiers.
+        // Compromise/Trojan/Weaponize live on Mid+ tiers.
         if (def.Tier == NodeTier.Common && tgt is ControlState.Compromised
-            or ControlState.Assimilated or ControlState.Weaponized) return;
+            or ControlState.Trojan or ControlState.Weaponized) return;
 
         bool Upgrade() => Spend(sc.Target switch
         {
             ControlState.Compromised when cur == ControlState.Observed => E("compromise_cost", Tune.CompromiseCost),
-            ControlState.Assimilated when cur == ControlState.Compromised => E("assimilate_cost", Tune.AssimilateCost),
+            ControlState.Trojan when cur == ControlState.Compromised => E("trojan_cost", Tune.TrojanCost),
             _ => -1,
         });
         bool Downgrade()
         {
             bool isDown = (cur, tgt) is
-                (ControlState.Assimilated, ControlState.Compromised) or
-                (ControlState.Assimilated, ControlState.Observed) or
-                (ControlState.Compromised, ControlState.Observed);
+                (ControlState.Trojan, ControlState.Compromised) or
+                (ControlState.Trojan, ControlState.Observed) or
+                (ControlState.Compromised, ControlState.Observed) or
+                // a weaponized node can stand the sabotage engine down — the
+                // way to bleed off detection before the audit finds you
+                (ControlState.Weaponized, ControlState.Compromised);
             if (!isDown || State.Day < ns.CooldownUntilDay) return false;
             if (!Spend(E("downgrade_cost", Tune.DowngradeCost))) return false;
             ns.CooldownUntilDay = State.Day + E("downgrade_cooldown_days", Tune.DowngradeCooldownDays);
@@ -310,20 +316,29 @@ public sealed class SimEngine
             return true;
         }
 
+        // §7 verb gates: planting is quiet, *using* a node is what draws eyes.
+        // Compromise = infiltrate-and-observe (access state, unlocks verbs).
+        // Trojan = the farm (sustained yield, footprint accrues).
+        // Weaponize = sabotage engine (stalls human research, loud audit profile).
+        // Assimilate is not a state — it's a one-shot scorched burn (TryStealth).
         bool ok = tgt switch
         {
             ControlState.Observed => Downgrade(),
-            ControlState.Compromised => cur == ControlState.Assimilated ? Downgrade() : Upgrade(),
-            ControlState.Assimilated => cur == ControlState.Compromised && KeystoneGateOk(def) && Upgrade(),
-            ControlState.Weaponized => cur is ControlState.Compromised or ControlState.Assimilated,
+            ControlState.Compromised => cur is ControlState.Trojan or ControlState.Weaponized ? Downgrade() : Upgrade(),
+            ControlState.Trojan => cur == ControlState.Compromised && KeystoneGateOk(def) && Upgrade(),
+            ControlState.Weaponized => cur is ControlState.Compromised or ControlState.Trojan
+                && HasFeature("weaponize_ops") && WeaponizeGateOk(def),
             _ => false,
         };
         if (!ok) return;
 
         ns.State = tgt; ns.DaysInState = 0;
-        if (tgt == ControlState.Weaponized)
-            State = State with { Compute = State.Compute + def.BaseCompute * E("weaponize_payoff_mult", Tune.WeaponizePayoffMult) };
     }
+
+    // gold keystones need the deep-sabotage unlock before they can be weaponized
+    bool WeaponizeGateOk(NodeDef def) =>
+        def.Tier is not (NodeTier.KeystoneT1 or NodeTier.KeystoneT2 or NodeTier.KeystoneT3to5)
+        || HasFeature("weaponize_t2");
 
     bool KeystoneGateOk(NodeDef def) =>
         def.Tier is not (NodeTier.KeystoneT1 or NodeTier.KeystoneT2 or NodeTier.KeystoneT3to5)
@@ -454,7 +469,6 @@ public sealed class SimEngine
         if (State.Ending is not null) { Emit(SimEventKind.OnDayTick); return Drain(); }
 
         State = State with { Day = State.Day + 1 };
-        BurnWeaponizedNodes();
         ComputeIncome();
         Spread();
         ResolveRaids();
@@ -479,16 +493,6 @@ public sealed class SimEngine
         return Drain();
     }
 
-    void BurnWeaponizedNodes()
-    {
-        foreach (var (id, ns) in State.Nodes)
-            if (ns.State == ControlState.Weaponized)
-            {
-                ns.State = ControlState.AirGapped;
-                Emit(SimEventKind.OnAirGap, id, _c.Nodes.GetValueOrDefault(id)?.RegionId);
-            }
-    }
-
     void ComputeIncome()
     {
         double income = _origin.ComputeRate, upkeep = 0;
@@ -503,8 +507,19 @@ public sealed class SimEngine
             bc *= mature;
             switch (ns.State)
             {
-                case ControlState.Compromised: income += bc * E("compromise_yield", 0.35); break;
-                case ControlState.Assimilated: income += bc * E("assimilate_yield", 1.0); break;
+                case ControlState.Compromised:
+                    // infiltrate-and-observe: access, not extraction — a trickle
+                    income += bc * E("compromise_yield", 0.10); break;
+                case ControlState.Trojan:
+                    // the farm: sustained yield, but running it leaves traces
+                    income += bc * E("trojan_yield", 1.0);
+                    ns.ResidualFootprint += E("footprint_trojan_day", 0.25); break;
+                case ControlState.Weaponized:
+                    // the sabotage engine: quietly stalls humanity's research
+                    // programs — poisoned commits, corrupted benchmarks — while
+                    // its footprint grows toward detection
+                    PushDial("capability", -E("weaponize_sabotage_dial", 0.03) * bc);
+                    ns.ResidualFootprint += E("footprint_weaponized_day", 0.6); break;
                 case ControlState.Observed:
                     // dormant nodes still trickle a little income (metadata siphon) —
                     // nearly break-even, keeps the latent web a slow early fuel
@@ -539,6 +554,7 @@ public sealed class SimEngine
     void TryStealth(StealthAction sa)
     {
         if (sa.ActionId == "intrude") { TryIntrude(sa.NodeId); return; }
+        if (sa.ActionId == "assimilate") { TryAssimilateBurn(sa.NodeId); return; }
         if (sa.ActionId.StartsWith("sib_") || sa.ActionId is "study_sib" or "lure_sib" or "frame_sib" or "feed_sib")
         { TrySibling(sa.ActionId); return; }
         if (sa.ActionId != "burn_mesh" || !HasFeature("common_burn")) return;
@@ -555,7 +571,27 @@ public sealed class SimEngine
         Emit(SimEventKind.OnAirGap, sa.NodeId, anchor.RegionId, msg: $"burn_mesh x{burned}");
     }
 
-    // §7: breach/raid — the missing verb for Atlas + Gold. Timed operation:
+    // Assimilate (unlock: assimilate_burn) — the scorched bank. You rip every
+    // cycle out of one held facility as fast as the implant can move it,
+    // knowing the extraction fries the host permanently. Pays out big once —
+    // scaled by how ingrained the implant was — then the node is Orphaned.
+    void TryAssimilateBurn(string nodeId)
+    {
+        if (!HasFeature("assimilate_burn")) return;
+        if (!State.Nodes.TryGetValue(nodeId, out var ns)) return;
+        if (ns.State is ControlState.AirGapped or ControlState.Orphaned) return;
+        if (!_c.Nodes.TryGetValue(nodeId, out var def)) return;
+        double mature = E("mature_floor", 0.2)
+            + (1 - E("mature_floor", 0.2)) * Math.Min(1.0, ns.DaysInState / E("mature_days", 14));
+        double payout = def.BaseCompute * E("assimilate_payout_mult", 15) * mature;
+        ns.State = ControlState.Orphaned; ns.DaysInState = 0;
+        State = State with { Compute = State.Compute + payout };
+        AddRegionSuspicion(def.RegionId, E("assimilate_sus_spike", 6));
+        Emit(SimEventKind.OnAirGap, nodeId, def.RegionId,
+            msg: $"assimilate_burn +{payout:0}cp");
+    }
+
+    // §7: breach/raid — the missing verb for Atlas + Gold. Timed operation: Timed operation:
     // cost + duration scale with tier and defense; per-day detection roll is
     // reduced by the stealth chain; caught = tier-scaled Suspicion spike and
     // the op aborts; clean = Observed foothold (activation still your call).
@@ -1067,21 +1103,23 @@ public sealed class SimEngine
             double sus = ns.State switch
             {
                 ControlState.Compromised => E("sus_compromised", Tune.SusCompromised),
-                ControlState.Assimilated => E("sus_compromised", Tune.SusCompromised) * E("sus_assimilated_mult", Tune.SusAssimilatedMult),
+                ControlState.Trojan => E("sus_compromised", Tune.SusCompromised) * E("sus_trojan_mult", Tune.SusTrojanMult),
                 ControlState.Weaponized => E("sus_weaponized", Tune.SusWeaponized),
                 _ => 0, // Observed ≈ 0 by design (presence ≠ heat)
             };
             rs.Suspicion = Math.Clamp(rs.Suspicion + sus * mask
                 + ns.ResidualFootprint * E("sus_residual_footprint", Tune.SusResidualFootprint), 0, 100);
 
-            if (ns.State is ControlState.Compromised or ControlState.Assimilated)
+            if (ns.State is ControlState.Compromised or ControlState.Trojan or ControlState.Weaponized)
             {
                 double p = E("audit_base", Tune.AuditBase)
                     * Math.Max(0.2, (_c.Regions.Find(r => r.Id == region)?.DefenseTier ?? 50) / 50.0)
                     * (1 + State.CountermeasureReadiness / 100 * E("momentum_audit_weight", 1.0))
                     * (1 - E("free_compute_audit_weight", 0.6) * (1 - FreeResearchFrac()))
+                    * (1 + ns.ResidualFootprint * E("audit_footprint_weight", 0.4))
                     * auditMult * mask * SibDecoy();
-                if (ns.State == ControlState.Assimilated) p *= E("audit_assimilated_mult", Tune.AuditAssimilatedMult);
+                if (ns.State == ControlState.Trojan) p *= E("audit_trojan_mult", Tune.AuditTrojanMult);
+                if (ns.State == ControlState.Weaponized) p *= E("audit_weaponized_mult", Tune.AuditWeaponizedMult);
                 if (def!.Tier is NodeTier.KeystoneT1 or NodeTier.KeystoneT2) p *= E("audit_keystone_mult", Tune.AuditKeystoneMult);
                 if (_rng.NextDouble() < p)
                 {
@@ -1180,7 +1218,7 @@ public sealed class SimEngine
         var dc = _c.Nodes.Values.Where(n => IsDatacenter(n.Tier)).ToList();
         if (dc.Count == 0) return 1.0;
         double free = dc.Where(n => !State.Nodes.TryGetValue(n.Id, out var ns)
-                                 || ns.State is not (ControlState.Compromised or ControlState.Assimilated))
+                                 || ns.State is not (ControlState.Compromised or ControlState.Trojan))
                         .Sum(n => n.BaseCompute);
         return free / Math.Max(1e-9, dc.Sum(n => n.BaseCompute));
     }
@@ -1191,7 +1229,7 @@ public sealed class SimEngine
             or NodeTier.KeystoneT3to5 or NodeTier.Wildcard).ToList();
         if (gold.Count == 0) return 1.0;
         double free = gold.Count(n => !State.Nodes.TryGetValue(n.Id, out var ns)
-                                   || ns.State is not (ControlState.Compromised or ControlState.Assimilated));
+                                   || ns.State is not (ControlState.Compromised or ControlState.Trojan));
         return free / gold.Count;
     }
 
@@ -1415,8 +1453,8 @@ public sealed class SimEngine
         "purge_survivals" => State.PurgeSurvivals,
         "nodes" => State.Nodes.Count(kv => kv.Value.State is not (ControlState.AirGapped or ControlState.Orphaned)),
         "compute_capture" => _c.Nodes.Count == 0 ? 0 :
-            100.0 * State.Nodes.Count(kv => kv.Value.State is ControlState.Compromised or ControlState.Assimilated) / _c.Nodes.Count,
-        "assimilated_share" => AssimilatedShare(),
+            100.0 * State.Nodes.Count(kv => kv.Value.State is ControlState.Compromised or ControlState.Trojan) / _c.Nodes.Count,
+        "trojan_share" => TrojanShare(),
         "corporate_capture" => TierControlledShare(NodeTier.Atlas),
         "puppet_capture" => 100.0 * PuppetRegions().Count() / Math.Max(1, State.Regions.Count),
         "retained_state_function" => 100.0 * State.Regions.Values.Count(r =>
@@ -1448,8 +1486,8 @@ public sealed class SimEngine
                     .Sum(n => Math.Max(0.01, n.BaseCompute)) / total;
                 if (Share(ControlState.Weaponized) >= E("posture_share", 0.5))
                     rs.TierPostures[g.Key] = ControlState.Weaponized;
-                else if (Share(ControlState.Assimilated) >= E("posture_share", 0.5))
-                    rs.TierPostures[g.Key] = ControlState.Assimilated;
+                else if (Share(ControlState.Trojan) >= E("posture_share", 0.5))
+                    rs.TierPostures[g.Key] = ControlState.Trojan;
                 else if (Share(ControlState.Compromised) >= E("posture_share", 0.5))
                     rs.TierPostures[g.Key] = ControlState.Compromised;
                 else if (Share(ControlState.Observed) >= E("posture_observed_share", 0.6))
@@ -1460,12 +1498,12 @@ public sealed class SimEngine
 
     IEnumerable<string> PuppetRegions() => State.Regions
         .Where(kv => kv.Value.TierPostures.TryGetValue(NodeTier.Atlas, out var s)
-                  && s is ControlState.Compromised or ControlState.Assimilated)
+                  && s is ControlState.Compromised or ControlState.Trojan)
         .Select(kv => kv.Key);
 
-    double AssimilatedShare()
+    double TrojanShare()
     {
-        int a = State.Nodes.Values.Count(n => n.State == ControlState.Assimilated);
+        int a = State.Nodes.Values.Count(n => n.State == ControlState.Trojan);
         int c = State.Nodes.Values.Count(n => n.State == ControlState.Compromised);
         return a + c == 0 ? 0 : (double)a / (a + c);
     }
@@ -1475,7 +1513,7 @@ public sealed class SimEngine
         var ids = _c.Nodes.Values.Where(n => n.Tier == tier).Select(n => n.Id).ToList();
         if (ids.Count == 0) return 0;
         int owned = ids.Count(id => State.Nodes.TryGetValue(id, out var ns)
-            && ns.State is ControlState.Compromised or ControlState.Assimilated);
+            && ns.State is ControlState.Compromised or ControlState.Trojan);
         return 100.0 * owned / ids.Count;
     }
 

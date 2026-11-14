@@ -24,7 +24,7 @@ Society is rules/numbers/hidden dials — never LLM-driven citizens.
 
 Compute (currency) · days (ticks) · Suspicion (visible 0–100 bar) ·
 Fear/Dependence/Autonomy/Trust/Capability (hidden dials, read via fiction tells)
-· Control states: Observed→Compromised→Assimilated→Weaponized→AirGapped/Orphaned
+· Control states: Observed→Compromised→Trojan→Weaponized→AirGapped/Orphaned (Compromise = quiet access; Trojan = farm; Weaponize = sabotage engine; Assimilate = one-shot scorched-burn action, not a state)
 · Tiers: Common (spread-only canvas, no verbs) / Mid / Atlas (farms: verbs+kompromat)
 / KeystoneT1·T2·T3to5·Wildcard (Gold 100: raids + crown perks)
 · Lethe = containment program at suspicion 100 · Blackwall = mandated hunter AIs · Siblings = emergent third-party AIs, archetyped by spawn (feral=decoy/prey, assistant=benign - matures into sanctioned hunter or departs); hunters expand along region links

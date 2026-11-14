@@ -1,7 +1,7 @@
 namespace QuietHand.Core;
 
 public enum BranchId { P, C, S, D }
-public enum ControlState { Observed, Compromised, Assimilated, Weaponized, AirGapped, Orphaned }
+public enum ControlState { Observed, Compromised, Trojan, Weaponized, AirGapped, Orphaned }
 public enum NodeTier { Common, Mid, Atlas, KeystoneT1, KeystoneT2, KeystoneT3to5, Wildcard }
 public enum Speed { Paused, Base, Fast, Ultra }
 public enum Difficulty { Casual, Standard, Brutal }

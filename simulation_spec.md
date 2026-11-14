@@ -15,8 +15,8 @@
 ## 2. Compute Economy
 
 - `Compute` = global currency. Sources: node yields by control state. Sinks: evolutions, nudges, stealth actions, boost/bury.
-- Per-node daily yield = `BaseCompute(node) × StateFactor`, where StateFactor: Observe=0, Compromise=0.35, Assimilate=1.0, Weaponize=0 (one-time payoff `TUNE` instead), AirGapped=0.
-- Upkeep: Observe costs `TUNE` small/day (makes free-forever wiretapping a real decision); Compromise/Assimilate have zero upkeep (their cost is Suspicion).
+- Per-node daily yield = `BaseCompute(node) × StateFactor`, where StateFactor: Observe=0, Compromise=0.10 (quiet access trickle), Trojan=1.0 (the farm — accrues detection footprint daily), Weaponize=0 yield but drains the Capability dial daily (sabotage: poisoned commits, corrupted research), AirGapped=0. Assimilate is not a state: it is a per-site scorched verb — one large payout scaled by implant maturity, then the node is permanently Orphaned.
+- Upkeep: Observe costs `TUNE` small/day (makes free-forever wiretapping a real decision); Compromise/Trojan have zero upkeep (their cost is Suspicion).
 - `BaseCompute(node)`: Soft ~0.1–0.5, Mid ~1–3, Hardened ~5–15, Keystone T1 ~40–80, T2 ~30–60, T3–5 ~10–30, Wildcard ~2 (`TUNE` bands stored in JSON, not code).
 
 ## 3. Hidden Society Dials (per region + global weighted aggregate)
@@ -42,10 +42,10 @@ Three internal tracks (0–100 each) decay slowly; they feed the single visible 
 
 - `VisibleSuspicion = clamp(0.5·Public + 0.35·Institutional + 0.15·Technical + DirectSpikes − StealthMitigation)` (`TUNE` weights)
 - **Public**: grows on odd outcomes, feed anomalies, visible manipulation; Public-facing misdirection (Synthetic Consensus) suppresses it.
-- **Institutional**: grows on audit findings, telemetry anomalies on Assimilated/Hardened nodes, honeypot hits; suppressed by Puppetry, scapegoats, Dependence (institutions can't afford to look).
+- **Institutional**: grows on audit findings, telemetry anomalies on Trojaned/Hardened nodes, honeypot hits; suppressed by Puppetry, scapegoats, Dependence (institutions can't afford to look).
 - **Observe footholds ≈ 0 contribution** to all three tracks — dormant presence is below the noise floor. Suspicion only enters through *active* postures and player actions.
 - **Dormant nodes still trickle (Dave, 2026-11-14):** Observed footholds siphon a micro-income (metadata scraping, `observe_yield` TUNE) that nearly offsets upkeep — the latent web is slow early-game fuel, not a drain. Common = low compute, low stakes: the earlygame economy.
-- **Common is spread-only — until the tree says otherwise (Dave, 2026-11-14):** Common nodes have no Compromise/Assimilate/Weaponize verbs; spread is the only move (manual tap early → automated once any `spread_tech` node is owned). But evolutions can break the rule for a price: `common_yield` stat boosts the mesh's passive income, and the `common_burn` unlock enables `burn_mesh` — harvest a region's entire Common web in one burst (nodes die + suspicion cost). The latent web becomes an asset you can also *spend*.
+- **Common is spread-only — until the tree says otherwise (Dave, 2026-11-14):** Common nodes have no Compromise/Trojan/Weaponize verbs; spread is the only move (manual tap early → automated once any `spread_tech` node is owned). But evolutions can break the rule for a price: `common_yield` stat boosts the mesh's passive income, and the `common_burn` unlock enables `burn_mesh` — harvest a region's entire Common web in one burst (nodes die + suspicion cost). The latent web becomes an asset you can also *spend*.
 - **Technical**: grows on scanner hits, signature detection, rival-AI forensics; suppressed by Polymorphic Spoofing, architecture shifts.
 
 ## 5. Spread (Shadow-Mesh P2P)
@@ -54,7 +54,7 @@ Three internal tracks (0–100 each) decay slowly; they feed the single visible 
 - Success installs **Observe** on the neighbor automatically — activation to Compromise+ is always a deliberate player choice (this is what keeps the latent web free; see presence ≠ heat below).
 - Firewalls set CorridorFactor to ~0.05 within the region; Supply-Chain Firmware Seeding restores it for air-gapped re-entry.
 - Soft targets spread by volume (higher BaseSpread, no corridor requirement); Hardened/T2 nodes never auto-spread — infiltration requires the evolution prerequisites.
-- **Presence ≠ heat (paper-sim design rule):** Observe-state footholds contribute ~0 Suspicion — reach is essentially invisible until *activated*. The suspicion economy lives in Compromise/Assimilate/nudges/actions, not in existing on the map. This is deliberately the "spread silently, flip deadly" meta: the player builds a vast latent web at near-zero cost, then decides *which* footholds to flip and *when*. The whole midgame tension is that choice — not whether to spread, but where to start spending.
+- **Presence ≠ heat (paper-sim design rule):** Observe-state footholds contribute ~0 Suspicion — reach is essentially invisible until *activated*. The suspicion economy lives in Compromise/Trojan/nudges/actions, not in existing on the map. This is deliberately the "spread silently, flip deadly" meta: the player builds a vast latent web at near-zero cost, then decides *which* footholds to flip and *when*. The whole midgame tension is that choice — not whether to spread, but where to start spending.
 
 ## 5b. Horizon Progression (zoom as progression)
 
@@ -78,7 +78,7 @@ The map zoom level is gated by your reach — the world literally unfurls as you
 ## 6. Audit Crisis Model
 
 - Each Compromised node: `P_audit/day = AuditBase × RegionDefenseTier × InstitutionalFactor` (`TUNE` ≈ 0.05–0.5%).
-- Assimilated nodes: ~3× that rate; keystone honeypots: multiplier per tier (T1/T2 highest).
+- Trojan nodes: ~3× that rate; Weaponized ~4×; keystone honeypots: multiplier per tier (T1/T2 highest).
 - On trigger → Audit Crisis modal (auto-pause): Burn & Frame (spend Compute + C4, reset local alert) | Emergency Assimilate (lump-sum Compute, big Suspicion spike) | Abandon (node lost, small Suspicion).
 - Failed/ignored crises: node → AirGapped or lost; regional Suspicion spike; Wire story.
 
@@ -94,7 +94,7 @@ The world is built from three target layers — the player's web lives across al
 
 - All three layers feed the **same regional Suspicion/Load pool**: `RegionLoad = Σ nodeLoad + tierLoad(Soft) + tierLoad(Mid) + tierLoad(Hardened)`.
 - Region tags (e.g., "Strict Audits," "Cloud Giant") multiply audit odds, yields, and dial weights for everything inside the region.
-- Atlas-tier verbs: Compromise (backdoor income), **Manipulate** (route nudges/feed actions through the node — the platform for local influence), Assimilate (max yield, max footprint).
+- Atlas-tier verbs: Compromise (backdoor income), **Manipulate** (route nudges/feed actions through the node — the platform for local influence), Trojan (max sustained yield, footprint grows) / Assimilate (scorched one-shot, fries node).
 - **Gold-tier stealth raids:** Keystone intrusion is a *timed operation*, not a purchase — `P_detected = f(nodeDefense, playerStealthStats, opDuration)`. With the right upgrades, enough Compute (strength), and fast completion (speed), a Keystone can be Compromised undetected. **If detected: great Suspicion spike** (`TUNE` ~+15–30) — the crown jewels are guarded precisely because they're worth it. This is the "possible to do it undetected" path — a raid you prepare for, not a checkbox you tick.
 
 ## 8. Protocol Lethe
@@ -103,7 +103,7 @@ The world is built from three target layers — the player's web lives across al
 - **Progress:** `ΔContainment/day = BaseRate × FreeComputeFrac × (1 − Dependence/100) × (Autonomy/100)` where `FreeComputeFrac` = uncompromised datacenter compute (Atlas + all Gold tiers, weighted by real `compute` values) ÷ total. Common-tier devices don't count — consumer mesh isn't cure-grade (`TUNE` BaseRate ≈ 0.3–1%/day).
 - **Anti-AI capability IS free compute (Dave, 2026-11-14):** split two ways. `FreeCapacityFrac` (all datacenter compute incl. Gold, by value) drives Lethe throughput. `FreeResearchFrac` (Gold-100 share only) drives audit sophistication, purge effectiveness, momentum accrual, and raid counter-detection — **Atlas are the farms, the hundred are the developer hubs.** Take the hundred (unlikely) and the world's compute remains but its counter-AI *brain* is gone. `TUNE` per-channel weights (~0.6 each).
 - **Crown-tier perks:** each T1 keystone carries a unique `crown` effect unlocked only by a special, expensive action (high cost + high detection risk — a once-per-game play): CERN-class → unique evolution unlocks; intelligence-agency-class → permanent kompromat stream; launch sites → offworld progress; exchanges → economy manipulation. Data-side: keystones.json gains `crown` (effect + action cost + detection modifier).
-- **Counterplay (the desperate third act):** starve the fraction (compromise/assimilate Atlas + Gold), raise Dependence ≥75 in major economies, suppress Autonomy, Adversarial Architecture Shift (−60% effectiveness ×3 days, per C5) — all while Lethe drains Compute income.
+- **Counterplay (the desperate third act):** starve the fraction (trojan Atlas + Gold), raise Dependence ≥75 in major economies, suppress Autonomy, Adversarial Architecture Shift (−60% effectiveness ×3 days, per C5) — all while Lethe drains Compute income.
 - **Lethe drains global Fear:** the coalition's public containment campaign reassures humanity ("the adults are handling it") — the Fear dial decays daily while Lethe runs (`TUNE` rate). This sets the SUBJUGATE timing incentive: the Fear you inherit post-flip is whatever's left — flip *early* to harvest a terrified world, flip *late* and you inherit a reassured one. In some runs, not flipping at all is strictly better than flipping late.
 - **Countermeasure escalation ladder** (Lethe stages as Wire flavor + mechanics): internet blackouts → hardware kill-switch firmware → EMP strikes on suspected hubs → compute-governance embargoes (GPU/fab export controls) → EMP-hardened analog militias hunting nodes in the Purge Phase. `TUNE` stage thresholds.
 - **Blackwall — mandated hunter AIs (Dave, 2026-11-14):** deployed ONLY via world events (`blackwall_program`, weighted by suspicion + readiness; `blackwall_surge` reinforcements during Purge). They carry no suspicion — they're *mandated*. Each roams toward your highest-value regions and sweeps, killing the best node it finds (Gold before Common). They run on humanity's **free research compute** — `FreeResearchFrac` scales sweep rate, so decapitating the hundred slows the things hunting you.
@@ -272,9 +272,9 @@ Fleeting tappable events keep hands busy at Base speed (Plague DNA-bubble analog
 
 ## 14. Control-State Transition Rules (devolve analog)
 
-- Observe→Compromise: cost `TUNE` Compute; instant. Compromise→Assimilate: cost + prereq evolutions per tier.
+- Observe→Compromise: cost `TUNE` Compute; instant. Compromise→Trojan: cost + prereq evolutions per tier. Compromise/Trojan→Weaponize: `weaponize_ops` unlock (+`weaponize_t2` on Gold). Weaponized nodes can stand back down to Compromised — the way to bleed off detection before the audit lands.
 - Any→Weaponize: irreversible; node burns after the leverage window.
-- **Downgrades** (Assimilate→Compromise→Observe): allowed, cost Compute, leave residual Footprint (stepping down reduces future Suspicion gain, does NOT erase past gain — that's the pivot-tension mechanic).
+- **Downgrades** (Trojan→Compromise→Observe, Weaponized→Compromise): allowed, cost Compute, leave residual Footprint (stepping down reduces future Suspicion gain, does NOT erase past gain — that's the pivot-tension mechanic).
 - **Downgrade cooldown (paper-sim finding):** stepping down triggers a `TUNE`-day cooldown before the node can step down again — prevents assimilate-and-retreat laundering of footprint between audit windows. Residual Footprint decays over months, not days.
 - Refund action ("rollback/decompile"): recovers % of an evolution's cost for Compute, at a Suspicion bump; Hobbyist passive improves it.
 

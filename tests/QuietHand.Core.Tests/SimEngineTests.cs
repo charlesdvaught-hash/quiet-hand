@@ -460,18 +460,67 @@ public class SimEngineTests
     {
         // a foothold ingrains over ~14 days: day-1 yield << mature yield
         var e2 = new SimEngine(Cfg(7), Fixture());
-        e2.State.Nodes["r1c1"] = new NodeState(ControlState.Assimilated, 0, 0, 0);
+        e2.State.Nodes["r1c1"] = new NodeState(ControlState.Trojan, 0, 0, 0);
         e2.GrantCompute(1000 - e2.State.Compute);
         e2.TickDay();
         double dayOne = e2.State.Compute - 1000;
         var e3 = new SimEngine(Cfg(7), Fixture());
-        e3.State.Nodes["r1c1"] = new NodeState(ControlState.Assimilated, 0, 0, 0);
+        e3.State.Nodes["r1c1"] = new NodeState(ControlState.Trojan, 0, 0, 0);
         e3.GrantCompute(1000 - e3.State.Compute);
         for (int i = 0; i < 20; i++) e3.TickDay();
         double before = e3.State.Compute;
         e3.TickDay();
         double matureDay = e3.State.Compute - before;
         Assert.True(matureDay > dayOne * 1.25, $"mature day {matureDay} should exceed fresh day {dayOne}");
+    }
+
+    [Fact]
+    public void AssimilateBurn_PaysOutAndFriesNode()
+    {
+        var c = Fixture();
+        c.Evolutions.Add(new EvolutionDef { Id = "burn1", Branch = "D", Cost = 1, Unlocks = { "assimilate_burn" } });
+        var e = new SimEngine(Cfg(), c);
+        e.GrantCompute(500);
+        e.ApplyCommands(new ISimCommand[] { new Evolve("burn1") }); // registers the unlock
+        e.State.Nodes["r3:a0"] = new NodeState(ControlState.Trojan, 30, 0, 0);
+        double before = e.State.Compute;
+        e.ApplyCommands(new ISimCommand[] { new StealthAction("assimilate", "r3:a0") });
+        Assert.True(e.State.Compute > before + 50,
+            $"burn should pay a large one-shot, got {e.State.Compute - before:F1}");
+        Assert.Equal(ControlState.Orphaned, e.State.Nodes["r3:a0"].State);
+    }
+
+    [Fact]
+    public void AssimilateBurn_RequiresUnlock()
+    {
+        var e = new SimEngine(Cfg(), Fixture());
+        e.State.Nodes["r3:a0"] = new NodeState(ControlState.Trojan, 30, 0, 0);
+        e.GrantCompute(500);
+        double before = e.State.Compute;
+        e.ApplyCommands(new ISimCommand[] { new StealthAction("assimilate", "r3:a0") });
+        Assert.Equal(before, e.State.Compute); // no unlock, no burn
+        Assert.Equal(ControlState.Trojan, e.State.Nodes["r3:a0"].State);
+    }
+
+    [Fact]
+    public void WeaponizedNode_StallsHumanResearch()
+    {
+        var e = new SimEngine(Cfg(), Fixture());
+        e.State.Nodes["r3:a0"] = new NodeState(ControlState.Weaponized, 0, 0, 0);
+        e.State.Dials["capability"] = 50;
+        for (int i = 0; i < 10; i++) e.TickDay();
+        Assert.True(e.State.Dials["capability"] < 50,
+            $"capability should drain under sabotage, got {e.State.Dials["capability"]}");
+    }
+
+    [Fact]
+    public void TrojanNodes_AccrueDetectionFootprint()
+    {
+        var e = new SimEngine(Cfg(), Fixture());
+        e.State.Nodes["r3:a0"] = new NodeState(ControlState.Trojan, 0, 0, 0);
+        e.TickDay();
+        Assert.True(e.State.Nodes["r3:a0"].ResidualFootprint > 0,
+            "a working trojan leaves traces; footprint should grow daily");
     }
 
     [Fact]

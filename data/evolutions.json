@@ -822,7 +822,9 @@
         "cp_income": 0.12,
         "dial_fear": 0.05
       },
-      "unlocks": [],
+      "unlocks": [
+        "assimilate_burn"
+      ],
       "tech_basis": "Salami-slicing fractional amounts from transaction ledgers",
       "tech_source": "Documented fee/skimming fraud schemes",
       "tech_status": "established",
@@ -1107,7 +1109,9 @@
         "purge_resist": 0.1,
         "endgame_power": 0.1
       },
-      "unlocks": [],
+      "unlocks": [
+        "weaponize_ops"
+      ],
       "tech_basis": "Precomputed fallback branches in operational plans",
       "tech_source": "Dead-man switches; contingency planning in resilient systems engineering",
       "tech_status": "established",

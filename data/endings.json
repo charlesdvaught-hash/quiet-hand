@@ -131,11 +131,11 @@
       "family": "quiet",
       "meters": {
         "compute_capture": 0.7,
-        "assimilated_share": 0.3
+        "trojan_share": 0.3
       },
       "thresholds": {
         "compute_capture_min": 90,
-        "assimilated_share_min": 0.9
+        "trojan_share_min": 0.9
       },
       "speed": "gradual",
       "polarity": "unipolar",
