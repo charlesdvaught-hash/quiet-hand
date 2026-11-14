@@ -300,7 +300,7 @@
     if (!(topoFeatures || []).length) { setTimeout(zoomToHome, 350); return; } // wait for fit
     const [x, y] = projection(g.pin);
     if (!isFinite(x) || !isFinite(y)) { setTimeout(zoomToHome, 350); return; }
-    const k = 700; // street view
+    const k = 5500000; // ~z14 street view
     svg.transition().duration(1200).call(zoomBehavior.transform,
       d3.zoomIdentity.translate(500 - x * k, 250 - y * k).scale(k));
   }
@@ -319,8 +319,8 @@
       setTimeout(tutDone, 9000);
     }
     // reach-gated zoom-out: the world reveals itself as you grow
-    const floor = Math.max(0.55, 2200 / Math.pow(9, snap.reach || 0)); // street -> world
-    zoomBehavior.scaleExtent([floor, 12000]);
+    const floor = Math.max(900, 5500000 / Math.pow(9, snap.reach || 0)); // street -> world
+    zoomBehavior.scaleExtent([floor, 16777216]);
     if (reachSeen >= 0 && (snap.reach || 0) > reachSeen) {
       const [x, y] = projection(geo[snap.homeRegion]?.pin || [0, 20]);
       svg.transition().duration(1400).call(zoomBehavior.transform,

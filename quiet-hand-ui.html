@@ -200,12 +200,14 @@
     }
 
     .graticule {
+      vector-effect: non-scaling-stroke;
       fill: none;
       stroke: var(--graticule);
       stroke-width: 0.6;
     }
 
     .country {
+      vector-effect: non-scaling-stroke;
       fill: var(--land-base);
       stroke: var(--land-border);
       stroke-width: 0.6;
@@ -217,9 +219,11 @@
       stroke: rgba(148, 163, 184, 0.38);
     }
     .country.selected {
+      vector-effect: non-scaling-stroke;
       stroke: rgba(56, 189, 248, 0.75);
       stroke-width: 1.1;
     }
+    #world-svg.zoomed .country { fill-opacity: 0.22; }
     .country.airgapped {
       fill: #0b0f17 !important;
       stroke: rgba(100, 116, 139, 0.35) !important;
@@ -229,11 +233,13 @@
 
     /* Submarine Cables */
     .cable-bg {
+      vector-effect: non-scaling-stroke;
       fill: none;
       stroke: rgba(56, 189, 248, 0.14);
       stroke-width: 1.1;
     }
     .cable-flow {
+      vector-effect: non-scaling-stroke;
       fill: none;
       stroke: rgba(56, 189, 248, 0.55);
       stroke-width: 1.25;
@@ -1549,8 +1555,9 @@ async function initMap() {
   const width = 1000, height = 500;
   svg.attr('viewBox', `0 0 ${width} ${height}`);
 
-  // web-mercator: aligns with OSM slippy tiles at every zoom
-  projection = d3.geoMercator();
+  // unit-mercator: lon/lat -> [0,1]; the zoom transform (tile-pixel space)
+  // drives tiles + vectors together so they can never disagree
+  projection = d3.geoMercator().scale(1 / (2 * Math.PI)).translate([0, 0]);
   pathGen = d3.geoPath(projection);
   const tile = d3.tile().size([width, height]);
   mapLayer = svg.append('g').attr('id', 'map-zoom-layer');
@@ -1566,11 +1573,11 @@ async function initMap() {
 
   // Zoom & Pan
   zoomBehavior = d3.zoom()
-    .scaleExtent([0.55, 12000])   // half-world -> street level
+    .scaleExtent([600, 16777216])   // ~world view -> z16 streets (tile space)
     .on('zoom', (event) => {
       const t = event.transform;
       mapLayer.attr('transform', t);
-      svg.classed('zoomed', t.k >= 200);       // pin labels at regional+ zoom
+      svg.classed('zoomed', t.k >= 65536);    // pin labels at ~z8+
       window.__zoomK = t.k;
       // slippy tiles under the vectors
       const tiles = tile(t);
@@ -1584,7 +1591,6 @@ async function initMap() {
         .attr('x', d => d[0]).attr('y', d => d[1])
         .attr('width', 1).attr('height', 1);
       // pins keep constant screen size at any zoom
-      tilesLayer.node(); // noop
       mapLayer.selectAll('.keystone-group').each(function () {
         const gx = +this.getAttribute('data-x'), gy = +this.getAttribute('data-y');
         if (!isNaN(gx)) this.setAttribute('transform',
@@ -1592,13 +1598,14 @@ async function initMap() {
       });
     });
   svg.call(zoomBehavior);
+  svg.call(zoomBehavior.transform,
+    d3.zoomIdentity.translate(0, -220).scale(900)); // world view
 
   try {
     // Public Domain Natural Earth 110m TopoJSON
     const resp = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json');
     const world = await resp.json();
     topoFeatures = topojson.feature(world, world.objects.countries).features;
-    projection.fitSize([width, height], { type: 'Sphere' });
 
     // Render Countries
     mapLayer.append('g')
