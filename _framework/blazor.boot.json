@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "QuietHand.Wasm.dll",
   "resources": {
-    "hash": "sha256-Dy5nn6IAWkDHdEMji67FlBmGYTZ0otXbCeuCISBhakE=",
+    "hash": "sha256-jjjM3pXehhqQo3SJgalSg9CEKPDhtKgM3tWuvnlCPdc=",
     "jsModuleNative": {
       "dotnet.native.js": "sha256-0wOprjgbeOwt2ziSnsyoHg42t3CQbOTH3VH2yi+6PZU="
     },
@@ -20,8 +20,8 @@
       "icudt_no_CJK.dat": "sha256-L7sV7NEYP37/Qr2FPCePo5cJqRgTXRwGHuwF5Q+0Nfs="
     },
     "assembly": {
-      "QuietHand.Core.wasm": "sha256-OaYvlH0SyW50RzFgMg87avmRhvV+A/jCSDCf08ZMp2U=",
-      "QuietHand.Wasm.wasm": "sha256-ozo2ZLu/jrDFpO92EbiMSoan2a+heOi5UgwgxjUREj8=",
+      "QuietHand.Core.wasm": "sha256-K/eW4/s+m6eXxUZnUGYoYsEUHNEA+g1PUcn/46ORl60=",
+      "QuietHand.Wasm.wasm": "sha256-Pjp24IVJl5Lx6jQjA4K+tNLMF+VEMI6sqQGfbYwNd7w=",
       "System.Collections.Concurrent.wasm": "sha256-UXQ7xsTwS5uRjoj9ps2eHtCY+K/TjSivi/rhHFTB7TU=",
       "System.Collections.wasm": "sha256-pf0OFbmNKJq86TTHmDqvNwp0qecKgvQ+i6hyBnkLgfg=",
       "System.Console.wasm": "sha256-TbRWYnGD1IMtiQmBauLpUC3BR+VLWl/q12Bm0fYAPQ0=",

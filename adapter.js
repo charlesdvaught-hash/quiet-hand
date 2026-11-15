@@ -452,12 +452,13 @@
       card = document.createElement('div');
       card.id = 'tut-card';
       card.style.cssText = `position:fixed;left:50%;transform:translateX(-50%);bottom:110px;z-index:60;
-        max-width:340px;padding:10px 14px;border-radius:10px;text-align:center;cursor:pointer;
-        background:var(--glass-bg);border:1px solid var(--glass-border-bright);backdrop-filter:blur(12px)`;
+        max-width:340px;padding:10px 14px;border-radius:6px;text-align:center;cursor:pointer;
+        background:rgba(17,22,28,.97);border:1px solid var(--glass-border-bright);
+        box-shadow:inset 0 1px 0 var(--metal-edge,rgba(190,220,255,.1)),0 6px 18px rgba(0,0,0,.6)`;
       card.onclick = () => card.remove();
       document.body.appendChild(card);
     }
-    card.innerHTML = `<div class="mono" style="font-size:8.5px;letter-spacing:.3em;color:var(--accent-observe);margin-bottom:4px">
+    card.innerHTML = `<div class="mono" style="font-size:8.5px;letter-spacing:.25em;color:var(--text-led,#6fd0ff);text-shadow:0 0 6px rgba(58,168,255,.6);margin-bottom:4px">
       SIGNAL ${step}/${total}</div><div style="font-size:11.5px;color:var(--text-primary)">${text}</div>
       <div class="mono" style="font-size:8px;color:var(--text-muted);margin-top:5px">tap to dismiss</div>`;
   }
@@ -468,7 +469,9 @@
     const save = await api('/api/save').catch(() => null);
     const ov = document.createElement('div');
     ov.id = 'intro-overlay';
-    ov.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(3,5,10,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;overflow:auto';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;overflow:auto;' +
+      'background:rgba(3,5,10,.97);' +
+      'background-image:repeating-linear-gradient(0deg,rgba(120,190,255,.03) 0 1px,transparent 1px 4px),repeating-linear-gradient(90deg,rgba(120,190,255,.03) 0 1px,transparent 1px 4px)';
     ov.innerHTML = `
       <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:.35em;color:var(--accent-observe)">QUIET HAND</div>
       ${save?.exists ? `
@@ -525,9 +528,9 @@
       el = document.createElement('div');
       el.id = 'horizon-banner';
       el.style.cssText = `position:fixed;left:50%;top:60px;transform:translateX(-50%);z-index:9;
-        padding:8px 14px;border-radius:9px;background:var(--glass-bg,rgba(15,23,42,.85));
-        border:1px solid var(--accent-observe,#38bdf8);cursor:pointer;display:flex;align-items:center;gap:8px;
-        font-size:11px;color:var(--text-primary,#e2e8f0);box-shadow:0 0 14px #38bdf855`;
+        padding:8px 14px;border-radius:5px;background:rgba(13,24,38,.95);
+        border:1px solid rgba(58,168,255,.5);cursor:pointer;display:flex;align-items:center;gap:8px;
+        font-size:11px;color:var(--text-primary,#cfdae8);box-shadow:inset 0 0 12px rgba(58,168,255,.12),0 4px 12px rgba(0,0,0,.55)`;
       el.onclick = () => {
         const [x, y] = projection(geo[snap.homeRegion]?.pin || [0, 20]);
         const f = Math.max(900, 8388608 / Math.pow(9, pendingReach));
@@ -578,8 +581,9 @@
   const legend = document.createElement('div');
   legend.id = 'map-legend';
   legend.style.cssText = `position:fixed;left:12px;bottom:64px;z-index:8;padding:7px 10px;
-    border-radius:9px;background:var(--glass-bg);border:1px solid var(--glass-border);
-    backdrop-filter:blur(10px);font-size:9px;line-height:1.7;color:var(--text-secondary)`;
+    border-radius:5px;background:rgba(13,17,22,.92);border:1px solid var(--glass-border);
+    box-shadow:inset 0 1px 0 var(--metal-edge,rgba(190,220,255,.08)),0 3px 10px rgba(0,0,0,.5);
+    font-family:var(--font-mono);font-size:9px;line-height:1.7;color:var(--text-secondary)`;
   const DOT = c => `<i style="display:inline-block;width:7px;height:7px;border-radius:50%;
     background:${c};margin-right:5px"></i>`;
   legend.innerHTML = `<div class="mono" style="font-size:7.5px;letter-spacing:.25em;
@@ -827,7 +831,7 @@
 
     body.innerHTML = `
       <div id="evo-detail" style="margin-bottom:8px"></div>
-      <div style="overflow:auto;max-height:72vh;border:1px solid var(--glass-border);border-radius:10px;background:#0a0f1d">
+      <div style="overflow:auto;max-height:72vh;border:1px solid var(--glass-border);border-radius:6px;background:#0a0e13">
         <div style="position:relative;width:${SZ}px;height:${SZ - 60}px">
           <svg width="${SZ}" height="${SZ - 60}" style="position:absolute;left:0;top:0">${lines}</svg>
           ${rim}
@@ -855,7 +859,7 @@
     const fx = Object.entries(e.effects || {}).map(([k, v]) => `${k} +${v}`).join(' · ');
     const un = (e.unlocksList || []).map(u => `unlocks ${u}`).join(' · ');
     box.innerHTML = `
-      <div style="border:1px solid var(--glass-border);border-radius:10px;padding:10px 12px;background:var(--glass-bg,rgba(15,23,42,.75))">
+      <div style="border:1px solid var(--glass-border);border-radius:6px;padding:10px 12px;background:rgba(13,17,22,.85)">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div><span class="mono" style="font-size:10px;opacity:.7">${e.id} · TIER ${e.tier} · ${e.branch}</span>
             <div style="font-size:14px;font-weight:800">${e.name}</div></div>
