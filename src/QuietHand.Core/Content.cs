@@ -100,6 +100,8 @@ public sealed class KeystoneDef
     public string Status { get; set; } = "";
     public string Source { get; set; } = "";
     public string SourceStatus { get; set; } = "";
+    [System.Text.Json.Serialization.JsonPropertyName("coords")]
+    public double[]? Coords { get; set; }   // [lon, lat] real facility site
 
     public NodeTier NodeTier => Tier.ToLowerInvariant() switch
     {

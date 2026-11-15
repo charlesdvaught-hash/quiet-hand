@@ -97,7 +97,7 @@ public static class Snapshots
             keystones = content.Keystones.Select(k => new
             {
                 k.Id, k.Name, region = k.Region, tier = k.Tier, nodeTier = k.NodeTier.ToString(), k.Compute, k.Defense,
-                k.Status,
+                k.Status, coords = k.Coords,
                 nodeState = s.Nodes.TryGetValue(k.Id, out var ns) ? ns.State.ToString() : null,
                 raiding = s.ActiveRaids.Any(r => r.NodeId == k.Id),
             }).ToArray(),

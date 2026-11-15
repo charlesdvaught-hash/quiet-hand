@@ -33,7 +33,14 @@
           "enum": ["operating", "under_construction", "proposed", "uncertain"]
         },
         "source": { "type": "string" },
-        "source_status": { "enum": ["curated", "generated"] }
+        "source_status": { "enum": ["curated", "generated"] },
+        "coords": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "[lon, lat] real-world facility location"
+        }
       }
     }
   }
