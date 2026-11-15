@@ -145,7 +145,8 @@
       const det = Math.round(400 * k.defense / 50) / 10; // ~%/day detection
       return {
         id: k.id, name: k.name, region: k.region,
-        coords: snapToLand([g.pin[0] + jx, g.pin[1] + jy], g.pin),
+        coords: snapToLand(Array.isArray(k.coords) ? k.coords
+          : [g.pin[0] + jx, g.pin[1] + jy], g.pin),
         tier: k.tier === 'T1' ? 'Tier 1 Crown' : k.tier === 'T2' ? 'Tier 2 Hub' : 'Tier 3-5 Node',
         computeBand: `${k.compute} compute`,
         status: k.raiding ? `RAIDING — ${raidLeft[k.id]}d left` : (k.nodeState ? k.nodeState : 'Unbreached'),
