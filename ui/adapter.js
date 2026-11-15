@@ -134,6 +134,7 @@
     // keystones -> pins + inspector cards
     const raidLeft = {};
     (s.activeRaids || []).forEach(r => { raidLeft[r.nodeId] = Math.max(0, r.completesDay - s.day); });
+    const placed = [];
     state.keystones = (s.keystones || []).map((k, i) => {
       const g = geo[k.region] || { pin: [0, 0] };
       // tight deterministic jitter — metros hug the coast, so a wide spread
@@ -143,10 +144,17 @@
       const raidCost = Math.round(40 * mult);
       const raidDays = Math.max(1, Math.round(14 * k.defense / 50));
       const det = Math.round(400 * k.defense / 50) / 10; // ~%/day detection
+      // co-located facilities share identical real coords (LLNL ×3, ORNL ×2,
+      // New Albany ×2, Gui'an ×2...) — fan same-site markers into a tiny ring
+      // so each stays individually tappable; still land-snapped afterward
+      const base = Array.isArray(k.coords) ? k.coords : [g.pin[0] + jx, g.pin[1] + jy];
+      const seen = placed.filter(x =>
+        Math.abs(x[0] - base[0]) < 0.01 && Math.abs(x[1] - base[1]) < 0.01).length;
+      placed.push(base);
+      const ang = seen * 2.094, rad = seen ? 0.09 : 0; // ~10km ring
       return {
         id: k.id, name: k.name, region: k.region,
-        coords: snapToLand(Array.isArray(k.coords) ? k.coords
-          : [g.pin[0] + jx, g.pin[1] + jy], g.pin),
+        coords: snapToLand([base[0] + Math.cos(ang) * rad, base[1] + Math.sin(ang) * rad], g.pin),
         tier: k.tier === 'T1' ? 'Tier 1 Crown' : k.tier === 'T2' ? 'Tier 2 Hub' : 'Tier 3-5 Node',
         computeBand: `${k.compute} compute`,
         status: k.raiding ? `RAIDING — ${raidLeft[k.id]}d left` : (k.nodeState ? k.nodeState : 'Unbreached'),
